@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.colddelight.onestep"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.colddelight.onestep"
