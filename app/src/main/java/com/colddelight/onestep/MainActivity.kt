@@ -11,23 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.colddelight.model.User
-import com.colddelight.onestep.ui.theme.OneStepTheme
+import com.colddelight.designsystem.theme.OneStepTheme
+import com.colddelight.onestep.ui.StepApp
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val user = User("ffff")
-        user.name
+
         setContent {
-            OneStepTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("${user.name}")
-                }
-            }
+            StepApp()
         }
     }
 }
@@ -38,12 +32,4 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OneStepTheme {
-        Greeting("Android")
-    }
 }
