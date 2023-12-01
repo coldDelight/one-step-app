@@ -15,6 +15,7 @@ ksp = "1.9.10-1.0.13"
 androidxComposeBom = "2023.10.01"
 androidxHiltNavigationCompose = "1.0.0"
 material = "1.10.0"
+androidxComposeCompiler = "1.5.3"
 #hilt
 hilt = "2.48.1"
 #test
@@ -28,6 +29,8 @@ androidxDataStore = "1.0.0"
 kotlinxSerializationJson = "1.6.0"
 #supabase
 supabase = "1.4.7"
+
+
 junit-junit = "4.13.2"
 appcompat = "1.6.1"
 com-google-android-material-material = "1.10.0"
@@ -67,6 +70,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 #supbase
 supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabase" }
 supabase-gotrue = { group = "io.github.jan-tennert.supabase", name = "gotrue-kt", version.ref = "supabase" }
+
+
 junit-junit = { group = "junit", name = "junit", version.ref = "junit-junit" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "com-google-android-material-material" }
@@ -83,7 +88,7 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
-
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 # Plugins defined by this project
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
@@ -91,6 +96,7 @@ org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.re
 
 onestep-android-application = { id = "onestep.android.application", version = "unspecified" }
 onestep-android-application-compose = { id = "onestep.android.application.compose", version = "unspecified" }
+
 onestep-android-feature = { id = "onestep.android.feature", version = "unspecified" }
 onestep-android-hilt = { id = "onestep.android.hilt", version = "unspecified" }
 onestep-android-library = { id = "onestep.android.library", version = "unspecified" }

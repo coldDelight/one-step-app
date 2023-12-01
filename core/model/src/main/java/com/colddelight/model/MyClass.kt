@@ -1,4 +1,5 @@
 package com.colddelight.model
 
-class MyClass {
-}
+data class User(
+    val name: String
+)

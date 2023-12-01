@@ -19,7 +19,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 defaultConfig.targetSdk = 34
             }
             dependencies {
-                "testImplementation"(libs.findLibrary("junit4").get())
+                "testImplementation"(libs.findLibrary("junit.junit").get())
                 "androidTestImplementation"(libs.findLibrary("junit").get())
                 "androidTestImplementation"(libs.findLibrary("androidx.test.espresso.core").get())
             }
