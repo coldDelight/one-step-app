@@ -1,4 +1,4 @@
-package com.colddelight.onestep.ui.theme
+package com.colddelight.designsystem.theme
 
 import android.app.Activity
 import android.os.Build
