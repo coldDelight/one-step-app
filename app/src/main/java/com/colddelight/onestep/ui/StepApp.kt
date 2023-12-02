@@ -14,12 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.component.StepNavigationBar
 import com.colddelight.designsystem.component.StepNavigationBarItem
 import com.colddelight.onestep.navigation.StepNavHost
@@ -27,7 +30,10 @@ import com.colddelight.onestep.navigation.TopLevelDestination
 
 @Composable
 fun StepApp(
-    appState: StepAppState = rememberStepAppState(),
+    networkMonitor: NetworkMonitor,
+    appState: StepAppState = rememberStepAppState(
+        networkMonitor = networkMonitor,
+    ),
 ) {
     Scaffold(
         containerColor = Color.Transparent,
@@ -41,6 +47,8 @@ fun StepApp(
             )
         }
     ) { padding ->
+
+        val isOffline by appState.isOffline.collectAsStateWithLifecycle()
         Row(
             Modifier
                 .fillMaxSize()
@@ -50,12 +58,12 @@ fun StepApp(
                         WindowInsetsSides.Horizontal,
                     ),
                 ),
-        ){
+        ) {
             Column(Modifier.fillMaxSize()) {
                 // Show the top app bar on top level destinations.
                 val destination = appState.currentTopLevelDestination
                 if (destination != null) {
-                    Text(text = destination.titleTextId.toString())
+                    Text(text = "$isOffline")
                 }
 
                 StepNavHost(appState = appState)
