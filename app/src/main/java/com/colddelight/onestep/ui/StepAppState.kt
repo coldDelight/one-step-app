@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.history.navigation.navigateToHistory
 import com.colddelight.home.navigation.HomeRoute
@@ -23,19 +24,25 @@ import com.colddelight.routine.navigation.RoutineRoute
 import com.colddelight.routine.navigation.navigateToRoutine
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 @Composable
 fun rememberStepAppState(
+    networkMonitor: NetworkMonitor,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberNavController(),
 ): StepAppState {
     return remember(
         navController,
         coroutineScope,
+        networkMonitor
     ) {
         StepAppState(
             navController,
             coroutineScope,
+            networkMonitor
         )
     }
 }
@@ -44,7 +51,9 @@ fun rememberStepAppState(
 class StepAppState(
     val navController: NavHostController,
     val coroutineScope: CoroutineScope,
-) {
+    networkMonitor: NetworkMonitor,
+
+    ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
@@ -52,10 +61,17 @@ class StepAppState(
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() = when (currentDestination?.route) {
             HomeRoute.route -> HOME
-            HistoryRoute.route ->  HISTORY
+            HistoryRoute.route -> HISTORY
             RoutineRoute.route -> ROUTINE
             else -> null
         }
+    val isOffline = networkMonitor.isOnline
+        .map(Boolean::not)
+        .stateIn(
+            scope = coroutineScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.values().asList()
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
