@@ -1,5 +1,6 @@
 package com.colddelight.onestep.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,24 +28,32 @@ import com.colddelight.designsystem.component.StepNavigationBar
 import com.colddelight.designsystem.component.StepNavigationBarItem
 import com.colddelight.onestep.navigation.StepNavHost
 import com.colddelight.onestep.navigation.TopLevelDestination
+import com.colddelight.onestep.navigation.TopLevelDestination.HOME
+import com.colddelight.onestep.navigation.TopLevelDestination.HISTORY
+import com.colddelight.onestep.navigation.TopLevelDestination.ROUTINE
 
 @Composable
 fun StepApp(
     networkMonitor: NetworkMonitor,
     appState: StepAppState = rememberStepAppState(
         networkMonitor = networkMonitor,
+        shouldShowBottomBar = true
     ),
 ) {
     Scaffold(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
         bottomBar = {
-            StepBottomBar(
-                destinations = appState.topLevelDestinations,
-                onNavigateToDestination = appState::navigateToTopLevelDestination,
-                currentDestination = appState.currentDestination,
-                modifier = Modifier.testTag("RpBottomBar"),
-            )
+            when(appState.currentTopLevelDestination){
+                HOME,HISTORY,ROUTINE ->
+                StepBottomBar(
+                    destinations = appState.topLevelDestinations,
+                    onNavigateToDestination = appState::navigateToTopLevelDestination,
+                    currentDestination = appState.currentDestination,
+                    modifier = Modifier.testTag("RpBottomBar"),
+                )
+                else -> {}
+            }
         }
     ) { padding ->
 

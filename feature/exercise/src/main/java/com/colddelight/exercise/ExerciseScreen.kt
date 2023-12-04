@@ -1,6 +1,5 @@
-package com.colddelight.home
+package com.colddelight.exercise
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,18 +7,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.colddelight.designsystem.component.StepButton
 
 @Composable
-fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    onStartButtonClick: (Int) -> Unit
-){
-
+fun ExerciseScreen(
+    exerciseViewModel: ExerciseViewModel = hiltViewModel(),
+) {
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxSize()
     ){ padding ->
         Column(
             modifier = Modifier
@@ -27,15 +22,9 @@ fun HomeScreen(
                 .fillMaxSize()
         ) {
             Text(
-                text = "Home",
+                text = "Exercise",
             )
-            StepButton(onClick = {
-                onStartButtonClick(1)
-            } ) {
-                Text(
-                    text = stringResource(R.string.start),
-                )
-            }
         }
     }
 }
+
