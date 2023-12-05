@@ -70,6 +70,9 @@ class StepAppState(
             RoutineRoute.route -> ROUTINE
             else -> null
         }
+
+    val isLogin = false
+
     val isOffline = networkMonitor.isOnline
         .map(Boolean::not)
         .stateIn(
