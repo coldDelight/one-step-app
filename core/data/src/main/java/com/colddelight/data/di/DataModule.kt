@@ -1,6 +1,8 @@
 package com.colddelight.data.di
 
 import com.colddelight.data.util.ConnectivityManagerNetworkMonitor
+import com.colddelight.data.util.LoginHelper
+import com.colddelight.data.util.LoginHelperImpl
 import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
 import com.colddelight.datastore.datasource.TokenPreferencesDataSourceImpl
@@ -22,4 +24,9 @@ interface DataModule {
     fun bindsNetworkMonitor(
         networkMonitor: ConnectivityManagerNetworkMonitor
     ): NetworkMonitor
+
+    @Binds
+    fun bindsLoginHelper(
+        loginHelper: LoginHelperImpl
+    ): LoginHelper
 }

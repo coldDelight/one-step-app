@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.colddelight.data.util.LoginHelper
 import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.theme.OneStepTheme
 import com.colddelight.onestep.ui.StepApp
@@ -16,13 +17,13 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var networkMonitor: NetworkMonitor
+    @Inject
+    lateinit var loginHelper: LoginHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setContent {
             OneStepTheme {
-                StepApp(networkMonitor=networkMonitor)
+                StepApp(networkMonitor=networkMonitor, loginHelper = loginHelper)
             }
         }
     }

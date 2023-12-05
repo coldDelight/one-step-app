@@ -53,6 +53,14 @@ fun HomeScreen(
                 )
             }
 
+            StepButton(onClick = {
+                homeViewModel.delToken()
+            }) {
+                Text(
+                    text = "토큰 삭제",
+                )
+            }
+
         }
     }
 }

@@ -35,13 +35,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun delToken() {
+        viewModelScope.launch {
+            tokenDataSource.delToken()
+        }
+    }
+
     fun checkGoogleLoginStatus(result: NativeSignInResult) {
         _userState.value = UserState.Loading
         when (result) {
             is NativeSignInResult.Success -> {
                 Log.e("TAG", "성공이요: $result", )
                 client.gotrue.currentAccessTokenOrNull()
-//                updateToken()
+                updateToken(client.gotrue.currentAccessTokenOrNull()?:"0")
                 _userState.value = UserState.Success("Logged in via Google")
             }
             is NativeSignInResult.ClosedByUser -> {}
