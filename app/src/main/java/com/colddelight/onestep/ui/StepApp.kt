@@ -26,11 +26,19 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.component.StepNavigationBar
 import com.colddelight.designsystem.component.StepNavigationBarItem
+import com.colddelight.designsystem.component.StepTopAppBar
+import com.colddelight.designsystem.component.TopAppBarNavigationType
+import com.colddelight.designsystem.theme.BackGray
+import com.colddelight.exercise.navigation.ExerciseRoute
+import com.colddelight.history.navigation.HistoryRoute
+import com.colddelight.home.navigation.HomeRoute
+import com.colddelight.onestep.R
 import com.colddelight.onestep.navigation.StepNavHost
 import com.colddelight.onestep.navigation.TopLevelDestination
 import com.colddelight.onestep.navigation.TopLevelDestination.HOME
 import com.colddelight.onestep.navigation.TopLevelDestination.HISTORY
 import com.colddelight.onestep.navigation.TopLevelDestination.ROUTINE
+import com.colddelight.routine.navigation.RoutineRoute
 
 @Composable
 fun StepApp(
@@ -40,17 +48,27 @@ fun StepApp(
         shouldShowBottomBar = true
     ),
 ) {
+    val currentDestination: String = appState.currentDestination?.route ?: HomeRoute.route
+
+    val destination = appState.currentTopLevelDestination
     Scaffold(
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = BackGray,
+
+        topBar = {
+            StepTopBar(
+                currentDestination = currentDestination,
+                modifier = Modifier.testTag("StepTopBar"),
+                onNavigationClick = appState::popBackStack
+            )
+        },
         bottomBar = {
-            when(appState.currentTopLevelDestination){
+            when(destination){
                 HOME,HISTORY,ROUTINE ->
                 StepBottomBar(
                     destinations = appState.topLevelDestinations,
                     onNavigateToDestination = appState::navigateToTopLevelDestination,
                     currentDestination = appState.currentDestination,
-                    modifier = Modifier.testTag("RpBottomBar"),
+                    modifier = Modifier.testTag("StepBottomBar"),
                 )
                 else -> {}
             }
@@ -70,7 +88,6 @@ fun StepApp(
         ) {
             Column(Modifier.fillMaxSize()) {
                 // Show the top app bar on top level destinations.
-                val destination = appState.currentTopLevelDestination
                 if (destination != null) {
                     Text(text = "$isOffline")
                 }
@@ -79,6 +96,29 @@ fun StepApp(
             }
         }
     }
+}
+
+@Composable
+private fun StepTopBar(
+    currentDestination: String,
+    modifier: Modifier = Modifier,
+    onNavigationClick: () -> Unit,
+    ){
+    StepTopAppBar(
+        titleRes = when(currentDestination){
+            HomeRoute.route -> R.string.blank
+            HistoryRoute.route -> R.string.history
+            RoutineRoute.route -> R.string.routine
+            ExerciseRoute.detailRoute(1) -> R.string.exercise
+            else -> R.string.exercise
+        },
+        navigationType = when(currentDestination){
+            HomeRoute.route -> TopAppBarNavigationType.Home
+            HistoryRoute.route, RoutineRoute.route -> TopAppBarNavigationType.Empty
+            else -> TopAppBarNavigationType.Back
+        },
+        onNavigationClick = onNavigationClick
+    )
 }
 
 @Composable

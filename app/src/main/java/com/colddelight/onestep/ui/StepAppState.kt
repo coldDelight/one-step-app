@@ -1,5 +1,6 @@
 package com.colddelight.onestep.ui
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -101,6 +102,11 @@ class StepAppState(
                 ROUTINE -> navController.navigateToRoutine(topLevelNavOptions)
             }
         }
+    }
+
+    fun popBackStack(){
+        navController.popBackStack()
+        Log.e(javaClass.simpleName, "popBackStack: hi 여기까지 옴", )
     }
 
     fun navigateHomeToExercise(routineDayId: Int){

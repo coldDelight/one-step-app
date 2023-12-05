@@ -1,3 +1,9 @@
 <resources>
+    <string name="blank"></string>
+    
     <string name="app_name">OneStep</string>
+    <string name="exercise">오늘 루틴</string>
+    <string name="exercise_detail">운동중</string>
+    <string name="routine">루틴</string>
+    <string name="history">기록</string>
 </resources>
