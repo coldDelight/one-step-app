@@ -1,5 +1,6 @@
 package com.colddelight.onestep.ui
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -12,9 +13,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.colddelight.data.util.NetworkMonitor
+import com.colddelight.exercise.navigation.navigateToExercise
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.history.navigation.navigateToHistory
 import com.colddelight.home.navigation.HomeRoute
+import com.colddelight.home.navigation.navigateHomeToExercise
 import com.colddelight.home.navigation.navigateToHome
 import com.colddelight.onestep.navigation.TopLevelDestination
 import com.colddelight.onestep.navigation.TopLevelDestination.HOME
@@ -33,16 +36,19 @@ fun rememberStepAppState(
     networkMonitor: NetworkMonitor,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberNavController(),
+    shouldShowBottomBar : Boolean,
 ): StepAppState {
     return remember(
         navController,
         coroutineScope,
-        networkMonitor
+        networkMonitor,
+        shouldShowBottomBar
     ) {
         StepAppState(
             navController,
             coroutineScope,
-            networkMonitor
+            networkMonitor,
+            shouldShowBottomBar
         )
     }
 }
@@ -52,12 +58,11 @@ class StepAppState(
     val navController: NavHostController,
     val coroutineScope: CoroutineScope,
     networkMonitor: NetworkMonitor,
-
+    var shouldShowBottomBar: Boolean,
     ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
-
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() = when (currentDestination?.route) {
             HomeRoute.route -> HOME
@@ -74,6 +79,7 @@ class StepAppState(
         )
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.values().asList()
+
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         trace("Navigation: ${topLevelDestination.name}") {
             val topLevelNavOptions = navOptions {
@@ -89,10 +95,26 @@ class StepAppState(
             }
 
             when (topLevelDestination) {
-                HOME -> navController.navigateToHome(topLevelNavOptions)
+                HOME -> {navController.navigateToHome(topLevelNavOptions)
+                shouldShowBottomBar = true}
+
                 HISTORY -> navController.navigateToHistory(topLevelNavOptions)
                 ROUTINE -> navController.navigateToRoutine(topLevelNavOptions)
             }
         }
     }
+
+    fun popBackStack(){
+        navController.popBackStack()
+        Log.e(javaClass.simpleName, "popBackStack: hi 여기까지 옴", )
+    }
+
+    fun navigateHomeToExercise(routineDayId: Int){
+        navController.navigateHomeToExercise(routineDayId)
+        shouldShowBottomBar = false
+    }
+
+//    fun navigateToExerciseDetail(){
+//        navController.navigateToExerciseDetail
+//    }
 }

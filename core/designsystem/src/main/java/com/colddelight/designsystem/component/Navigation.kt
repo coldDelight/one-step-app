@@ -2,7 +2,6 @@ package com.colddelight.designsystem.component
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -11,13 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.colddelight.designsystem.icon.IconPack
-import com.colddelight.designsystem.icon.iconpack.Historyselected
-import com.colddelight.designsystem.icon.iconpack.Historyunselected
-import com.colddelight.designsystem.icon.iconpack.Homeselected
-import com.colddelight.designsystem.icon.iconpack.Homeunselected
-import com.colddelight.designsystem.icon.iconpack.Routineselected
-import com.colddelight.designsystem.icon.iconpack.Routineunselected
+import com.colddelight.designsystem.icons.IconPack
+import com.colddelight.designsystem.icons.iconpack.Historyselected
+import com.colddelight.designsystem.icons.iconpack.Historyunselected
+import com.colddelight.designsystem.icons.iconpack.Homeselected
+import com.colddelight.designsystem.icons.iconpack.Homeunselected
+import com.colddelight.designsystem.icons.iconpack.Routineselected
+import com.colddelight.designsystem.icons.iconpack.Routineunselected
+import com.colddelight.designsystem.theme.BackGray
+import com.colddelight.designsystem.theme.Main
+import com.colddelight.designsystem.theme.OneStepTheme
+import com.colddelight.designsystem.theme.TextGray
 
 @Composable
 fun RowScope.StepNavigationBarItem(
@@ -39,11 +42,11 @@ fun RowScope.StepNavigationBarItem(
         label = label,
         alwaysShowLabel = alwaysShowLabel,
         colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = RpNavigationDefaults.navigationSelectedItemColor(),
-            unselectedIconColor = RpNavigationDefaults.navigationContentColor(),
-            selectedTextColor = RpNavigationDefaults.navigationSelectedItemColor(),
-            unselectedTextColor = RpNavigationDefaults.navigationContentColor(),
-            indicatorColor = RpNavigationDefaults.navigationIndicatorColor(),
+            selectedIconColor = StepNavigationDefaults.navigationSelectedItemColor(),
+            unselectedIconColor = StepNavigationDefaults.navigationContentColor(),
+            selectedTextColor = StepNavigationDefaults.navigationSelectedItemColor(),
+            unselectedTextColor = StepNavigationDefaults.navigationContentColor(),
+            indicatorColor = StepNavigationDefaults.navigationIndicatorColor(),
         ),
     )
 }
@@ -55,7 +58,8 @@ fun StepNavigationBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        contentColor = RpNavigationDefaults.navigationContentColor(),
+        containerColor = BackGray,
+        contentColor = StepNavigationDefaults.navigationContentColor(),
         tonalElevation = 0.dp,
         content = content,
     )
@@ -77,7 +81,7 @@ fun StepNavigationPreview() {
 
         )
 
-    MaterialTheme {
+    OneStepTheme {
         StepNavigationBar {
             items.forEachIndexed { index, item ->
                 StepNavigationBarItem(
@@ -102,13 +106,13 @@ fun StepNavigationPreview() {
     }
 }
 
-object RpNavigationDefaults {
+object StepNavigationDefaults {
     @Composable
-    fun navigationContentColor() = MaterialTheme.colorScheme.onSurfaceVariant
+    fun navigationContentColor() = TextGray
 
     @Composable
-    fun navigationSelectedItemColor() = MaterialTheme.colorScheme.onPrimaryContainer
+    fun navigationSelectedItemColor() = Main
 
     @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.primaryContainer
+    fun navigationIndicatorColor() = BackGray
 }

@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.colddelight.data.util.NetworkMonitor
+import com.colddelight.designsystem.theme.OneStepTheme
 import com.colddelight.onestep.ui.StepApp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -19,7 +20,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            StepApp(networkMonitor=networkMonitor)
+            OneStepTheme {
+                StepApp(networkMonitor=networkMonitor)
+            }
         }
     }
 }

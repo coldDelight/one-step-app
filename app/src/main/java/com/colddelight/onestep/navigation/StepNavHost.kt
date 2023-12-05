@@ -3,9 +3,11 @@ package com.colddelight.onestep.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.colddelight.exercise.navigation.exerciseScreen
 import com.colddelight.history.navigation.historyScreen
 import com.colddelight.home.navigation.HomeRoute
 import com.colddelight.home.navigation.homeScreen
+import com.colddelight.home.navigation.navigateHomeToExercise
 import com.colddelight.onestep.ui.StepAppState
 import com.colddelight.routine.navigation.routineScreen
 
@@ -21,9 +23,10 @@ fun StepNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        homeScreen()
+        homeScreen ( onStartButtonClick = navController::navigateHomeToExercise )
         historyScreen()
         routineScreen()
+        exerciseScreen()
     }
 
 }

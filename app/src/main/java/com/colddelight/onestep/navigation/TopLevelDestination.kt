@@ -1,13 +1,13 @@
 package com.colddelight.onestep.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.colddelight.designsystem.icon.IconPack
-import com.colddelight.designsystem.icon.iconpack.Historyselected
-import com.colddelight.designsystem.icon.iconpack.Historyunselected
-import com.colddelight.designsystem.icon.iconpack.Homeselected
-import com.colddelight.designsystem.icon.iconpack.Homeunselected
-import com.colddelight.designsystem.icon.iconpack.Routineselected
-import com.colddelight.designsystem.icon.iconpack.Routineunselected
+import com.colddelight.designsystem.icons.IconPack
+import com.colddelight.designsystem.icons.iconpack.Historyselected
+import com.colddelight.designsystem.icons.iconpack.Historyunselected
+import com.colddelight.designsystem.icons.iconpack.Homeselected
+import com.colddelight.designsystem.icons.iconpack.Homeunselected
+import com.colddelight.designsystem.icons.iconpack.Routineselected
+import com.colddelight.designsystem.icons.iconpack.Routineunselected
 import com.colddelight.history.R as HistoryR
 import com.colddelight.home.R as HomeR
 import com.colddelight.routine.R as RoutineR
