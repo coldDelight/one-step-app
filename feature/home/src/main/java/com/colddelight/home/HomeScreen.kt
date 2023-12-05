@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.StepButton
 import com.colddelight.network.SupabaseClient.client
+import com.colddelight.network.datasourceImpl.UserDataSourceImpl
 import io.github.jan.supabase.compose.auth.composable.rememberLoginWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
 
@@ -58,6 +59,15 @@ fun HomeScreen(
             }) {
                 Text(
                     text = "토큰 삭제",
+                )
+            }
+
+
+            StepButton(onClick = {
+                homeViewModel.getUser()
+            }) {
+                Text(
+                    text = "t사용자 정보",
                 )
             }
 

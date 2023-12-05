@@ -27,7 +27,7 @@ room = "2.6.0"
 #datastore
 androidxDataStore = "1.0.0"
 #serialization
-kotlinxSerializationJson = "1.6.0"
+kotlinxSerializationJson = "1.6.1"
 #supabase
 supabase = "1.4.7"
 
