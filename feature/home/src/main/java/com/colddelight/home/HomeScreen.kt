@@ -70,7 +70,7 @@ fun HomeScreen(
 
 
             StepButton(onClick = {
-                homeViewModel.getUser()
+//                homeViewModel.getUser()
             }) {
                 Text(
                     text = "t사용자 정보",

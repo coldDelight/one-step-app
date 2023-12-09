@@ -62,10 +62,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private val bookmarkedNewsResourcesStream =
-        exerciseRepository.getExerciseResourcesStream().map {
-            it
-        }
 
     fun updateToken(token: String) {
         viewModelScope.launch {
