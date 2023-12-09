@@ -8,7 +8,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
+import com.colddelight.model.Exercise
 import com.colddelight.network.SupabaseClient.client
 import com.colddelight.network.datasource.UserDataSource
 import com.colddelight.network.datasourceImpl.UserDataSourceImpl
@@ -19,11 +21,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.gotrue.gotrue
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val tokenDataSource: TokenPreferencesDataSource,
+    private val exerciseRepository: ExerciseRepository
 //    private val userDataSource: UserDataSource
 ) : ViewModel() {
     private val _userState = mutableStateOf<UserState>(UserState.Loading)
@@ -32,15 +40,42 @@ class HomeViewModel @Inject constructor(
     val token: Flow<String> = tokenDataSource.token
 
 
+    private val _exerciseState = MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
+    val exerciseState: StateFlow<ExerciseUiState> = _exerciseState
+
+    init {
+        viewModelScope.launch {
+            exerciseRepository.getExerciseResourcesStream().combine(_exerciseState) { ex, _ ->
+                ExerciseUiState.Success(
+                    exerciseList = ex
+                )
+            }.catch {
+            }.collect { combinedUiState ->
+                _exerciseState.value = combinedUiState
+            }
+        }
+    }
+    fun addItem(){
+        viewModelScope.launch {
+            exerciseRepository.addItem()
+
+        }
+    }
+
+    private val bookmarkedNewsResourcesStream =
+        exerciseRepository.getExerciseResourcesStream().map {
+            it
+        }
+
     fun updateToken(token: String) {
         viewModelScope.launch {
             tokenDataSource.saveToken(token)
         }
     }
 
-    fun getUser(){
+    fun getUser() {
         viewModelScope.launch {
-            Log.e("TAG", "getUser: ${UserDataSourceImpl().getUserInfo()}", )
+            Log.e("TAG", "getUser: ${UserDataSourceImpl().getUserInfo()}")
         }
     }
 
@@ -55,14 +90,16 @@ class HomeViewModel @Inject constructor(
         when (result) {
             is NativeSignInResult.Success -> {
                 client.gotrue.currentAccessTokenOrNull()
-                updateToken(client.gotrue.currentAccessTokenOrNull()?:"0")
+                updateToken(client.gotrue.currentAccessTokenOrNull() ?: "0")
                 _userState.value = UserState.Success("Logged in via Google")
             }
+
             is NativeSignInResult.ClosedByUser -> {}
             is NativeSignInResult.Error -> {
                 val message = result.message
                 _userState.value = UserState.Error(message)
             }
+
             is NativeSignInResult.NetworkError -> {
                 val message = result.message
                 _userState.value = UserState.Error(message)
@@ -72,3 +109,13 @@ class HomeViewModel @Inject constructor(
 
 
 }
+
+sealed interface ExerciseUiState {
+    object Loading : ExerciseUiState
+
+    data class Success(
+        val exerciseList: List<Exercise>,
+    ) : ExerciseUiState
+}
+
+
