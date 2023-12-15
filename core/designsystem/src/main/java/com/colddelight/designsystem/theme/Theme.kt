@@ -66,7 +66,7 @@ fun OneStepTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = NotoTypography,
         content = content
     )
 }
