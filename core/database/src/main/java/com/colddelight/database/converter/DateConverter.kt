@@ -1,9 +1,9 @@
-package com.colddelight.database
+package com.colddelight.database.converter
 
 import androidx.room.TypeConverter
 import java.util.Date
 
-class Converters {
+class DateConverter {
     @TypeConverter
     fun fromTimestamp(value: Long): Date {
         return Date(value)

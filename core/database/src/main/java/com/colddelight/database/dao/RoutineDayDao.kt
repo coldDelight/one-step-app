@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.colddelight.database.model.RoutineDayEntity
 import com.colddelight.database.model.RoutineEntity
+import com.colddelight.model.ExerciseCategory
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,11 +18,12 @@ interface RoutineDayDao {
     @Query("SELECT * FROM routine_day WHERE routine_id=(:routineId)")
     fun getAllRoutineDay(routineId: Int): Flow<List<RoutineDayEntity>>
 
-    @Query("SELECT * FROM routine JOIN routine_day ON (:dayOfWeek)=routine_day.day_of_week WHERE routine_id = (:routineId)")
+    @Query("SELECT * FROM routine JOIN routine_day ON (:dayOfWeek)=routine_day.day_of_week WHERE routine_day.routine_id = (:routineId)")
     fun getTodayRoutineInfo(
         routineId: Int,
         dayOfWeek: Int
-    ): Flow<Map<RoutineEntity, @MapColumn("category_list") String>>
+    ): Flow<Map<RoutineEntity, @MapColumn("category_list")String>>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoutineDay(routineDay: RoutineDayEntity)

@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.colddelight.database.converter.DateConverter
+import com.colddelight.database.converter.IntListConverter
 import com.colddelight.database.dao.BodyWeightDao
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
@@ -32,9 +34,9 @@ import java.util.concurrent.Executors
         HistoryEntity::class, HistoryExerciseEntity::class,
         FreeExerciseEntity::class
     ],
-    version = 4
+    version = 7
 )
-@TypeConverters(Converters::class)
+@TypeConverters( DateConverter::class, IntListConverter::class)
 abstract class StepDatabase : RoomDatabase() {
     companion object {
         fun getInstance(context: Context): StepDatabase = Room

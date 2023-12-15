@@ -12,8 +12,8 @@ data class FreeExerciseEntity(
     @ColumnInfo(name = "history_id") val historyId: Int,
     @ColumnInfo(name = "index") val index: Int,
     @ColumnInfo(name = "origin") val origin: Int,
-    @ColumnInfo(name = "kg_list") val kgList: String,
-    @ColumnInfo(name = "reps_list") val repsList: String,
+    @ColumnInfo(name = "kg_list") val kgList: List<Int>,
+    @ColumnInfo(name = "reps_list") val repsList: List<Int>,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
 
@@ -27,13 +27,13 @@ fun FreeExerciseEntity.asFreeExercise() = FreeExercise(
     repsList = repsList
 )
 
-fun FreeExerciseEntity.asNetworkFreeExercise() = NetworkFreeExercise(
-    room_id = id,
-    exercise_id = exerciseId,
-    index = index,
-    origin = origin,
-    historyId = historyId,
-    kg_list = kgList,
-    reps_list = repsList
-
-)
+//fun FreeExerciseEntity.asNetworkFreeExercise() = NetworkFreeExercise(
+//    room_id = id,
+//    exercise_id = exerciseId,
+//    index = index,
+//    origin = origin,
+//    historyId = historyId,
+//    kg_list = kgList,
+//    reps_list = repsList
+//
+//)
