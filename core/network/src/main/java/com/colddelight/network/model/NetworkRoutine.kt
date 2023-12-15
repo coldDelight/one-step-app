@@ -3,10 +3,12 @@ package com.colddelight.network.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkExercise(
+data class NetworkRoutine(
     val id: Int = 0,
     val room_id: Int,
-    val category: String,
     val name: String,
+    val cnt: Int,
+    val created_time: String,
     val uuid: String = ""
 )
+

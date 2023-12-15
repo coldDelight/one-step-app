@@ -5,5 +5,6 @@ import com.colddelight.network.model.User
 
 interface ExerciseDataSource {
     suspend fun getExercise(): List<NetworkExercise>
+    suspend fun addExercise(networkExercise:NetworkExercise)
 
 }

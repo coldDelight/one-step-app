@@ -22,7 +22,6 @@ interface DataModule {
         dataSource: TokenPreferencesDataSourceImpl,
     ): TokenPreferencesDataSource
 
-
     @Binds
     fun bindsExerciseRepository(
         exerciseRepository: OfflineFirstExerciseRepository
