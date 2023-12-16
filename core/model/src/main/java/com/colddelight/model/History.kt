@@ -5,7 +5,7 @@ import java.util.Date
 data class History(
     val routineId: Int,
     val createdTime: Date,
-    val categoryList: String,
+    val categoryList: List<ExerciseCategory>,
     val totalTime: String,
     val isDone: Boolean,
     val isFree: Boolean,

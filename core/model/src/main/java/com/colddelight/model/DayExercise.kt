@@ -6,8 +6,8 @@ data class DayExercise(
     val exerciseId: Int,
     val index: Int,
     val origin: Int,
-    val kgList: String,
-    val repsList: String,
+    val kgList: List<Int>,
+    val repsList: List<Int>,
     val id: Int,
 
 )

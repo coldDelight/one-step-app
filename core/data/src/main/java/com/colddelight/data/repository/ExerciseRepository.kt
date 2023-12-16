@@ -4,7 +4,7 @@ import com.colddelight.model.Exercise
 import kotlinx.coroutines.flow.Flow
 
 interface ExerciseRepository {
-    fun getExerciseResourcesStream(): Flow<List<Exercise>>
+//    fun getExerciseResourcesStream(): Flow<List<Exercise>>
 
     suspend fun addItem()
     suspend fun addRoutine()

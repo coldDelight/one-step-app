@@ -7,21 +7,13 @@ import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.RoutineDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
-import com.colddelight.database.model.RoutineEntity
-import com.colddelight.database.model.asExercise
-import com.colddelight.database.model.asNetworkExercise
-import com.colddelight.database.model.asNetworkRoutine
-import com.colddelight.database.model.asRoutine
 import com.colddelight.model.Exercise
 import com.colddelight.network.datasource.ExerciseDataSource
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import java.util.Date
 
 class OfflineFirstExerciseRepository @Inject constructor(
     private val exerciseDao: ExerciseDao,
@@ -33,8 +25,8 @@ class OfflineFirstExerciseRepository @Inject constructor(
     private val syncTask: SyncTask,
 
     ) : ExerciseRepository {
-    override fun getExerciseResourcesStream(): Flow<List<Exercise>> =
-        exerciseDao.getExercise().map { it.map(ExerciseEntity::asExercise) }
+//    override fun getExerciseResourcesStream(): Flow<List<Exercise>> =
+//        exerciseDao.getExercise().map { it.map(ExerciseEntity::asExercise) }
 
     override suspend fun addItem() {
 
