@@ -21,7 +21,6 @@ fun HomeScreen(
     onStartButtonClick: (Int) -> Unit
 ) {
     val token = homeViewModel.token.collectAsStateWithLifecycle(initialValue = "")
-
     val action = client.composeAuth.rememberLoginWithGoogle(
         onResult = { result -> homeViewModel.checkGoogleLoginStatus(result) },
         fallback = {}
@@ -50,6 +49,14 @@ fun HomeScreen(
             }) {
                 Text(
                     text = "구글 로그인하기",
+                )
+            }
+
+            StepButton(onClick = {
+                homeViewModel.delToken()
+            }) {
+                Text(
+                    text = "토큰 삭제",
                 )
             }
 

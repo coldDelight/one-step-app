@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.onestep.android.library)
     alias(libs.plugins.onestep.android.hilt)
+    id("kotlinx-serialization")
 
 }
 
@@ -31,6 +32,10 @@ dependencies {
     implementation(libs.supabase.gotrue)
     implementation(libs.ktor.client.cio)
     implementation(libs.supabase.compose.auth)
+    implementation(libs.supabase.postgrest)
     implementation(libs.supabase.compose.auth.ui)
+    implementation(libs.kotlinx.serialization.json)
+
+
 
 }

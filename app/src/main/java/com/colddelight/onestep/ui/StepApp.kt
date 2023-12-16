@@ -23,12 +23,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import com.colddelight.data.util.LoginHelper
 import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.component.StepNavigationBar
 import com.colddelight.designsystem.component.StepNavigationBarItem
 import com.colddelight.designsystem.component.StepTopAppBar
 import com.colddelight.designsystem.component.TopAppBarNavigationType
 import com.colddelight.designsystem.theme.BackGray
+import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.exercise.navigation.ExerciseRoute
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.home.navigation.HomeRoute
@@ -43,8 +45,10 @@ import com.colddelight.routine.navigation.RoutineRoute
 @Composable
 fun StepApp(
     networkMonitor: NetworkMonitor,
+    loginHelper: LoginHelper,
     appState: StepAppState = rememberStepAppState(
         networkMonitor = networkMonitor,
+        loginHelper = loginHelper,
         shouldShowBottomBar = true
     ),
 ) {
@@ -62,20 +66,22 @@ fun StepApp(
             )
         },
         bottomBar = {
-            when(destination){
-                HOME,HISTORY,ROUTINE ->
-                StepBottomBar(
-                    destinations = appState.topLevelDestinations,
-                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                    currentDestination = appState.currentDestination,
-                    modifier = Modifier.testTag("StepBottomBar"),
-                )
+            when (destination) {
+                HOME, HISTORY, ROUTINE ->
+                    StepBottomBar(
+                        destinations = appState.topLevelDestinations,
+                        onNavigateToDestination = appState::navigateToTopLevelDestination,
+                        currentDestination = appState.currentDestination,
+                        modifier = Modifier.testTag("StepBottomBar"),
+                    )
+
                 else -> {}
             }
         }
     ) { padding ->
 
         val isOffline by appState.isOffline.collectAsStateWithLifecycle()
+        val isLogin by appState.isLogin.collectAsStateWithLifecycle()
         Row(
             Modifier
                 .fillMaxSize()
@@ -87,6 +93,8 @@ fun StepApp(
                 ),
         ) {
             Column(Modifier.fillMaxSize()) {
+                Text(text = "로그인 상태 $isLogin",color= TextGray)
+
                 // Show the top app bar on top level destinations.
                 if (destination != null) {
                     Text(text = "$isOffline")
@@ -103,16 +111,16 @@ private fun StepTopBar(
     currentDestination: String,
     modifier: Modifier = Modifier,
     onNavigationClick: () -> Unit,
-    ){
+) {
     StepTopAppBar(
-        titleRes = when(currentDestination){
+        titleRes = when (currentDestination) {
             HomeRoute.route -> R.string.blank
             HistoryRoute.route -> R.string.history
             RoutineRoute.route -> R.string.routine
             ExerciseRoute.detailRoute(1) -> R.string.exercise
             else -> R.string.exercise
         },
-        navigationType = when(currentDestination){
+        navigationType = when (currentDestination) {
             HomeRoute.route -> TopAppBarNavigationType.Home
             HistoryRoute.route, RoutineRoute.route -> TopAppBarNavigationType.Empty
             else -> TopAppBarNavigationType.Back

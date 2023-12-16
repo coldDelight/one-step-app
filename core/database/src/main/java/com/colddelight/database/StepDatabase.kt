@@ -1,0 +1,66 @@
+package com.colddelight.database
+
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.colddelight.database.dao.BodyWeightDao
+import com.colddelight.database.dao.DayExerciseDao
+import com.colddelight.database.dao.ExerciseDao
+import com.colddelight.database.dao.FreeExerciseDao
+import com.colddelight.database.dao.HistoryDao
+import com.colddelight.database.dao.HistoryExerciseDao
+import com.colddelight.database.dao.RoutineDao
+import com.colddelight.database.dao.RoutineDayDao
+import com.colddelight.database.model.BodyWeightEntity
+import com.colddelight.database.model.DayExerciseEntity
+import com.colddelight.database.model.ExerciseEntity
+import com.colddelight.database.model.FreeExerciseEntity
+import com.colddelight.database.model.HistoryEntity
+import com.colddelight.database.model.HistoryExerciseEntity
+import com.colddelight.database.model.RoutineDayEntity
+import com.colddelight.database.model.RoutineEntity
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Executors
+
+@Database(
+    entities = [
+        RoutineEntity::class, RoutineDayEntity::class, DayExerciseEntity::class,
+        ExerciseEntity::class, BodyWeightEntity::class,
+        HistoryEntity::class, HistoryExerciseEntity::class,
+        FreeExerciseEntity::class
+    ],
+    version = 4
+)
+@TypeConverters(Converters::class)
+abstract class StepDatabase : RoomDatabase() {
+    companion object {
+        fun getInstance(context: Context): StepDatabase = Room
+            .databaseBuilder(context, StepDatabase::class.java, "step-database")
+            .addCallback(object : Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    Executors.newSingleThreadExecutor().execute {
+                        runBlocking {
+                            getInstance(context).routineDao()
+                                //루틴 초기값
+                                .insertRoutine(RoutineEntity.DEFAULT_Routine)
+                        }
+                    }
+                }
+            })
+            .build()
+    }
+
+    abstract fun exerciseDao(): ExerciseDao
+    abstract fun bodyWeightDao(): BodyWeightDao
+    abstract fun routineDao(): RoutineDao
+    abstract fun routineDayDao(): RoutineDayDao
+    abstract fun dayExerciseDao(): DayExerciseDao
+    abstract fun historyDao(): HistoryDao
+    abstract fun historyExerciseDao(): HistoryExerciseDao
+    abstract fun freeExerciseDao(): FreeExerciseDao
+
+}

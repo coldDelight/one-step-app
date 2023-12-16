@@ -1,6 +1,10 @@
 package com.colddelight.data.di
 
+import com.colddelight.data.repository.ExerciseRepository
+import com.colddelight.data.repository.OfflineFirstExerciseRepository
 import com.colddelight.data.util.ConnectivityManagerNetworkMonitor
+import com.colddelight.data.util.LoginHelper
+import com.colddelight.data.util.LoginHelperImpl
 import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
 import com.colddelight.datastore.datasource.TokenPreferencesDataSourceImpl
@@ -19,7 +23,17 @@ interface DataModule {
     ): TokenPreferencesDataSource
 
     @Binds
+    fun bindsExerciseRepository(
+        exerciseRepository: OfflineFirstExerciseRepository
+    ): ExerciseRepository
+
+    @Binds
     fun bindsNetworkMonitor(
         networkMonitor: ConnectivityManagerNetworkMonitor
     ): NetworkMonitor
+
+    @Binds
+    fun bindsLoginHelper(
+        loginHelper: LoginHelperImpl
+    ): LoginHelper
 }
