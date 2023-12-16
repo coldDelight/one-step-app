@@ -1,6 +1,5 @@
 package com.colddelight.exercise
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.RoutineRepository
@@ -31,7 +30,6 @@ class ExerciseViewModel @Inject constructor(
             try {
                 val routineInfo = routineRepository.getTodayRoutineInfo().first()
                 _exerciseUiState.value = ExerciseUiState.Success(routineInfo)
-                Log.e("TAG", "getRoutineInfo: $routineInfo")
             } catch (e: Exception) {
                 _exerciseUiState.value = ExerciseUiState.Error(e.message ?: "Unknown error")
             }

@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.designsystem.R
 import com.colddelight.designsystem.component.DateWithCnt
+import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.RoutineInfo
@@ -57,8 +58,13 @@ private fun ExerciseContentWithState(uiState: ExerciseUiState) {
 
 @Composable
 private fun ExerciseContent(routineInfo: RoutineInfo) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
         TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo)
+        TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
     }
 }
 
@@ -72,7 +78,6 @@ private fun ExerciseLoading() {
 @Composable
 private fun TodayRoutineInfo(date: String, routineInfo: RoutineInfo) {
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         DateWithCnt(date, routineInfo.cnt)
         Text(text = routineInfo.name, style = NotoTypography.headlineLarge)
@@ -126,6 +131,15 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ExerciseContentPreview() {
+    val routineInfo =
+        RoutineInfo("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
+    ExerciseContent(routineInfo)
+
 }
 
 @Preview

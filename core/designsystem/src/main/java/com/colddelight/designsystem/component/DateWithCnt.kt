@@ -11,8 +11,8 @@ import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
 
 @Composable
-fun DateWithCnt(date: String, cnt: Int) {
-    Row(modifier = Modifier.padding(4.dp)) {
+fun DateWithCnt(date: String, cnt: Int, modifier: Modifier = Modifier.padding(4.dp)) {
+    Row(modifier = modifier) {
         Text(text = "$date [", style = HortaTypography.bodyMedium)
         Text(text = "$cnt", style = HortaTypography.bodyMedium, color = Main)
         Text(text = "]", style = HortaTypography.bodyMedium)
