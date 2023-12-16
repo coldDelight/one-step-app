@@ -93,7 +93,7 @@ fun StepApp(
                 ),
         ) {
             Column(Modifier.fillMaxSize()) {
-                Text(text = "로그인 상태 $isLogin",color= TextGray)
+//                Text(text = "로그인 상태 $isLogin",color= TextGray)
 
                 // Show the top app bar on top level destinations.
                 if (destination != null) {

@@ -3,7 +3,6 @@ package com.colddelight.exercise
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,11 +19,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.designsystem.R
-import com.colddelight.designsystem.theme.HortaTypography
+import com.colddelight.designsystem.component.DateWithCnt
+import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.RoutineInfo
-import com.colddelight.designsystem.theme.Main
 import com.colddelight.model.ExerciseCategory
 
 @Composable
@@ -32,68 +32,98 @@ fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
 ) {
     val sessionUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
-
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        containerColor = BackGray
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            SessionDetailContent(uiState = sessionUiState)
+            ExerciseContentWithState(uiState = sessionUiState)
         }
     }
 }
 
 @Composable
-private fun SessionDetailContent(uiState: ExerciseUiState) {
+private fun ExerciseContentWithState(uiState: ExerciseUiState) {
     when (uiState) {
-        is ExerciseUiState.Loading -> SessionDetailLoading()
-        is ExerciseUiState.Error -> SessionDetailLoading()
-        is ExerciseUiState.Success -> todayRoutineInfo("2023.11.15 Thu", uiState.routineInfo)
+        is ExerciseUiState.Loading -> ExerciseLoading()
+        is ExerciseUiState.Error -> ExerciseLoading()
+        is ExerciseUiState.Success -> ExerciseContent(uiState.routineInfo)
     }
 }
 
 @Composable
-private fun SessionDetailLoading() {
+private fun ExerciseContent(routineInfo: RoutineInfo) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo)
+    }
+}
+
+@Composable
+private fun ExerciseLoading() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
 
 @Composable
-private fun todayRoutineInfo(date: String, routineInfo: RoutineInfo) {
+private fun TodayRoutineInfo(date: String, routineInfo: RoutineInfo) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        dateAndCnt(date, routineInfo.cnt)
+        DateWithCnt(date, routineInfo.cnt)
         Text(text = routineInfo.name, style = NotoTypography.headlineLarge)
-        categoryIcon(routineInfo.categoryIdList)
+        CategoryIconList(routineInfo.categoryIdList)
     }
 }
 
-@Composable
-fun dateAndCnt(date: String, cnt: Int) {
-    Row {
-        Text(text = "$date [", style = HortaTypography.bodyMedium)
-        Text(text = "$cnt", style = HortaTypography.bodyMedium, color = Main)
-        Text(text = "]", style = HortaTypography.bodyMedium)
-    }
-}
 
 @Composable
-fun categoryIcon(categoryList: List<ExerciseCategory>) {
+fun CategoryIconList(categoryList: List<ExerciseCategory>) {
     LazyRow {
         items(categoryList) { item ->
+            Box(modifier = Modifier.padding(4.dp)) {
+                when (item) {
+                    ExerciseCategory.CHEST -> Image(
+                        painter = painterResource(id = R.drawable.chest),
+                        contentDescription = "가슴",
+                    )
 
-            Image(
-                painter = painterResource(id = R.drawable.chest),
-                contentDescription = "가슴",
-                modifier = Modifier.padding(8.dp)
-            )
+                    ExerciseCategory.SHOULDER -> Image(
+                        painter = painterResource(id = R.drawable.shoulder),
+                        contentDescription = "어깨",
+                    )
+
+                    ExerciseCategory.BACK -> Image(
+                        painter = painterResource(id = R.drawable.back),
+                        contentDescription = "등",
+                    )
+
+                    ExerciseCategory.ARM -> Image(
+                        painter = painterResource(id = R.drawable.arm),
+                        contentDescription = "팔",
+                    )
+
+                    ExerciseCategory.LEG -> Image(
+                        painter = painterResource(id = R.drawable.leg),
+                        contentDescription = "하체",
+                    )
+
+                    ExerciseCategory.CARDIO -> Image(
+                        painter = painterResource(id = R.drawable.cardio),
+                        contentDescription = "유산소",
+                    )
+
+                    ExerciseCategory.CALISTHENICS -> Image(
+                        painter = painterResource(id = R.drawable.calisthenics),
+                        contentDescription = "맨몸",
+                    )
+                }
+
+            }
         }
     }
 }
@@ -103,6 +133,6 @@ fun categoryIcon(categoryList: List<ExerciseCategory>) {
 private fun RoutineInfoPreview() {
     val routineInfo =
         RoutineInfo("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
-    todayRoutineInfo(date = "2023.11.15 Thu", routineInfo = routineInfo)
+    TodayRoutineInfo(date = "2023.11.15 토", routineInfo = routineInfo)
 
 }
