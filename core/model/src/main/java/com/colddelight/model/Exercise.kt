@@ -1,7 +1,20 @@
 package com.colddelight.model
 
-data class Exercise(
-    val name: String,
-    val category: ExerciseCategory,
-    val id: Int
-)
+
+sealed interface Exercise {
+    data class Weight(
+        val name: String,
+        val min: Int = 0,
+        val max: Int = 0,
+        val time: String = "",
+        val exerciseId: Int
+    ) : Exercise
+
+    data class Calisthenics(
+        val name: String,
+        val reps: Int,
+        val set: Int,
+        val time: String = "",
+        val exerciseId: Int
+    ) : Exercise
+}

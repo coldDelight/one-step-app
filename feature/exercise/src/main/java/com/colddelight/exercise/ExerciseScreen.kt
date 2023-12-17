@@ -25,14 +25,14 @@ import com.colddelight.designsystem.component.DateWithCnt
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.NotoTypography
-import com.colddelight.model.RoutineInfo
+import com.colddelight.model.TodayRoutine
 import com.colddelight.model.ExerciseCategory
 
 @Composable
 fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
 ) {
-    val sessionUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
+    val exerciseUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -42,7 +42,7 @@ fun ExerciseScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ExerciseContentWithState(uiState = sessionUiState)
+            ExerciseContentWithState(uiState = exerciseUiState)
         }
     }
 }
@@ -57,7 +57,7 @@ private fun ExerciseContentWithState(uiState: ExerciseUiState) {
 }
 
 @Composable
-private fun ExerciseContent(routineInfo: RoutineInfo) {
+private fun ExerciseContent(routineInfo: TodayRoutine) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +76,7 @@ private fun ExerciseLoading() {
 }
 
 @Composable
-private fun TodayRoutineInfo(date: String, routineInfo: RoutineInfo) {
+private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine) {
     Column(
     ) {
         DateWithCnt(date, routineInfo.cnt)
@@ -116,12 +116,6 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
                         painter = painterResource(id = R.drawable.leg),
                         contentDescription = "하체",
                     )
-
-                    ExerciseCategory.CARDIO -> Image(
-                        painter = painterResource(id = R.drawable.cardio),
-                        contentDescription = "유산소",
-                    )
-
                     ExerciseCategory.CALISTHENICS -> Image(
                         painter = painterResource(id = R.drawable.calisthenics),
                         contentDescription = "맨몸",
@@ -137,7 +131,7 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
 @Composable
 private fun ExerciseContentPreview() {
     val routineInfo =
-        RoutineInfo("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
+        TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
     ExerciseContent(routineInfo)
 
 }
@@ -145,8 +139,8 @@ private fun ExerciseContentPreview() {
 @Preview
 @Composable
 private fun RoutineInfoPreview() {
-    val routineInfo =
-        RoutineInfo("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
-    TodayRoutineInfo(date = "2023.11.15 토", routineInfo = routineInfo)
+    val todayRoutine =
+        TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
+    TodayRoutineInfo(date = "2023.11.15 토", routineInfo = todayRoutine)
 
 }

@@ -1,27 +1,32 @@
 package com.colddelight.data.repository
 
-
+import com.colddelight.database.dao.DayExerciseDao
+import com.colddelight.database.dao.HistoryDao
+import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.RoutineDayEntity
+import com.colddelight.database.model.HistoryEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
+import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
-import com.colddelight.model.RoutineInfo
+import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
-class RoutineRepositoryImpl @Inject constructor(
+class ExerciseRepositoryImpl @Inject constructor(
+    private val historyDao: HistoryDao,
     private val routineDayDao: RoutineDayDao,
     private val userDataSource: UserPreferencesDataSource
-) : RoutineRepository {
-    override fun getTodayRoutineInfo(): Flow<RoutineInfo> {
+) : ExerciseRepository {
+    override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { userId ->
                 routineDayDao.getTodayRoutineInfo(userId, 1)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
-                        val routineInfo = RoutineInfo(
+                        val routineInfo = TodayRoutine(
                             name = routine?.name ?: "",
                             cnt = routine?.cnt ?: 0,
                             categoryIdList = routineDayInfoMap[routine]?.split(",")?.mapNotNull {
@@ -36,12 +41,21 @@ class RoutineRepositoryImpl @Inject constructor(
 
     override suspend fun addRoutine() {
 
-//        routineDayDao.insertRoutineDay(
-//            RoutineDayEntity(
-//                1,
-//                1,
-//                listOf(1, 2)
-//            )
-//        )
+    }
+
+    override suspend fun add() {
+        historyDao.insertHistory(
+            HistoryEntity(
+                createdTime = LocalDate.now(),
+                isDone = false,
+                categoryList = listOf(1, 2),
+                isFree = false,
+                routineId = 1,
+                totalTime = ""
+            )
+        )
     }
 }
+
+
+

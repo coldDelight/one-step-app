@@ -3,11 +3,6 @@ package com.colddelight.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.colddelight.database.dateFormat
-import com.colddelight.model.BodyWeight
-import com.colddelight.model.DayExercise
-import com.colddelight.network.model.NetworkBodyWeight
-import com.colddelight.network.model.NetworkDayExercise
 
 @Entity(tableName = "day_exercise")
 data class DayExerciseEntity(
@@ -22,15 +17,7 @@ data class DayExerciseEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
 
-fun DayExerciseEntity.asDayExercise() = DayExercise(
-    id = id,
-    routineDayId = routineDayId,
-    exerciseId = exerciseId,
-    index = index,
-    origin = origin,
-    kgList = kgList,
-    repsList = repsList
-)
+
 
 //fun DayExerciseEntity.asNetworkDayExercise() = NetworkDayExercise(
 //    room_id = id,
