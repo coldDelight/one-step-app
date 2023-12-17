@@ -5,8 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.colddelight.database.model.HistoryEntity
-import com.colddelight.database.model.RoutineDayEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
+import java.util.Date
 
 @Dao
 interface HistoryDao {
@@ -14,7 +15,7 @@ interface HistoryDao {
     @Query("SELECT * FROM history WHERE routine_id = (:id)")
     fun getAllHistory(id: Int): Flow<List<HistoryEntity>>
     @Query("SELECT * FROM history WHERE created_time = (:createTime)")
-    fun getTodayHistory(createTime: String): Flow<HistoryEntity>
+    fun getTodayHistory(createTime: LocalDate): Flow<HistoryEntity>
 
 
     // 히스토리 아이디임

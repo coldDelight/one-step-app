@@ -6,7 +6,6 @@ enum class ExerciseCategory(val id: Int) {
     BACK(3),
     ARM(4),
     LEG(5),
-    CARDIO(6),
     CALISTHENICS(7);
 
     companion object {

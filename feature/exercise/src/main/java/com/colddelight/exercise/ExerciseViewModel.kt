@@ -2,7 +2,7 @@ package com.colddelight.exercise
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.colddelight.data.repository.RoutineRepository
+import com.colddelight.data.repository.ExerciseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
-    private val routineRepository: RoutineRepository,
+    private val repository: ExerciseRepository,
 ) : ViewModel() {
 
     private val _exerciseUiState = MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
@@ -20,7 +20,7 @@ class ExerciseViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            routineRepository.addRoutine()
+            repository.addRoutine()
         }
         getRoutineInfo()
     }
@@ -28,8 +28,9 @@ class ExerciseViewModel @Inject constructor(
     private fun getRoutineInfo() {
         viewModelScope.launch {
             try {
-                val routineInfo = routineRepository.getTodayRoutineInfo().first()
-                _exerciseUiState.value = ExerciseUiState.Success(routineInfo)
+                val routineInfo = repository.getTodayRoutineInfo().first()
+                //check
+                _exerciseUiState.value = ExerciseUiState.Success(routineInfo, 0, listOf())
             } catch (e: Exception) {
                 _exerciseUiState.value = ExerciseUiState.Error(e.message ?: "Unknown error")
             }

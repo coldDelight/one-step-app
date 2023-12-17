@@ -3,8 +3,6 @@ package com.colddelight.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.colddelight.model.ExerciseCategory
-import com.colddelight.model.RoutineDay
 
 @Entity(tableName = "routine_day")
 data class RoutineDayEntity(
@@ -15,12 +13,7 @@ data class RoutineDayEntity(
 )
 
 
-//fun RoutineDayEntity.asRoutineDay() = RoutineDay(
-//    id = id,
-//    routineId = routineId,
-//    dayOfWeek = dayOfWeek,
-//    categoryList = categoryList,
-//)
+
 
 //fun RoutineDayEntity.asNetworkRoutineDay() = NetworkRoutineDay(
 //    room_id = id,

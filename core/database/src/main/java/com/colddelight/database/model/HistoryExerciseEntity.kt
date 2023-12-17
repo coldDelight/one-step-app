@@ -3,11 +3,6 @@ package com.colddelight.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.colddelight.model.History
-import com.colddelight.model.HistoryExercise
-import com.colddelight.network.model.NetworkExercise
-import com.colddelight.network.model.NetworkHistoryExercise
-import java.util.Date
 
 @Entity(tableName = "history_exercise")
 data class HistoryExerciseEntity(
@@ -15,20 +10,13 @@ data class HistoryExerciseEntity(
     @ColumnInfo(name = "exercise_id") val exerciseId: Int,
     @ColumnInfo(name = "index") val index: Int,
     @ColumnInfo(name = "origin") val origin: Int,
+    @ColumnInfo(name = "time") val time: Int,
     @ColumnInfo(name = "kg_list") val kgList: List<Int>,
     @ColumnInfo(name = "reps_list") val repsList: List<Int>,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
 
-fun HistoryExerciseEntity.asHistoryExerciseEntity() = HistoryExercise(
-    id = id,
-    historyId = historyId,
-    exerciseId = exerciseId,
-    index = index,
-    origin = origin,
-    kgList = kgList,
-    repsList = repsList,
-)
+
 
 //fun HistoryExerciseEntity.asNetworkHistoryExercise() = NetworkHistoryExercise(
 //    room_id = id,
