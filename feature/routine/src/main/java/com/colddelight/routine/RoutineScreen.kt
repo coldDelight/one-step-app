@@ -1,11 +1,12 @@
 package com.colddelight.routine
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,25 +14,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults.contentPaddingWithoutLabel
+import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.colddelight.data.util.getDayOfWeek
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
 import com.colddelight.designsystem.theme.BackGray
@@ -40,13 +50,14 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.TextGray
-import java.time.DayOfWeek
+import com.colddelight.model.Routine
 
 @Composable
 fun RoutineScreen(
-    routineViewModel: RoutineViewModel = hiltViewModel(),
+    viewModel: RoutineViewModel = hiltViewModel(),
 ){
-
+    val routineUiState by viewModel.routineUiState.collectAsStateWithLifecycle()
+    Log.e("TAG", "RoutineScreen: ${routineUiState}", )
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -56,11 +67,51 @@ fun RoutineScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            Text(
-                text = "Routine",
-            )
-            CountDate(cnt = 3)
+            RoutineContentWithState(uiState = routineUiState)
         }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewUnit(){
+    RoutineContent(Routine("Test",3))
+}
+
+@Composable
+private fun RoutineContentWithState(uiState: RoutineUiState) {
+    when(uiState) {
+        is RoutineUiState.Loading -> RoutineLoading()
+        is RoutineUiState.Error -> RoutineLoading()
+        is RoutineUiState.Success -> RoutineContent(uiState.routine)
+    }
+}
+
+@Composable
+private fun RoutineLoading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun RoutineContent(routine: Routine) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            RoutineList(routine.name)
+            CountDate(routine.cnt)
+        }
+        ExerciseCardView("월요일", listOf("벤치프레스","플라이","스쿼트"),listOf("가슴","운동"))
     }
 }
 
@@ -69,62 +120,105 @@ fun CountDate(
     cnt: Int
 ){
     val date = getTodayDate()
-    val defaultStyle = SpanStyle(
-        color = TextGray,
-        fontSize = 24.sp,
-    )
     Column {
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text ="test",
-                style = NotoTypography.headlineLarge
-            )
-            Text(
-                text ="TYest",
-                style = HortaTypography.headlineLarge
-            )
-        }
-        Row(verticalAlignment = Alignment.Bottom){
-            Text(
-                text ="test",
-                style = NotoTypography.headlineMedium
-            )
-            Text(
-                text ="test",
-                style = HortaTypography.headlineMedium
-            )
-
-        }
-
         Text(
             text = "$date ~",
-            fontSize = 16.sp,
-            color = TextGray
+            style = HortaTypography.labelMedium
             )
         Row{
-            Text(text = buildAnnotatedString {
-                withStyle(style = defaultStyle) { append("+ ") }
-                withStyle(
-                    style = SpanStyle(
-                        fontSize = 24.sp,
-                        color = Main,
-                    ),
-                ) { append(cnt.toString()) }
-                withStyle(style = defaultStyle,) { append(" days") }
-            })
+            Text(text = "+ ", style = HortaTypography.headlineSmall)
+            Text(text = cnt.toString(), style = HortaTypography.headlineSmall, color = Main)
+            Text(text = " days ", style = HortaTypography.headlineSmall)
         }
     }
     
 }
 
-@Preview
 @Composable
-fun PreviewUnit(){
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(BackGray)) {
-        CountDate(cnt = 3)
-        ExerciseCardView(getDayOfWeek(1),exerciseList = listOf("플라이","벤치프레스"), categoryList = listOf("가슴","이두"))
+fun RoutineList(name: String){
+    Text(text = name, style = NotoTypography.headlineMedium)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownRoutineList(routineList: List<String>, modifier: Modifier){
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(routineList[0]) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+    ){
+        TextField(
+            // The `menuAnchor` modifier must be passed to the text field for correctness.
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(0.4f),
+            readOnly = true,
+            textStyle= NotoTypography.headlineSmall,
+            value = selectedOptionText,
+            onValueChange = {},
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = TextGray,
+                unfocusedTextColor = TextGray,
+                disabledContainerColor =  Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor =   Color.Transparent,
+                focusedTrailingIconColor = TextGray,
+                unfocusedTrailingIconColor = TextGray,
+                focusedIndicatorColor =  TextGray,
+                unfocusedIndicatorColor= TextGray,
+            ),
+            //contentPadding = TextFieldDefaults.textFieldWithLabelPadding(0.dp)
+        )
+//        BasicTextField(
+//            value = selectedOptionText,
+//            onValueChange = {},
+//            readOnly = true,
+//            textStyle= NotoTypography.headlineMedium,
+//            modifier = Modifier
+//                .menuAnchor()
+//        ){
+//            TextFieldDefaults.TextFieldDecorationBox(
+//                value = selectedOptionText,
+//                innerTextField = it,
+//                enabled = false,
+//                singleLine = true,
+//                visualTransformation = VisualTransformation.None,
+//                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+//                colors = TextFieldDefaults.colors(
+//                    focusedTextColor = TextGray,
+//                    unfocusedTextColor = TextGray,
+//                    disabledContainerColor =  Color.Transparent,
+//                    focusedContainerColor = Color.Transparent,
+//                    unfocusedContainerColor =   Color.Transparent,
+//                    focusedTrailingIconColor = TextGray,
+//                    unfocusedTrailingIconColor = TextGray,
+//                    focusedIndicatorColor =  TextGray,
+//                    unfocusedIndicatorColor= TextGray,
+//                ),
+//                interactionSource = null
+//            )
+//        }
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            routineList.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        selectedOptionText = selectionOption
+                        expanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
     }
 }
 
@@ -141,16 +235,15 @@ fun ExerciseCardView(
             .fillMaxWidth(0.45f)
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = dayOfWeek,
-                color = TextGray,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = NotoTypography.bodyMedium,
                 modifier = Modifier
-                    .padding(start = 8.dp)
-                    .weight(0.3f)
+                    .padding(start = 20.dp)
             )
             CategoryList(categoryList)
         }
@@ -164,6 +257,9 @@ fun ExerciseCardView(
         }
     }
 }
+
+
+
 @Composable
 fun CategoryList(
     categoryList : List<String>
@@ -202,6 +298,6 @@ fun ExerciseText(
             .size(3.dp)
             .background(Color.White, CircleShape)
         )
-        Text(text = exercise, color = TextGray, fontSize = 12.sp, modifier = Modifier.padding(start = 8.dp) )
+        Text(text = exercise, style = NotoTypography.labelSmall, modifier = Modifier.padding(start = 8.dp) )
     }
 }
