@@ -16,8 +16,8 @@ interface DayExerciseDao {
     fun getAllDayExercise(routineDayId: Int): Flow<Map<DayExerciseEntity, ExerciseEntity>>
 
 
-    @Query("SELECT * FROM day_exercise JOIN exercise ON day_exercise.exercise_id = exercise.id WHERE day_exercise.id=(:dayExerciseId)")
-    fun getDayExercise(dayExerciseId: Int): Flow<Map<DayExerciseEntity, ExerciseEntity>>
+    @Query("SELECT * FROM day_exercise JOIN exercise ON day_exercise.exercise_id = exercise.id WHERE day_exercise.routine_day_id=(:routineDayId)")
+    fun getDayExercise(routineDayId: Int): Flow<Map<DayExerciseEntity, ExerciseEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDayExercise(dayExerciseEntity: DayExerciseEntity)

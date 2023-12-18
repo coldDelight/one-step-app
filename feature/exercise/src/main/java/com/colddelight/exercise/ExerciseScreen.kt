@@ -4,10 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +28,11 @@ import com.colddelight.designsystem.R
 import com.colddelight.designsystem.component.DateWithCnt
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
+import com.colddelight.designsystem.theme.DarkGray
+import com.colddelight.designsystem.theme.LightGray
+import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
+import com.colddelight.model.Exercise
 import com.colddelight.model.TodayRoutine
 import com.colddelight.model.ExerciseCategory
 
@@ -51,13 +59,13 @@ fun ExerciseScreen(
 private fun ExerciseContentWithState(uiState: ExerciseUiState) {
     when (uiState) {
         is ExerciseUiState.Loading -> ExerciseLoading()
-        is ExerciseUiState.Error -> ExerciseLoading()
-        is ExerciseUiState.Success -> ExerciseContent(uiState.routineInfo)
+        is ExerciseUiState.Error -> Text(text = uiState.msg)
+        is ExerciseUiState.Success -> ExerciseContent(uiState.routineInfo, uiState.exerciseList)
     }
 }
 
 @Composable
-private fun ExerciseContent(routineInfo: TodayRoutine) {
+private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exercise>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -65,8 +73,37 @@ private fun ExerciseContent(routineInfo: TodayRoutine) {
     ) {
         TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo)
         TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
+        ExerciseList(exerciseList)
     }
 }
+
+
+@Composable
+fun ExerciseList(exerciseList: List<Exercise>) {
+    LazyColumn(modifier = Modifier.padding(bottom = 16.dp)) {
+        items(exerciseList) { item ->
+            ExerciseListItem(item)
+        }
+    }
+    Text(text = "+ 추가운동이여", style =NotoTypography.bodyLarge, color = LightGray)
+}
+
+@Composable
+fun ExerciseListItem(item: Exercise) {
+    Column(modifier = Modifier.padding(top = 16.dp)) {
+        when (item) {
+            is Exercise.Weight -> {
+                Text(item.name, style = NotoTypography.bodyLarge)
+            }
+
+            is Exercise.Calisthenics -> {
+                Text(item.name, style = NotoTypography.bodyLarge)
+            }
+        }
+        Divider(color = DarkGray, modifier = Modifier.padding(top = 16.dp), thickness = 2.dp)
+    }
+}
+
 
 @Composable
 private fun ExerciseLoading() {
@@ -116,6 +153,7 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
                         painter = painterResource(id = R.drawable.leg),
                         contentDescription = "하체",
                     )
+
                     ExerciseCategory.CALISTHENICS -> Image(
                         painter = painterResource(id = R.drawable.calisthenics),
                         contentDescription = "맨몸",
@@ -132,7 +170,14 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
 private fun ExerciseContentPreview() {
     val routineInfo =
         TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
-    ExerciseContent(routineInfo)
+    ExerciseContent(
+        routineInfo,
+        listOf(
+            Exercise.Weight("벤치 프레스", 20, 40, "", 1),
+            Exercise.Weight("스쿼트", 40, 100, "", 2),
+            Exercise.Calisthenics("턱걸이", 12, 3, "", 3)
+        )
+    )
 
 }
 

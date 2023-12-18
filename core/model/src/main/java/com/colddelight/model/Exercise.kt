@@ -17,4 +17,6 @@ sealed interface Exercise {
         val time: String = "",
         val exerciseId: Int
     ) : Exercise
+
+
 }
