@@ -20,9 +20,6 @@ class ExerciseViewModel @Inject constructor(
     private val repository: ExerciseRepository,
 ) : ViewModel() {
 
-//    private val _exerciseUiState = MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
-//    val exerciseUiState: StateFlow<ExerciseUiState> = _exerciseUiState
-
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
     private val todayExerciseList = repository.getTodayExerciseList(2)
 
@@ -44,19 +41,5 @@ class ExerciseViewModel @Inject constructor(
 //        getTodayRoutine()
 //    }
 
-//    private fun getTodayRoutine() {
-//        viewModelScope.launch {
-//            val routineFlow = repository.getTodayRoutineInfo()
-//            val exerciseListFlow = repository.getTodayExerciseList(2)
-//            routineFlow.combine(exerciseListFlow) { routine, exerciseList ->
-//                Log.e("TAG", "getTodayRoutine: $exerciseList")
-//                ExerciseUiState.Success(routine, 0, exerciseList)
-//            }.catch {
-//                _exerciseUiState.value = ExerciseUiState.Error(it.message ?: "error")
-//            }.collect { uiState ->
-//                _exerciseUiState.value = uiState
-//            }
-//        }
-//    }
 
 }
