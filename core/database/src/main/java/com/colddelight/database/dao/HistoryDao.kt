@@ -21,7 +21,7 @@ interface HistoryDao {
     fun getTodayHistory(createTime: LocalDate): Flow<HistoryEntity>
 
     @Query("SELECT id,is_free FROM history WHERE created_time = (:createTime)")
-    fun getTodayHistoryId(createTime: LocalDate): Map<@MapColumn("id")Int,@MapColumn("is_free") Boolean>
+    fun getTodayHistoryId(createTime: LocalDate): Flow<Map<@MapColumn("id") Int, @MapColumn("is_free") Boolean>>
 
 
     // 히스토리 아이디임
