@@ -40,7 +40,7 @@ fun CategoryChip(
     label : String,
     size: Int
 ){  Box(
-        modifier = Modifier.padding(end=size.dp)
+        modifier = Modifier.padding(end=(size/2).dp)
     ) {
             Text(
                 text = label,
