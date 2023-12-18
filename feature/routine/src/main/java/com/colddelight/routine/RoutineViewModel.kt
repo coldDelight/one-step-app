@@ -1,11 +1,50 @@
 package com.colddelight.routine
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.colddelight.data.repository.RoutineRepository
+import com.colddelight.model.RoutineDayInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RoutineViewModel @Inject constructor(
-): ViewModel() {
+    private val repository: RoutineRepository,
+    ): ViewModel() {
+    //private val _routineUiState = MutableStateFlow<RoutineUiState>(RoutineUiState.Loading)
+    //val routineUiState: StateFlow<RoutineUiState> = _routineUiState
 
+    init {
+        Log.e(javaClass.simpleName, ": 시작", )
+        viewModelScope.launch {
+            Log.e(javaClass.simpleName, ": ${repository.getRoutineWeekInfo()}", )
+        }
+    }
+
+    val routineInfoUiState: StateFlow<RoutineInfoUiState> =
+        repository.getRoutine()
+            .map {  RoutineInfoUiState.Success(it) }
+            .catch{ throwable -> RoutineInfoUiState.Error(throwable.message?:"Error")  }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue =  RoutineInfoUiState.Loading
+            )
+
+    val routineDayInfoUiState: StateFlow<RoutineDayInfoUiState> =
+        repository.getRoutineWeekInfo()
+            .map {  RoutineDayInfoUiState.Success(it) }
+            .catch{ throwable -> RoutineDayInfoUiState.Error(throwable.message?:"Error")  }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue =  RoutineDayInfoUiState.Loading
+            )
 }
