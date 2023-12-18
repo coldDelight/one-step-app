@@ -1,14 +1,14 @@
 package com.colddelight.routine
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.RoutineRepository
+import com.colddelight.model.RoutineDayInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,19 +22,29 @@ class RoutineViewModel @Inject constructor(
     //val routineUiState: StateFlow<RoutineUiState> = _routineUiState
 
     init {
-
+        Log.e(javaClass.simpleName, ": 시작", )
+        viewModelScope.launch {
+            Log.e(javaClass.simpleName, ": ${repository.getRoutineWeekInfo()}", )
+        }
     }
 
-    val routineUiState: StateFlow<RoutineUiState> =
+    val routineInfoUiState: StateFlow<RoutineInfoUiState> =
         repository.getRoutine()
-            .map {  RoutineUiState.Success(it) }
-            .catch{ throwable -> throwable.message?.let { RoutineUiState.Error(it) } }
+            .map {  RoutineInfoUiState.Success(it) }
+            .catch{ throwable -> RoutineInfoUiState.Error(throwable.message?:"Error")  }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue =  RoutineUiState.Loading
+                initialValue =  RoutineInfoUiState.Loading
             )
 
-
-
+    val routineDayInfoUiState: StateFlow<RoutineDayInfoUiState> =
+        repository.getRoutineWeekInfo()
+            .map {  RoutineDayInfoUiState.Success(it) }
+            .catch{ throwable -> RoutineDayInfoUiState.Error(throwable.message?:"Error")  }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue =  RoutineDayInfoUiState.Loading
+            )
 }

@@ -50,14 +50,19 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.TextGray
+import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
+import com.colddelight.model.RoutineDayInfo
 
 @Composable
 fun RoutineScreen(
     viewModel: RoutineViewModel = hiltViewModel(),
 ){
-    val routineUiState by viewModel.routineUiState.collectAsStateWithLifecycle()
-    Log.e("TAG", "RoutineScreen: ${routineUiState}", )
+    val routineInfoUiState by viewModel.routineInfoUiState.collectAsStateWithLifecycle()
+    val routineDayInfoUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
+
+    Log.e("TAG", "RoutineScreen: ${routineInfoUiState}", )
+    Log.e("TAG", "RoutineScreen: ${routineDayInfoUiState}", )
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -67,7 +72,10 @@ fun RoutineScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            RoutineContentWithState(uiState = routineUiState)
+            RoutineContentWithState(
+                routineInfoUiState = routineInfoUiState,
+                routineDayInfoUiState = routineDayInfoUiState
+                )
         }
     }
 }
@@ -75,15 +83,31 @@ fun RoutineScreen(
 @Preview
 @Composable
 fun PreviewUnit(){
-    RoutineContent(Routine("Test",3))
+    RoutineContent(
+        Routine("Test",3),
+        listOf(
+            RoutineDayInfo(0,1, listOf(0),
+                listOf(ExerciseInfo(0,1,"벤치프레스",0,0, listOf(20,40), listOf(12,12)))
+            ),
+            RoutineDayInfo(0,1, listOf(0),
+                listOf(ExerciseInfo(0,2,"플라이",1,1, listOf(20,40), listOf(12,12)))
+            )
+        )
+    )
 }
 
 @Composable
-private fun RoutineContentWithState(uiState: RoutineUiState) {
-    when(uiState) {
-        is RoutineUiState.Loading -> RoutineLoading()
-        is RoutineUiState.Error -> RoutineLoading()
-        is RoutineUiState.Success -> RoutineContent(uiState.routine)
+private fun RoutineContentWithState(
+    routineInfoUiState: RoutineInfoUiState,
+    routineDayInfoUiState: RoutineDayInfoUiState
+) {
+    when{
+        routineInfoUiState is RoutineInfoUiState.Success &&
+                routineDayInfoUiState is RoutineDayInfoUiState.Success -> RoutineContent(routineInfoUiState.routine,routineDayInfoUiState.routineDayInfo)
+        routineInfoUiState is RoutineInfoUiState.Loading -> RoutineLoading()
+        routineInfoUiState is RoutineInfoUiState.Error -> RoutineLoading()
+        routineDayInfoUiState is RoutineDayInfoUiState.Loading -> RoutineLoading()
+        routineDayInfoUiState is RoutineDayInfoUiState.Error -> RoutineLoading()
     }
 }
 
@@ -95,7 +119,7 @@ private fun RoutineLoading() {
 }
 
 @Composable
-private fun RoutineContent(routine: Routine) {
+private fun RoutineContent(routine: Routine, routineDayList: List<RoutineDayInfo>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -172,37 +196,7 @@ fun DropDownRoutineList(routineList: List<String>, modifier: Modifier){
                 focusedIndicatorColor =  TextGray,
                 unfocusedIndicatorColor= TextGray,
             ),
-            //contentPadding = TextFieldDefaults.textFieldWithLabelPadding(0.dp)
         )
-//        BasicTextField(
-//            value = selectedOptionText,
-//            onValueChange = {},
-//            readOnly = true,
-//            textStyle= NotoTypography.headlineMedium,
-//            modifier = Modifier
-//                .menuAnchor()
-//        ){
-//            TextFieldDefaults.TextFieldDecorationBox(
-//                value = selectedOptionText,
-//                innerTextField = it,
-//                enabled = false,
-//                singleLine = true,
-//                visualTransformation = VisualTransformation.None,
-//                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-//                colors = TextFieldDefaults.colors(
-//                    focusedTextColor = TextGray,
-//                    unfocusedTextColor = TextGray,
-//                    disabledContainerColor =  Color.Transparent,
-//                    focusedContainerColor = Color.Transparent,
-//                    unfocusedContainerColor =   Color.Transparent,
-//                    focusedTrailingIconColor = TextGray,
-//                    unfocusedTrailingIconColor = TextGray,
-//                    focusedIndicatorColor =  TextGray,
-//                    unfocusedIndicatorColor= TextGray,
-//                ),
-//                interactionSource = null
-//            )
-//        }
 
         ExposedDropdownMenu(
             expanded = expanded,
