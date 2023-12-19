@@ -34,12 +34,12 @@ class ExerciseViewModel @Inject constructor(
             initialValue = ExerciseUiState.Loading
         )
 
-//    init {
-//        viewModelScope.launch {
-////            repository.addTmp()
-//        }
+    init {
+        viewModelScope.launch {
+            repository.addTmp()
+        }
 ////        getTodayRoutine()
-//    }
+    }
 
 
 }
