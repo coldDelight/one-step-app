@@ -28,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,8 +35,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.designsystem.R
+import com.colddelight.designsystem.component.CircleDot
 import com.colddelight.designsystem.component.DateWithCnt
-import com.colddelight.designsystem.component.StepButton
+import com.colddelight.designsystem.component.ExerciseProgress
+import com.colddelight.designsystem.component.SubButton
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
@@ -89,12 +89,11 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
     ) {
         TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo, Modifier)
         TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
-        ExerciseProgress(0, exerciseList.size)
+        ExerciseProgress(Modifier.fillMaxWidth(), 0, exerciseList.size)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                , Alignment.Center
+                .padding(16.dp), Alignment.Center
         ) {
             ExerciseButton(exerciseList[0])
         }
@@ -103,9 +102,8 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
-            StepButton(
+            SubButton(
                 {},
-                color = DarkGray,
                 content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
             Row(modifier = Modifier.padding(top = 10.dp)) {
                 CircleDot(Main)
@@ -174,30 +172,6 @@ fun ExerciseButton(exercise: Exercise) {
             }
         }
     }
-}
-
-@Composable
-fun ExerciseProgress(current: Int, exerciseCnt: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(
-            16.dp,
-            Alignment.CenterHorizontally
-        )
-    ) {
-        repeat(exerciseCnt) { index ->
-            val circleColor = if (index <= current) Main else LightGray
-            CircleDot(color = circleColor)
-        }
-    }
-}
-
-@Composable
-fun CircleDot(color: Color) {
-    Box(
-        modifier = Modifier
-            .size(14.dp)
-            .background(color, shape = CircleShape)
-    )
 }
 
 

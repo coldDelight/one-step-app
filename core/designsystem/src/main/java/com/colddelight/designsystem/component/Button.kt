@@ -9,15 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.OneStepTheme
 
 @Composable
-fun StepButton(
+fun MainButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    color: Color,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -26,7 +26,27 @@ fun StepButton(
         modifier = modifier,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = color
+            containerColor = Main
+        ),
+        contentPadding = contentPadding,
+        content = content,
+    )
+}
+
+@Composable
+fun SubButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = DarkGray
         ),
         contentPadding = contentPadding,
         content = content,
@@ -37,6 +57,6 @@ fun StepButton(
 @Composable
 fun StepButtonPreview() {
     OneStepTheme {
-        StepButton(onClick = {}, color = Main, content = { Text("Test button") })
+        MainButton(onClick = {}, content = { Text("Test button") })
     }
 }
