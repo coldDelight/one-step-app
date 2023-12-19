@@ -22,9 +22,10 @@ class RoutineViewModel @Inject constructor(
     //val routineUiState: StateFlow<RoutineUiState> = _routineUiState
 
     init {
-        Log.e(javaClass.simpleName, ": 시작", )
         viewModelScope.launch {
-            Log.e(javaClass.simpleName, ": ${repository.getRoutineWeekInfo()}", )
+            //Log.e("부모델", "${repository.addRoutine()}: ", )
+            Log.e("부모델", "${repository.check()}: ", )
+
         }
     }
 
@@ -47,4 +48,5 @@ class RoutineViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue =  RoutineDayInfoUiState.Loading
             )
+
 }
