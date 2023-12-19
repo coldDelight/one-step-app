@@ -6,7 +6,7 @@ enum class ExerciseCategory(val id: Int) {
     BACK(3),
     ARM(4),
     LEG(5),
-    CALISTHENICS(7);
+    CALISTHENICS(6);
 
     companion object {
         fun fromId(id: Int): ExerciseCategory? =

@@ -1,15 +1,15 @@
 package com.colddelight.data.repository
 
+import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.model.Exercise
 import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
 
 interface ExerciseRepository {
 
-//    fun getTodayExerciseList(): Flow<List<Exercise>>
+    fun getTodayExerciseList(routineDayId:Int):Flow<List<Exercise>>
     fun getTodayRoutineInfo(): Flow<TodayRoutine>
 
-    suspend fun addRoutine()
+    suspend fun addTmp()
 
-    suspend fun add()
 }

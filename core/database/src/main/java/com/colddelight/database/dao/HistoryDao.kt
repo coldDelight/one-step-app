@@ -1,7 +1,9 @@
 package com.colddelight.database.dao
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.colddelight.database.model.HistoryEntity
@@ -14,8 +16,12 @@ interface HistoryDao {
 
     @Query("SELECT * FROM history WHERE routine_id = (:id)")
     fun getAllHistory(id: Int): Flow<List<HistoryEntity>>
+
     @Query("SELECT * FROM history WHERE created_time = (:createTime)")
     fun getTodayHistory(createTime: LocalDate): Flow<HistoryEntity>
+
+    @Query("SELECT id,is_free FROM history WHERE created_time = (:createTime)")
+    fun getTodayHistoryId(createTime: LocalDate): Flow<Map<@MapColumn("id") Int, @MapColumn("is_free") Boolean>>
 
 
     // 히스토리 아이디임
