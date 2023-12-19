@@ -14,12 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
@@ -43,13 +40,11 @@ import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
-import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.Exercise
 import com.colddelight.model.TodayRoutine
 import com.colddelight.model.ExerciseCategory
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @Composable
 fun ExerciseScreen(
@@ -81,41 +76,46 @@ private fun ExerciseContentWithState(uiState: ExerciseUiState) {
 
 @Composable
 private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exercise>) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-//            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo, Modifier)
-        TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
-        ExerciseProgress(Modifier.fillMaxWidth(), 0, exerciseList.size)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp), Alignment.Center
-        ) {
-            ExerciseButton(exerciseList[0])
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            Arrangement.SpaceBetween,
-            Alignment.CenterVertically
-        ) {
-            SubButton(
-                {},
-                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
-            Row(modifier = Modifier.padding(top = 10.dp)) {
-                CircleDot(Main)
-                Text(
-                    "0 H 48 min",
-                    style = HortaTypography.bodyMedium,
-                    modifier = Modifier.padding(start = 5.dp)
-                )
+        item {
+            TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo, Modifier)
+            TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
+            ExerciseProgress(Modifier.fillMaxWidth(), 0, exerciseList.size)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), Alignment.Center
+            ) {
+                ExerciseButton(exerciseList[0])
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                Arrangement.SpaceBetween,
+                Alignment.CenterVertically
+            ) {
+                SubButton(
+                    {},
+                    content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
+                Row(modifier = Modifier.padding(top = 10.dp)) {
+                    CircleDot(Main)
+                    Text(
+                        "0 H 48 min",
+                        style = HortaTypography.bodyMedium,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
             }
         }
+        items(exerciseList) {
+            ExerciseListItem(it)
+        }
 
-        ExerciseList(exerciseList, Modifier)
+
+
     }
 }
 
@@ -182,7 +182,20 @@ fun ExerciseList(exerciseList: List<Exercise>, modifier: Modifier) {
             ExerciseListItem(item)
         }
     }
-    Text(text = "+ 추가운동이여", style = NotoTypography.bodyLarge, color = LightGray)
+}
+
+@Preview
+@Composable
+fun ExerciseListPreview() {
+    ExerciseList(
+        listOf(
+            Exercise.Weight("벤치 프레스", 20, 40, "", 1),
+            Exercise.Weight("스쿼트", 40, 100, "", 2),
+            Exercise.Weight("데드 리프트", 40, 100, "", 2),
+            Exercise.Weight("숄더 프레스", 40, 100, "", 2),
+            Exercise.Calisthenics("턱걸이", 12, 3, "", 3)
+        ), Modifier
+    )
 }
 
 @Composable
