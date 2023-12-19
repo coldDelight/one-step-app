@@ -1,6 +1,7 @@
 package com.colddelight.data.repository
 
 import android.util.Log
+import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
@@ -77,7 +78,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, 7)
+                routineDayDao.getTodayRoutineInfo(routineId, 2)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
                         val routineInfo = TodayRoutine(
@@ -96,14 +97,8 @@ class ExerciseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTmp() {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val d = historyDao.getTodayHistoryId(LocalDate.now())
-//            Log.e("TAG", "addTmp: $d")
-//        }
-//        val d = dayExerciseDao.getDayExercise(2).first()
-//        Log.e("TAG", "addTmp: $d", )
-//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 1, listOf(1, 2)))
 //
+//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
 //                1,
@@ -114,15 +109,13 @@ class ExerciseRepositoryImpl @Inject constructor(
 //                isFree = false
 //            )
 //        )
-
 //        exerciseDao.insertExercise(ExerciseEntity("벤치 프레스", ExerciseCategory.ARM))
 //        exerciseDao.insertExercise(ExerciseEntity("스쿼트", ExerciseCategory.LEG))
 //        exerciseDao.insertExercise(ExerciseEntity("데드", ExerciseCategory.LEG))
 //        exerciseDao.insertExercise(ExerciseEntity("턱걸이", ExerciseCategory.CALISTHENICS))
-
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
-//                2,
+//                1,
 //                1,
 //                1,
 //                1,
@@ -132,7 +125,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        )
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
-//                2,
+//                1,
 //                2,
 //                2,
 //                2,
@@ -142,7 +135,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        )
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
-//                2,
+//                1,
 //                3,
 //                3,
 //                3,
@@ -152,7 +145,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        )
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
-//                2,
+//                1,
 //                4,
 //                4,
 //                4,
@@ -160,11 +153,10 @@ class ExerciseRepositoryImpl @Inject constructor(
 //                listOf(12, 12, 12),
 //            )
 //        )
-
+//
+//    }
     }
-
-
-}
+    }
 
 
 

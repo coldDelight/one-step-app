@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -82,15 +84,17 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
     Column(
         modifier = Modifier
             .fillMaxSize()
+//            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo)
+        TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo, Modifier)
         TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
         ExerciseProgress(0, exerciseList.size)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp), Alignment.Center
+                .padding(16.dp)
+                , Alignment.Center
         ) {
             ExerciseButton(exerciseList[0])
         }
@@ -113,7 +117,7 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
             }
         }
 
-        ExerciseList(exerciseList)
+        ExerciseList(exerciseList, Modifier)
     }
 }
 
@@ -154,7 +158,12 @@ fun ExerciseButton(exercise: Exercise) {
                             Text("max : ${exercise.max}kg", style = NotoTypography.bodyMedium)
 
                         }
-                        Text("운동하기", style = NotoTypography.bodyMedium, color = Main, modifier = Modifier.weight(0.5F))
+                        Text(
+                            "운동하기",
+                            style = NotoTypography.bodyMedium,
+                            color = Main,
+                            modifier = Modifier.weight(0.5F)
+                        )
 
                     }
                 }
@@ -193,8 +202,8 @@ fun CircleDot(color: Color) {
 
 
 @Composable
-fun ExerciseList(exerciseList: List<Exercise>) {
-    LazyColumn(modifier = Modifier.padding(bottom = 16.dp)) {
+fun ExerciseList(exerciseList: List<Exercise>, modifier: Modifier) {
+    LazyColumn(modifier = modifier.padding(bottom = 16.dp)) {
         items(exerciseList) { item ->
             ExerciseListItem(item)
         }
@@ -227,8 +236,9 @@ private fun ExerciseLoading() {
 }
 
 @Composable
-private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine) {
+private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: Modifier) {
     Column(
+        modifier = Modifier
     ) {
         DateWithCnt(date, routineInfo.cnt)
         Text(text = routineInfo.name, style = NotoTypography.headlineLarge)
@@ -297,11 +307,4 @@ private fun ExerciseContentPreview() {
 
 }
 
-@Preview
-@Composable
-private fun RoutineInfoPreview() {
-    val todayRoutine =
-        TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
-    TodayRoutineInfo(date = "2023.11.15 토", routineInfo = todayRoutine)
 
-}
