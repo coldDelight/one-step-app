@@ -5,7 +5,6 @@ data class ExerciseInfo (
     val exerciseId: Int,
     val exerciseName: String,
     val index: Int,
-    val origin: Int,
     val kgList: List<Int>,
     val repsList: List<Int>,
 )

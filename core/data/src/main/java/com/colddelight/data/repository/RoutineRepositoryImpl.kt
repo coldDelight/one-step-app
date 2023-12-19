@@ -68,7 +68,6 @@ class RoutineRepositoryImpl @Inject constructor(
                                         exerciseId = exercise.id,
                                         exerciseName = exercise.name,
                                         index = dayExercise.index,
-                                        origin = dayExercise.origin,
                                         kgList = dayExercise.kgList,
                                         repsList = dayExercise.repsList
                                     )
