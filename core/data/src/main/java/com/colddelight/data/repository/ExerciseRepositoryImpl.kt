@@ -10,6 +10,7 @@ import com.colddelight.database.dao.RoutineDayDao
 import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryEntity
+import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.database.model.RoutineDayEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Exercise
@@ -28,6 +29,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.singleOrNull
 
 class ExerciseRepositoryImpl @Inject constructor(
     private val historyDao: HistoryDao,
@@ -97,7 +100,26 @@ class ExerciseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTmp() {
-//
+
+        val dayExerciseList = dayExerciseDao.getSimpleDayExercise(1).singleOrNull()
+        dayExerciseList?.forEach { dayExercise ->
+            val historyExerciseEntity = HistoryExerciseEntity(
+                historyId = 1/* Set your historyId */,
+                exerciseId = dayExercise.exerciseId,
+                index = dayExercise.index,
+                time = ""/* Set your time */,
+                isDone = false,
+                kgList = dayExercise.kgList,
+                repsList = dayExercise.repsList
+            )
+            Log.e("TAG", "adssssssssssssdTmp: $historyExerciseEntity")
+//            historyExerciseDao.insertHistoryExercise(historyExerciseEntity)
+        }
+
+    }
+}
+
+
 //        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
@@ -113,9 +135,9 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        exerciseDao.insertExercise(ExerciseEntity("스쿼트", ExerciseCategory.LEG))
 //        exerciseDao.insertExercise(ExerciseEntity("데드", ExerciseCategory.LEG))
 //        exerciseDao.insertExercise(ExerciseEntity("턱걸이", ExerciseCategory.CALISTHENICS))
+//
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
-//                1,
 //                1,
 //                1,
 //                1,
@@ -128,7 +150,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //                1,
 //                2,
 //                2,
-//                2,
 //                listOf(60, 60, 80),
 //                listOf(12, 12, 12),
 //            )
@@ -136,7 +157,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        dayExerciseDao.insertDayExercise(
 //            DayExerciseEntity(
 //                1,
-//                3,
 //                3,
 //                3,
 //                listOf(60, 80, 100),
@@ -148,15 +168,14 @@ class ExerciseRepositoryImpl @Inject constructor(
 //                1,
 //                4,
 //                4,
-//                4,
 //                listOf(0, 0, 0),
 //                listOf(12, 12, 12),
 //            )
 //        )
 //
 //    }
-    }
-    }
+
+//}
 
 
 
