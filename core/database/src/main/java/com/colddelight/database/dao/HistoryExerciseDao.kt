@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryExerciseEntity
@@ -18,6 +19,16 @@ interface HistoryExerciseDao {
     @Query("SELECT * FROM history_exercise ")
     fun getHistoryExercises(): Flow<List<HistoryExerciseEntity>>
 
+//    @Transaction
+//    @Query("SELECT * FROM day_exercise WHERE routine_day_id = :routineDayId")
+//    suspend fun convertDayExercisesAndInsertHistory(routineDayId: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistoryExercise(historyExerciseEntity: HistoryExerciseEntity)
+
+
+    // Insert a list of HistoryExerciseEntity
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(historyExercises: List<HistoryExerciseEntity>)
+
 }

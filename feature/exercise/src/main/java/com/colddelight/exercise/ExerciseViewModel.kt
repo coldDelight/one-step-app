@@ -21,7 +21,7 @@ class ExerciseViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
-    private val todayExerciseList = repository.getTodayExerciseList(1)
+    private val todayExerciseList = repository.getTodayExerciseList(1, 1)
 
     val exerciseUiState: StateFlow<ExerciseUiState> = todayRoutineInfo
         .combine(todayExerciseList) { routine, exerciseList ->
