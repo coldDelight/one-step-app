@@ -2,19 +2,24 @@ package com.colddelight.routine
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,11 +28,9 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults.contentPaddingWithoutLabel
-import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,13 +38,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.colddelight.data.util.getDayOfWeek
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
 import com.colddelight.designsystem.theme.BackGray
@@ -61,8 +65,8 @@ fun RoutineScreen(
     val routineInfoUiState by viewModel.routineInfoUiState.collectAsStateWithLifecycle()
     val routineDayInfoUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
 
-    Log.e("TAG", "RoutineScreen: ${routineInfoUiState}", )
-    Log.e("TAG", "RoutineScreen: ${routineDayInfoUiState}", )
+    Log.e("RoutineInfo", "RoutineScreen: ${routineInfoUiState}", )
+    Log.e("RoutineDayInfo", "RoutineScreen: ${routineDayInfoUiState}", )
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -84,13 +88,13 @@ fun RoutineScreen(
 @Composable
 fun PreviewUnit(){
     RoutineContent(
-        Routine("Test",3),
+        Routine(1,"Test",3),
         listOf(
-            RoutineDayInfo(0,1, listOf(0),
-                listOf(ExerciseInfo(0,1,"벤치프레스",0,0, listOf(20,40), listOf(12,12)))
+            RoutineDayInfo(0,0,1, listOf(0),
+                listOf(ExerciseInfo(0,1,"벤치프레스",0, listOf(20,40), listOf(12,12)))
             ),
-            RoutineDayInfo(0,1, listOf(0),
-                listOf(ExerciseInfo(0,2,"플라이",1,1, listOf(20,40), listOf(12,12)))
+            RoutineDayInfo(0,0,1, listOf(0),
+                listOf(ExerciseInfo(0,2,"플라이",1, listOf(20,40), listOf(12,12)))
             )
         )
     )
@@ -120,6 +124,7 @@ private fun RoutineLoading() {
 
 @Composable
 private fun RoutineContent(routine: Routine, routineDayList: List<RoutineDayInfo>) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -135,7 +140,40 @@ private fun RoutineContent(routine: Routine, routineDayList: List<RoutineDayInfo
             RoutineList(routine.name)
             CountDate(routine.cnt)
         }
-        ExerciseCardView("월요일", listOf("벤치프레스","플라이","스쿼트"),listOf("가슴","운동"))
+        ExerciseCardRow(routineDayList)
+    }
+}
+
+@Composable
+fun ExerciseCardRow(routineDayList: List<RoutineDayInfo>){
+
+    var screenWidth by remember { mutableStateOf(0) }
+
+    val density = LocalDensity.current.density
+
+
+    LazyRow{
+        items(routineDayList){routineDayInfo->
+            Box(
+                modifier = Modifier
+                    //.wrapContentWidth()
+                    //.fillMaxWidth(0.45f)
+                    .border(1.dp,Color.Red)
+                    .background(Main)
+//                    .width(IntrinsicSize.Max)
+//                    .padding(top = 24.dp)
+                    .background(Color.Cyan)
+                    .onGloballyPositioned {
+                        screenWidth = ((it.size.width) / density * 0.45) .toInt()
+                    }
+                    //.width((screenWidth * 0.45).dp)
+                     //.width((screenWidth * 0.45).dp)
+                //.widthIn(fraction = 0.8f)
+                    //.width((LocalDensity.current.run { maxWidth.toDp() } * 0.8).coerceAtMost(LocalDensity.current.run { maxWidth }))
+            ) {
+                ExerciseCardView(routineDayInfo = routineDayInfo)
+            }
+        }
     }
 }
 
@@ -220,13 +258,13 @@ fun DropDownRoutineList(routineList: List<String>, modifier: Modifier){
 
 @Composable
 fun ExerciseCardView(
-    dayOfWeek: String,
-    exerciseList: List<String>,
-    categoryList: List<String>
+    routineDayInfo: RoutineDayInfo
 ){
     Column(
         modifier = Modifier
-            .fillMaxWidth(0.45f)
+            .fillMaxWidth()
+            .padding(end = 16.dp)
+            //.fillMaxWidth(0.45f)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -234,20 +272,23 @@ fun ExerciseCardView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = dayOfWeek,
+                text = getDayOfWeek(routineDayInfo.dayOfWeek),
                 style = NotoTypography.bodyMedium,
                 modifier = Modifier
-                    .padding(start = 20.dp)
+                    //.padding(start = 10.dp,end = 40.dp)
             )
-            CategoryList(categoryList)
+            //TODO
+            //CategoryList(routineDayInfo.categoryList)
+            CategoryList(listOf("가슴","하체"))
+
         }
         Box(
             modifier = Modifier
                 .aspectRatio(8f / 7f)
-                .background(LightGray, RoundedCornerShape(20.dp))
+                .background(LightGray, RoundedCornerShape(10.dp))
                 .padding(16.dp),
         ) {
-            ExerciseList(exerciseList = exerciseList)
+            ExerciseList(exerciseList = routineDayInfo.exerciseList?: listOf())
         }
     }
 }
@@ -269,11 +310,11 @@ fun CategoryList(
 
 @Composable
 fun ExerciseList(
-    exerciseList : List<String>
+    exerciseList : List<ExerciseInfo>
 ){
     Column{
         exerciseList.forEach {
-            ExerciseText(it)
+            ExerciseText(it.exerciseName)
         }
     }
 }
@@ -292,6 +333,6 @@ fun ExerciseText(
             .size(3.dp)
             .background(Color.White, CircleShape)
         )
-        Text(text = exercise, style = NotoTypography.labelSmall, modifier = Modifier.padding(start = 8.dp) )
+        Text(text = exercise, style = NotoTypography.labelMedium, modifier = Modifier.padding(start = 8.dp) )
     }
 }
