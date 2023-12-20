@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,11 +38,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -112,22 +118,6 @@ fun RoutineScreen(
     }
 }
 
-@Preview
-@Composable
-fun PreviewUnit() {
-//    RoutineContent(
-//        Routine(1,"Test",3),
-//        listOf(
-//            RoutineDayInfo(0,0,1, listOf(0),
-//                listOf(ExerciseInfo(0,1,"벤치프레스",0, listOf(20,40), listOf(12,12)))
-//            ),
-//            RoutineDayInfo(0,0,1, listOf(0),
-//                listOf(ExerciseInfo(0,2,"플라이",1, listOf(20,40), listOf(12,12)))
-//            )
-//        )
-//    )
-}
-
 @Composable
 private fun RoutineContentWithState(
     routineInfoUiState: RoutineInfoUiState,
@@ -175,23 +165,24 @@ private fun RoutineContent(routine: Routine, routineDayList: List<RoutineDayInfo
             }
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        )
-        {
-            RoutineList(routine.name)
-            CountDate(routine.cnt)
-        }
-        ExerciseCardRow(routineDayList, screenWidth,currentDayOfWeek
+        //item{
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                RoutineList(routine.name)
+                CountDate(routine.cnt)
+            }
+            ExerciseCardRow(routineDayList, screenWidth,currentDayOfWeek
             ){ selectedDayOfWeek ->
-            // ExerciseCardView가 선택될 때마다 currentDayOfWeek를 업데이트
-            currentDayOfWeek = selectedDayOfWeek
-        }
-        RoutineDayScreen(routineDayList[currentDayOfWeek-1])
-        GridViewWithDifferentItemSizes()
+                // ExerciseCardView가 선택될 때마다 currentDayOfWeek를 업데이트
+                currentDayOfWeek = selectedDayOfWeek
+            }
+            RoutineDayScreen(routineDayList[currentDayOfWeek-1])
+        //}
     }
 }
 
@@ -212,37 +203,62 @@ fun DayOfWeekAndDot(routineDayInfo: RoutineDayInfo){
     }
 }
 
-@Preview
 @Composable
-fun GridViewWithDifferentItemSizes() {
-    // 아이템 목록 생성
-    val itemsList = (0..5).toList()
-
+fun ExerciseGridList(
+    exerciseList: List<Exercise>
+) {
     Column {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(2)
         ) {
-            item {
-                ExerciseItem(
-                    exercise = Exercise.Weight(name = "벤치프레스", 20, 40, "", 1),
-                )
-            }
-            item {
-                Text(
-                    "Single item", modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(2f / 1f)
-                )
+            if(exerciseList.isNotEmpty()){
+                item {
+                    ExerciseItem(
+                        exercise = exerciseList[0],
+                    )
+                }
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(2f / 1f)
+                    )
 
+                }
+                if(exerciseList.size >=2){
+                    val itemsList = exerciseList.subList(1, exerciseList.size)
+                    items(itemsList) {
+                        ExerciseItem(exercise = it)
+                    }
+                }
             }
-            items(itemsList) {
-                var currentItemCenter = Offset.Zero
-                ExerciseItem(exercise = Exercise.Weight(name = "벤치프레스${it + 1}", 20, 40, "", 1),)
+            item{
+                AddExerciseToRoutineDayBtn()
             }
         }
     }
 }
 
+@Composable
+fun AddExerciseToRoutineDayBtn(){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .aspectRatio(1f / 1f)
+            .padding(16.dp)
+            .background(BackGray, CircleShape)
+            .border(4.dp, DarkGray, CircleShape)
+            .padding(16.dp)
+        ,
+        contentAlignment = Alignment.Center
+    ){
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = null,
+            tint = TextGray
+        )
+    }
+}
 
 @Composable
 fun ExerciseItem(
@@ -259,12 +275,28 @@ fun ExerciseItem(
         ,
         contentAlignment = Alignment.Center
     ){
-        val name = when (exercise) {
-            is Exercise.Weight -> exercise.name
-            is Exercise.Calisthenics -> exercise.name
+        when (exercise) {
+            is Exercise.Weight -> {
+                Column{
+                    Text(text = exercise.name, style = NotoTypography.bodySmall,modifier = Modifier
+                        .align(Alignment.CenterHorizontally))
+                    Text(text = "Min : ${exercise.min}", style = NotoTypography.labelMedium,modifier = Modifier
+                        .align(Alignment.CenterHorizontally))
+                    Text(text = "Max : ${exercise.max}", style = NotoTypography.labelMedium,modifier = Modifier
+                        .align(Alignment.CenterHorizontally))
+                }
+            }
+            is Exercise.Calisthenics -> {
+                Column {
+                    Text(text = exercise.name, style = NotoTypography.bodySmall,modifier = Modifier
+                        .align(Alignment.CenterHorizontally))
+                    Text(text = "${exercise.reps}", style = NotoTypography.labelMedium,modifier = Modifier
+                        .align(Alignment.CenterHorizontally))
+                }
+            }
         }
         Column {
-            Text(text = name, style = NotoTypography.bodySmall)
+
         }
     }
 }
@@ -275,6 +307,11 @@ fun ExerciseItem(
 @Composable
 fun RoutineDayScreen( routineDayInfo: RoutineDayInfo ){
     DayOfWeekAndDot(routineDayInfo)
+    val categoryList: List<String> = routineDayInfo.categoryList?.map {
+        getCategoryStringFromInt(it)
+    } ?: emptyList()
+    CategoryList(categoryList = categoryList,16)
+    ExerciseGridList(routineDayInfo.exerciseList?: listOf())
 }
 
 @Composable
@@ -414,7 +451,7 @@ fun ExerciseCardView(
                 getCategoryStringFromInt(it)
             } ?: emptyList()
 
-            CategoryList(categoryList)
+            CategoryList(categoryList,8)
 
         }
         Box(
@@ -436,11 +473,12 @@ fun ExerciseCardView(
 @Composable
 fun CategoryList(
     categoryList: List<String>,
+    size: Int
 ) {
     Row(
     ) {
         categoryList.forEach {
-            CategoryChip(it, 8)
+            CategoryChip(it, size)
         }
     }
 }
