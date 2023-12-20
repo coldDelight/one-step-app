@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ExerciseRepository {
 
-    fun getTodayExerciseList(routineDayId:Int):Flow<List<Exercise>>
+    fun getTodayExerciseList(routineDayId:Int,historyId:Int):Flow<List<Exercise>>
     fun getTodayRoutineInfo(): Flow<TodayRoutine>
 
     suspend fun addTmp()

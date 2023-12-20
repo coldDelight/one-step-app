@@ -40,42 +40,51 @@ class ExerciseRepositoryImpl @Inject constructor(
     private val exerciseDao: ExerciseDao,
     private val userDataSource: UserPreferencesDataSource
 ) : ExerciseRepository {
-    override fun getTodayExerciseList(routineDayId: Int): Flow<List<Exercise>> {
-        val historyIdFlow = historyDao.getTodayHistoryId(LocalDate.now())
-        return combine(
-            historyDao.getTodayHistoryId(LocalDate.now()).flatMapLatest { id ->
-                historyExerciseDao.getTodayHistoryExercises(id.keys.first())
-            },
-            dayExerciseDao.getDayExercise(routineDayId)
-        ) { historyExercises, dayExercises ->
-            //일단은 dayExercises만 가지고
-            //historyExercises가지고 히스토리 기준으로 나눠야 함
-            val combinedList = mutableListOf<Exercise>()
-            dayExercises.forEach { (dayExerciseEntity, exercise) ->
-                when (exercise.category) {
-                    ExerciseCategory.CALISTHENICS ->
-                        Exercise.Calisthenics(
-                            exerciseId = exercise.id,
-                            name = exercise.name,
-                            time = "",
-                            reps = dayExerciseEntity.repsList.maxOrNull() ?: 0,
-                            set = dayExerciseEntity.repsList.size
-                        )
+    override fun getTodayExerciseList(routineDayId: Int, historyId: Int): Flow<List<Exercise>> {
+        return historyExerciseDao.getTodayHistoryExercises(historyId)
+            .map { historyExercises ->
+                val exerciseList = mutableListOf<Exercise>()
+                historyExercises.forEach { (dayExerciseEntity, exercise) ->
+                    val exerciseItem = when (exercise.category) {
+                        ExerciseCategory.CALISTHENICS ->
+                            transformCalisthenicsExercise(dayExerciseEntity, exercise)
 
-                    else ->
-                        Exercise.Weight(
-                            exerciseId = exercise.id,
-                            name = exercise.name,
-                            time = "",
-                            min = dayExerciseEntity.kgList.minOrNull() ?: 0,
-                            max = dayExerciseEntity.kgList.maxOrNull() ?: 0
-                        )
-                }.apply {
-                    combinedList.add(this)
+                        else -> transformWeightExercise(dayExerciseEntity, exercise)
+                    }
+                    exerciseList.add(exerciseItem)
                 }
+                exerciseList
             }
-            combinedList
-        }
+    }
+
+    private fun transformCalisthenicsExercise(
+        historyExerciseEntity: HistoryExerciseEntity,
+        exercise: ExerciseEntity
+    ): Exercise.Calisthenics {
+        return Exercise.Calisthenics(
+            exerciseId = exercise.id,
+            name = exercise.name,
+            time = "",
+            reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
+            set = historyExerciseEntity.repsList.size,
+            isDone = historyExerciseEntity.isDone,
+
+            )
+    }
+
+    private fun transformWeightExercise(
+        historyExerciseEntity: HistoryExerciseEntity,
+        exercise: ExerciseEntity
+    ): Exercise.Weight {
+        return Exercise.Weight(
+            exerciseId = exercise.id,
+            name = exercise.name,
+            time = "",
+            min = historyExerciseEntity.kgList.minOrNull() ?: 0,
+            max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
+            isDone = historyExerciseEntity.isDone
+
+        )
     }
 
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
@@ -101,20 +110,25 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun addTmp() {
 
-        val dayExerciseList = dayExerciseDao.getSimpleDayExercise(1).singleOrNull()
-        dayExerciseList?.forEach { dayExercise ->
-            val historyExerciseEntity = HistoryExerciseEntity(
-                historyId = 1/* Set your historyId */,
-                exerciseId = dayExercise.exerciseId,
-                index = dayExercise.index,
-                time = ""/* Set your time */,
-                isDone = false,
-                kgList = dayExercise.kgList,
-                repsList = dayExercise.repsList
-            )
-            Log.e("TAG", "adssssssssssssdTmp: $historyExerciseEntity")
-//            historyExerciseDao.insertHistoryExercise(historyExerciseEntity)
+//        val history = historyExerciseDao.getHistoryExercises().first()
+//        Log.e("TAG", "지윽은ㄹ : $history", )
+
+        /** 해당 routine day에 모든 운동 히스토리로 옮기느 작업
+
+        val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
+        val historyExercises = dayExercises.map { dayExercise ->
+        HistoryExerciseEntity(
+        historyId = 1,
+        exerciseId = dayExercise.exerciseId,
+        index = dayExercise.index,
+        isDone = false, // Set default value
+        time = "", // Set default value
+        kgList = dayExercise.kgList,
+        repsList = dayExercise.repsList
+        )
         }
+        historyExerciseDao.insertAll(historyExercises)
+         **/
 
     }
 }
