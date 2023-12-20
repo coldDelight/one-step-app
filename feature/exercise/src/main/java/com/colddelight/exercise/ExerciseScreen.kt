@@ -212,11 +212,11 @@ fun ExerciseList(exerciseList: List<Exercise>, modifier: Modifier, cur: Int) {
 fun ExerciseListPreview() {
     ExerciseList(
         listOf(
-            Exercise.Weight(true, "벤치 프레스", 20, 40, "+ 15 min 47sec", 1),
-            Exercise.Weight(false, "스쿼트", 40, 100, "+ 33 min 12sec", 2),
-            Exercise.Weight(false, "데드 리프트", 40, 100, "", 2),
-            Exercise.Weight(false, "숄더 프레스", 40, 100, "", 2),
-            Exercise.Calisthenics(false, "턱걸이", 12, 3, "", 3)
+            Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true),
+            Exercise.Weight("스쿼트", 40, 100, "+ 33 min 12sec", 2, false),
+            Exercise.Weight("데드 리프트", 40, 100, "", 2, false),
+            Exercise.Weight("숄더 프레스", 40, 100, "", 2, false),
+            Exercise.Calisthenics("턱걸이", 12, 3, "", 3, false)
         ), Modifier, 1
     )
 }
@@ -245,7 +245,7 @@ fun ExerciseListItem(item: Exercise) {
 @Preview
 @Composable
 fun ExerciseItemPreview() {
-    ExerciseListItem(Exercise.Weight(true, "벤치 프레스", 20, 40, "+ 15 min 47sec", 1))
+    ExerciseListItem(Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true))
 }
 
 @Composable
@@ -435,11 +435,11 @@ private fun ExerciseContentPreview() {
     ExerciseContent(
         routineInfo,
         listOf(
-            Exercise.Weight(true, "벤치 프레스", 20, 40, "+ 15 min 47sec", 1),
-            Exercise.Weight(false, "스쿼트", 40, 100, "", 2),
-            Exercise.Weight(false, "데드 리프트", 40, 100, "", 2),
-            Exercise.Weight(false, "숄더 프레스", 40, 100, "", 2),
-            Exercise.Calisthenics(false, "턱걸이", 12, 3, "", 3)
+            Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true),
+            Exercise.Weight("스쿼트", 40, 100, "", 2, false),
+            Exercise.Weight("데드 리프트", 40, 100, "", 2, false),
+            Exercise.Weight("숄더 프레스", 40, 100, "", 2, false),
+            Exercise.Calisthenics("턱걸이", 12, 3, "", 3, false)
         ), 1
     )
 
