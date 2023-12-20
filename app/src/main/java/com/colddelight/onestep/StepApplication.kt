@@ -8,7 +8,6 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.colddelight.data.CustomWorker
-import com.colddelight.data.repository.ExerciseRepository
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

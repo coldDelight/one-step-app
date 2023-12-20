@@ -1,45 +1,29 @@
 package com.colddelight.routine
 
 import android.util.Log
-import android.widget.GridLayout
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -56,23 +40,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.colddelight.data.util.getCategoryStringFromInt
 import com.colddelight.data.util.getDayOfWeek
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
@@ -84,12 +60,10 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.designsystem.theme.notosanskr
 import com.colddelight.model.Exercise
-import com.colddelight.model.ExerciseInfo
+import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
-import kotlin.math.log
 
 @Composable
 fun RoutineScreen(
@@ -308,7 +282,7 @@ fun ExerciseItem(
 fun RoutineDayScreen( routineDayInfo: RoutineDayInfo ){
     DayOfWeekAndDot(routineDayInfo)
     val categoryList: List<String> = routineDayInfo.categoryList?.map {
-        getCategoryStringFromInt(it)
+        ExerciseCategory.toName(it)
     } ?: emptyList()
     CategoryList(categoryList = categoryList,16)
     ExerciseGridList(routineDayInfo.exerciseList?: listOf())
@@ -448,7 +422,7 @@ fun ExerciseCardView(
                     .padding(start = 10.dp)
             )
             val categoryList: List<String> = routineDayInfo.categoryList?.map {
-                getCategoryStringFromInt(it)
+                ExerciseCategory.toName(it)
             } ?: emptyList()
 
             CategoryList(categoryList,8)
