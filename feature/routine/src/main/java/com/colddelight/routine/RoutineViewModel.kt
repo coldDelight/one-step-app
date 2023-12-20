@@ -23,8 +23,9 @@ class RoutineViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            //repository.addRoutine()
             //Log.e("부모델", "${repository.addRoutine()}: ", )
-            Log.e("부모델", "${repository.check()}: ", )
+            //Log.e("부모델", "${repository.check()}: ", )
 
         }
     }

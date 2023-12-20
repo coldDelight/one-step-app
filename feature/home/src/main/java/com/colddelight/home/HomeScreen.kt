@@ -39,6 +39,7 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .background(BackGray)
         ) {
             Box(
                 modifier = Modifier

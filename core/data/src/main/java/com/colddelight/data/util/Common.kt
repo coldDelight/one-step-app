@@ -32,6 +32,19 @@ fun getDayOfWeek(
     }
 }
 
+fun getCategoryStringFromInt(
+    category: Int
+): String {
+    return when(category){
+        1->"가슴"
+        2->"어깨"
+        3->"등"
+        4->"팔"
+        5->"하체"
+        else->"맨몸"
+    }
+}
+
 
 
 

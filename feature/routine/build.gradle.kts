@@ -9,6 +9,6 @@ android {
 }
 
 dependencies {
-
+    implementation ("androidx.compose.foundation:foundation:1.3.0")
 
 }

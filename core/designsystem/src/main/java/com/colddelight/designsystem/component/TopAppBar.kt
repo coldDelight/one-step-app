@@ -31,6 +31,7 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.designsystem.R
+import com.colddelight.designsystem.theme.NotoTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +46,7 @@ fun StepTopAppBar(
             title = {
                 Text(
                     text = stringResource(id = titleRes),
+                    style = NotoTypography.bodyMedium,
                     color = Main
                 ) },
             navigationIcon = {
