@@ -3,9 +3,6 @@ package com.colddelight.exercise
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,15 +25,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,7 +48,6 @@ import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.Exercise
 import com.colddelight.model.TodayRoutine
 import com.colddelight.model.ExerciseCategory
-import kotlin.math.roundToInt
 
 @Composable
 fun ExerciseScreen(
@@ -223,22 +214,10 @@ fun ExerciseListPreview() {
 
 @Composable
 fun ExerciseListItem(item: Exercise) {
-    when (item) {
-        is Exercise.Weight -> {
-            if (item.isDone) {
-                DoneExerciseItem(item.name, item.time)
-            } else {
-                TodoExerciseItem(item.name)
-            }
-        }
-
-        is Exercise.Calisthenics -> {
-            if (item.isDone) {
-                DoneExerciseItem(item.name, item.time)
-            } else {
-                TodoExerciseItem(item.name)
-            }
-        }
+    if (item.isDone) {
+        DoneExerciseItem(item.name, item.time)
+    } else {
+        TodoExerciseItem(item.name)
     }
 }
 
@@ -255,44 +234,15 @@ fun CurExerciseItem(item: Exercise) {
             .fillMaxWidth()
             .background(Main, shape = CircleShape)
     ) {
-        when (item) {
-            is Exercise.Weight -> {
-                Text(
-                    item.name,
-                    style = NotoTypography.bodyLarge,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(start = 50.dp)
-                        .padding(top = 16.dp, bottom = 16.dp)
-                )
-            }
-
-            is Exercise.Calisthenics -> {
-                Text(
-                    item.name,
-                    style = NotoTypography.bodyLarge,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(start = 50.dp)
-                        .padding(top = 16.dp, bottom = 16.dp)
-                )
-            }
-        }
+        Text(
+            item.name,
+            style = NotoTypography.bodyLarge,
+            color = Color.White,
+            modifier = Modifier
+                .padding(start = 50.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
+        )
     }
-
-
-//        Column(modifier = Modifier.background(Main).padding(top = 16.dp)) {
-//            when (item) {
-//                is Exercise.Weight -> {
-//                    Text(item.name, style = NotoTypography.bodyLarge)
-//                }
-//
-//                is Exercise.Calisthenics -> {
-//                    Text(item.name, style = NotoTypography.bodyLarge)
-//                }
-//            }
-//            Divider(color = DarkGray, modifier = Modifier.padding(top = 16.dp), thickness = 2.dp)
-//        }
 }
 
 @Composable
