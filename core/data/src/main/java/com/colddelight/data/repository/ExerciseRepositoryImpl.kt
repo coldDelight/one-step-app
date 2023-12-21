@@ -1,36 +1,20 @@
 package com.colddelight.data.repository
 
-import android.util.Log
-import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
-import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
-import com.colddelight.database.model.RoutineDayEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.TodayRoutine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.singleOrNull
 
 class ExerciseRepositoryImpl @Inject constructor(
     private val historyDao: HistoryDao,
