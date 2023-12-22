@@ -1,16 +1,13 @@
 package com.colddelight.exercise
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,9 +33,8 @@ class ExerciseViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.addTmp()
+//            repository.addTmp()
         }
-////        getTodayRoutine()
     }
 
 

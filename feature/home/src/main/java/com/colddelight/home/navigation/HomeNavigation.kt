@@ -12,24 +12,18 @@ fun NavController.navigateToHome(navOptions: NavOptions? = null) {
     this.navigate(HomeRoute.route, navOptions)
 }
 
-fun NavController.navigateHomeToExercise(routineDayId: Int) {
-    navigate(ExerciseRoute.detailRoute(routineDayId = routineDayId))
+fun NavController.navigateHomeToExercise() {
+    navigate(ExerciseRoute.route)
 }
 
 fun NavGraphBuilder.homeScreen(
-    onStartButtonClick: (Int) -> Unit
+    onStartButtonClick: () -> Unit,
 ) {
     composable(route = HomeRoute.route) {
         HomeScreen(onStartButtonClick = onStartButtonClick)
     }
-
-    composable(
-        route = ExerciseRoute.detailRoute(id),
-    ) {
-        ExerciseScreen()
-    }
 }
 
 object HomeRoute {
-    const val route:String = "home"
+    const val route: String = "home"
 }

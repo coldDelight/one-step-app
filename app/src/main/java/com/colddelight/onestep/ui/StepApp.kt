@@ -116,7 +116,7 @@ private fun StepTopBar(
             HomeRoute.route -> R.string.blank
             HistoryRoute.route -> R.string.history
             RoutineRoute.route -> R.string.routine
-            ExerciseRoute.detailRoute(1) -> R.string.exercise
+            ExerciseRoute.route -> R.string.exercise
             else -> R.string.exercise
         },
         navigationType = when (currentDestination) {

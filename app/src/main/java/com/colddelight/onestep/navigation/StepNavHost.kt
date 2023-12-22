@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.colddelight.exercise.navigation.exerciseScreen
+import com.colddelight.exercisedetail.navigation.exerciseDetailScreen
+import com.colddelight.exercisedetail.navigation.navigateExerciseToExerciseDetail
 import com.colddelight.history.navigation.historyScreen
 import com.colddelight.home.navigation.HomeRoute
 import com.colddelight.home.navigation.homeScreen
@@ -23,10 +25,11 @@ fun StepNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        homeScreen ( onStartButtonClick = navController::navigateHomeToExercise )
+        homeScreen(onStartButtonClick = navController::navigateHomeToExercise)
         historyScreen()
         routineScreen()
-        exerciseScreen()
+        exerciseScreen(onDetailButtonClick = navController::navigateExerciseToExerciseDetail)
+        exerciseDetailScreen()
     }
 
 }

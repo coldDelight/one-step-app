@@ -35,7 +35,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getTodayDateWithDayOfWeek
 import com.colddelight.designsystem.R
-import com.colddelight.designsystem.component.CircleDot
 import com.colddelight.designsystem.component.DateWithCnt
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.SubButton
@@ -52,6 +51,7 @@ import com.colddelight.model.ExerciseCategory
 @Composable
 fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
+    onDetailButtonClick: (Int) -> Unit
 ) {
     val exerciseUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     Scaffold(
@@ -63,17 +63,18 @@ fun ExerciseScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ExerciseContentWithState(uiState = exerciseUiState)
+            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState)
         }
     }
 }
 
 @Composable
-private fun ExerciseContentWithState(uiState: ExerciseUiState) {
+private fun ExerciseContentWithState(onDetailButtonClick: (Int) -> Unit, uiState: ExerciseUiState) {
     when (uiState) {
         is ExerciseUiState.Loading -> ExerciseLoading()
         is ExerciseUiState.Error -> Text(text = uiState.msg)
         is ExerciseUiState.Success -> ExerciseContent(
+            onDetailButtonClick,
             uiState.routineInfo, uiState.exerciseList, uiState
                 .cur
         )
@@ -81,7 +82,12 @@ private fun ExerciseContentWithState(uiState: ExerciseUiState) {
 }
 
 @Composable
-private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exercise>, cur: Int) {
+private fun ExerciseContent(
+    onDetailButtonClick: (Int) -> Unit,
+    routineInfo: TodayRoutine,
+    exerciseList: List<Exercise>,
+    cur: Int
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -97,31 +103,22 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
                     .fillMaxWidth()
                     .padding(16.dp), Alignment.Center
             ) {
-                ExerciseButton(exerciseList[cur])
+                ExerciseButton(exerciseList[cur], onDetailButtonClick)
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                Arrangement.SpaceBetween,
-                Alignment.CenterVertically
-            ) {
-                SubButton(
-                    {},
-                    content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
-                Row(modifier = Modifier.padding(top = 10.dp)) {
-                    CircleDot(Main)
-                    Text(
-                        "0 H 48 min",
-                        style = HortaTypography.bodyMedium,
-                        modifier = Modifier.padding(start = 5.dp)
-                    )
-                }
-            }
+            SubButton(
+                {},
+                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
+
         }
         itemsIndexed(exerciseList) { index, item ->
             if (cur == index) {
                 CurExerciseItem(item)
             } else {
-                ExerciseListItem(item)
+                if (item.isDone) {
+                    DoneExerciseItem(item.name, item.time)
+                } else {
+                    TodoExerciseItem(item.name)
+                }
             }
         }
 
@@ -129,14 +126,13 @@ private fun ExerciseContent(routineInfo: TodayRoutine, exerciseList: List<Exerci
     }
 }
 
-
 @Composable
-fun ExerciseButton(exercise: Exercise) {
+fun ExerciseButton(exercise: Exercise, onDetailButtonClick: (Int) -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = BackGray
         ),
-        onClick = { },
+        onClick = { onDetailButtonClick(11) },
         modifier = Modifier
             .size(300.dp)
             .background(Main, shape = CircleShape)
@@ -182,49 +178,6 @@ fun ExerciseButton(exercise: Exercise) {
             }
         }
     }
-}
-
-
-@Composable
-fun ExerciseList(exerciseList: List<Exercise>, modifier: Modifier, cur: Int) {
-    LazyColumn(modifier = modifier.padding(bottom = 16.dp)) {
-        itemsIndexed(exerciseList) { index, item ->
-            if (cur == index) {
-                CurExerciseItem(item)
-            } else {
-                ExerciseListItem(item)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ExerciseListPreview() {
-    ExerciseList(
-        listOf(
-            Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true),
-            Exercise.Weight("스쿼트", 40, 100, "+ 33 min 12sec", 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, "", 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, "", 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, "", 3, false)
-        ), Modifier, 1
-    )
-}
-
-@Composable
-fun ExerciseListItem(item: Exercise) {
-    if (item.isDone) {
-        DoneExerciseItem(item.name, item.time)
-    } else {
-        TodoExerciseItem(item.name)
-    }
-}
-
-@Preview
-@Composable
-fun ExerciseItemPreview() {
-    ExerciseListItem(Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true))
 }
 
 @Composable
@@ -279,12 +232,6 @@ fun DoneExerciseItem(name: String, time: String) {
                     )
                 }
             }
-            Text(
-                text = time,
-                style = HortaTypography.bodyLarge,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-            )
         }
         Divider(color = DarkGray, modifier = Modifier.padding(top = 16.dp), thickness = 2.dp)
     }
@@ -383,6 +330,7 @@ private fun ExerciseContentPreview() {
     val routineInfo =
         TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
     ExerciseContent(
+        {},
         routineInfo,
         listOf(
             Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true),
@@ -394,5 +342,3 @@ private fun ExerciseContentPreview() {
     )
 
 }
-
-

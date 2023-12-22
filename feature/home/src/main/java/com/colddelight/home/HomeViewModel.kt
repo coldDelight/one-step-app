@@ -3,20 +3,32 @@ package com.colddelight.home
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val tokenDataSource: TokenPreferencesDataSource,
-) : ViewModel() {
+//    private val tokenDataSource: TokenPreferencesDataSource,
+    private val repository: ExerciseRepository,
+
+    ) : ViewModel() {
     private val _userState = mutableStateOf<UserState>(UserState.Loading)
     val userState: State<UserState> = _userState
 
-    val token: Flow<String> = tokenDataSource.token
+    init {
+        viewModelScope.launch{
+//            repository.addTmp()
+
+        }
+    }
+
+//    val token: Flow<String> = tokenDataSource.token
 
 
 //    fun updateToken(token: String) {

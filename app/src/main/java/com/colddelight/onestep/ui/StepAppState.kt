@@ -14,11 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.colddelight.data.util.LoginHelper
 import com.colddelight.data.util.NetworkMonitor
-import com.colddelight.exercise.navigation.navigateToExercise
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.history.navigation.navigateToHistory
 import com.colddelight.home.navigation.HomeRoute
-import com.colddelight.home.navigation.navigateHomeToExercise
 import com.colddelight.home.navigation.navigateToHome
 import com.colddelight.onestep.navigation.TopLevelDestination
 import com.colddelight.onestep.navigation.TopLevelDestination.HOME
@@ -125,10 +123,10 @@ class StepAppState(
         Log.e(javaClass.simpleName, "popBackStack: hi 여기까지 옴")
     }
 
-    fun navigateHomeToExercise(routineDayId: Int) {
-        navController.navigateHomeToExercise(routineDayId)
-        shouldShowBottomBar = false
-    }
+//    fun navigateHomeToExercise() {
+//        navController.navigateHomeToExercise()
+//        shouldShowBottomBar = false
+//    }
 
 //    fun navigateToExerciseDetail(){
 //        navController.navigateToExerciseDetail
