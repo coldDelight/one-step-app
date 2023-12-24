@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
 
 class RoutineRepositoryImpl @Inject constructor(
@@ -116,53 +117,16 @@ class RoutineRepositoryImpl @Inject constructor(
             }
     }
 
-
-
-
-
-
-
-
-
-
-//    override fun getRoutineWeekInfo(): Flow<List<RoutineDayInfo>> {
-//        return userDataSource.currentRoutineId
-//            .flatMapLatest { routineId ->
-//                routineDayDao.getAllRoutineDay(routineId)
-//                    .map { routineDayEntities ->
-//                        val existingDays = routineDayEntities.mapNotNull { it.dayOfWeek }
-//                        val defaultDays = (1..7).toList() - existingDays
-//                        val defaultRoutineDayInfoList = createDefaultRoutineDayInfoList(routineId, defaultDays)
-//                        routineDayEntities.map { routineDayEntity ->
-//                            val exerciseList = mutableListOf<ExerciseInfo>()
-//                            dayExerciseDao.getAllDayExercise(routineDayEntity.routineId)
-//                                .map { routineDayMap ->
-//                                    routineDayMap.entries.map { (dayExercise, exercise) ->
-//                                        val exerciseInfo = ExerciseInfo(
-//                                            routineDayId = dayExercise.routineDayId,
-//                                            exerciseId = exercise.id,
-//                                            exerciseName = exercise.name,
-//                                            index = dayExercise.index,
-//                                            origin = dayExercise.origin,
-//                                            kgList = dayExercise.kgList,
-//                                            repsList = dayExercise.repsList
-//                                        )
-//                                        exerciseList.add(exerciseInfo)
-//                                    }
-//                                }
-//
-//                            val routineDayInfo = RoutineDayInfo(
-//                                routineDayId = routineDayEntity.id,
-//                                routineId = routineDayEntity.routineId,
-//                                categoryList = routineDayEntity.categoryList,
-//                                dayOfWeek = routineDayEntity.dayOfWeek ?: 0, // Use 0 as default if dayOfWeek is null
-//                                exerciseList = exerciseList
-//                            )
-//                            routineDayInfo
-//                        } + defaultRoutineDayInfoList
-//                    }
-//            }
-//    }
+    override suspend fun insertRoutineDay(routinDay: RoutineDayInfo) {
+        routinDay.routineDayId
+        val routineDayEntity = RoutineDayEntity(
+            routineId = routinDay.routineId,
+            categoryList = routinDay.categoryList?: emptyList(),
+            dayOfWeek = routinDay.dayOfWeek,
+            id = routinDay.routineDayId?: 0
+        )
+        routineDayDao.insertRoutineDay(routineDayEntity)
+    }
 
     override suspend fun addRoutine(): List<ExerciseEntity> {
         //routineDayDao.deleteRoutineDayAndRelatedData(9)
@@ -176,27 +140,23 @@ class RoutineRepositoryImpl @Inject constructor(
         //routineDayDao.insertRoutineDay(RoutineDayEntity(1,2, listOf(1,2)))**/
 
         /** 3. DayExercise Add
-        //dayExerciseDao.insertDayExercise(DayExerciseEntity(1,1,0, listOf(20,40), listOf(12,12)))
-        //dayExerciseDao.insertDayExercise(DayExerciseEntity(1,2,1, listOf(40,60), listOf(10,10)))
-        //dayExerciseDao.insertDayExercise(DayExerciseEntity(1,3,1, listOf(0,0), listOf(20,20)))**/
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1,1,0, listOf(20,40), listOf(12,12)))
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1,2,1, listOf(40,60), listOf(10,10)))
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1,3,1, listOf(0,0), listOf(20,20)))**/
         Log.e("TAG", "나 로그찍는다?: ", )
         return exerciseDao.getExercise().first()
     }
 
-    override suspend fun check(): Set<DayExerciseEntity> {
-        return dayExerciseDao.getAllDayExercise(1).first().keys
+    override fun getAllExerciseList(): Flow<List<ExerciseInfo>> {
+        return exerciseDao.getExercise().mapNotNull {
+            it.map {exerciseEntity ->
+                val exerciseInfo = ExerciseInfo(
+                    id = exerciseEntity.id,
+                    name = exerciseEntity.name,
+                    category = exerciseEntity.category
+                )
+                exerciseInfo
+            }
+        }
     }
-
-//    private fun createDefaultRoutineDayInfoList(routineId:Int, defaultDays: List<Int>): List<RoutineDayInfo> {
-//        return defaultDays.map { dayOfWeek ->
-//            RoutineDayInfo(
-//                routineDayId = null,
-//                routineId = routineId, // You can set a default value for routineId
-//                categoryList = null, // You can set default values for other properties as needed
-//                dayOfWeek = dayOfWeek,
-//                exerciseList = null // You can set default values for exerciseList as needed
-//            )
-//        }
-//    }
-
 }
