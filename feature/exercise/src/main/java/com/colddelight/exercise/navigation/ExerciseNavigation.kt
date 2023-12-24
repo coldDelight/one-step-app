@@ -6,7 +6,7 @@ import com.colddelight.exercise.ExerciseScreen
 
 
 fun NavGraphBuilder.exerciseScreen(
-    onDetailButtonClick: (Int) -> Unit
+    onDetailButtonClick: () -> Unit
 ) {
     composable(route = ExerciseRoute.route) {
         ExerciseScreen(onDetailButtonClick = onDetailButtonClick)

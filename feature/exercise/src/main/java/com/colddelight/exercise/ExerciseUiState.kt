@@ -10,7 +10,7 @@ sealed interface ExerciseUiState {
 
     data class Success(
         val routineInfo: TodayRoutine,
-        val cur :Int,
+        val curIndex :Int,
         val exerciseList: List<Exercise>
     ) : ExerciseUiState
 

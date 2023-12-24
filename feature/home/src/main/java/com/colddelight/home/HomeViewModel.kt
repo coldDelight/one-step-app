@@ -18,15 +18,15 @@ class HomeViewModel @Inject constructor(
     private val repository: ExerciseRepository,
 
     ) : ViewModel() {
-    private val _userState = mutableStateOf<UserState>(UserState.Loading)
-    val userState: State<UserState> = _userState
+//    private val _userState = mutableStateOf<UserState>(UserState.Loading)
+//    val userState: State<UserState> = _userState
 
-    init {
-        viewModelScope.launch{
+//    init {
+//        viewModelScope.launch{
 //            repository.addTmp()
-
-        }
-    }
+//
+//        }
+//    }
 
 //    val token: Flow<String> = tokenDataSource.token
 

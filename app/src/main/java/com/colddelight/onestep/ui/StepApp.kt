@@ -1,6 +1,5 @@
 package com.colddelight.onestep.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,16 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.colddelight.data.util.LoginHelper
@@ -30,8 +25,8 @@ import com.colddelight.designsystem.component.StepNavigationBarItem
 import com.colddelight.designsystem.component.StepTopAppBar
 import com.colddelight.designsystem.component.TopAppBarNavigationType
 import com.colddelight.designsystem.theme.BackGray
-import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.exercise.navigation.ExerciseRoute
+import com.colddelight.exercisedetail.navigation.ExerciseDetailRoute
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.home.navigation.HomeRoute
 import com.colddelight.onestep.R
@@ -80,8 +75,6 @@ fun StepApp(
         }
     ) { padding ->
 
-        val isOffline by appState.isOffline.collectAsStateWithLifecycle()
-        val isLogin by appState.isLogin.collectAsStateWithLifecycle()
         Row(
             Modifier
                 .fillMaxSize()
@@ -93,12 +86,6 @@ fun StepApp(
                 ),
         ) {
             Column(Modifier.fillMaxSize()) {
-//                Text(text = "로그인 상태 $isLogin",color= TextGray)
-                // Show the top app bar on top level destinations.
-//                if (destination != null) {
-//                    Text(text = "$isOffline")
-//                }
-
                 StepNavHost(appState = appState)
             }
         }
@@ -117,6 +104,7 @@ private fun StepTopBar(
             HistoryRoute.route -> R.string.history
             RoutineRoute.route -> R.string.routine
             ExerciseRoute.route -> R.string.exercise
+            ExerciseDetailRoute.route -> R.string.exercise_detail
             else -> R.string.exercise
         },
         navigationType = when (currentDestination) {

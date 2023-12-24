@@ -7,13 +7,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.colddelight.exercisedetail.ExerciseDetailScreen
 
-fun NavController.navigateExerciseToExerciseDetail(exerciseId: Int) {
-    navigate(ExerciseDetailRoute.detailRoute(exerciseId))
+fun NavController.navigateExerciseToExerciseDetail() {
+    navigate(ExerciseDetailRoute.route)
 }
 
 fun NavGraphBuilder.exerciseDetailScreen(
 ) {
-    composable(route = "${ExerciseDetailRoute.route}/{exerciseId}") {
+    composable(route = ExerciseDetailRoute.route) {
         val viewModelStoreOwner = LocalViewModelStoreOwner.current
         val nonNullViewModelStoreOwner = requireNotNull(viewModelStoreOwner)
 
@@ -25,5 +25,4 @@ fun NavGraphBuilder.exerciseDetailScreen(
 
 object ExerciseDetailRoute {
     const val route: String = "exercise_detail"
-    fun detailRoute(exerciseId: Int): String = "$route/$exerciseId"
 }

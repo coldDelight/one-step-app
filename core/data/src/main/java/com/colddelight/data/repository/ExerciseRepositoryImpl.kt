@@ -13,6 +13,7 @@ import com.colddelight.database.model.RoutineDayEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
+import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -53,12 +54,16 @@ class ExerciseRepositoryImpl @Inject constructor(
         return Exercise.Calisthenics(
             exerciseId = exercise.id,
             name = exercise.name,
-            time = "",
             reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
             set = historyExerciseEntity.repsList.size,
             isDone = historyExerciseEntity.isDone,
-
-            )
+            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
+                SetInfo(
+                    kg,
+                    historyExerciseEntity.repsList[index]
+                )
+            }
+        )
     }
 
     private fun transformWeightExercise(
@@ -68,10 +73,15 @@ class ExerciseRepositoryImpl @Inject constructor(
         return Exercise.Weight(
             exerciseId = exercise.id,
             name = exercise.name,
-            time = "",
             min = historyExerciseEntity.kgList.minOrNull() ?: 0,
             max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
-            isDone = historyExerciseEntity.isDone
+            isDone = historyExerciseEntity.isDone,
+            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
+                SetInfo(
+                    kg,
+                    historyExerciseEntity.repsList[index]
+                )
+            }
 
         )
     }
@@ -79,7 +89,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, 5)
+                routineDayDao.getTodayRoutineInfo(routineId, 6)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
                         val routineInfo = TodayRoutine(
@@ -118,7 +128,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //         **/
 
 
-//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 5, listOf(1, 2)))
+//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 6, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
 //                1,

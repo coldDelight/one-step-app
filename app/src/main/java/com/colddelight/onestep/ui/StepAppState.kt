@@ -73,23 +73,6 @@ class StepAppState(
             RoutineRoute.route -> ROUTINE
             else -> null
         }
-
-
-    val isLogin = loginHelper.isLogin
-        .stateIn(
-            coroutineScope,
-            SharingStarted.WhileSubscribed(5_000),
-            initialValue = true
-        )
-
-    val isOffline = networkMonitor.isOnline
-        .map(Boolean::not)
-        .stateIn(
-            scope = coroutineScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
-
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.values().asList()
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
@@ -99,10 +82,7 @@ class StepAppState(
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
-                // Avoid multiple copies of the same destination when
-                // reselecting the same item
                 launchSingleTop = true
-                // Restore state when reselecting a previously selected item
                 restoreState = true
             }
 

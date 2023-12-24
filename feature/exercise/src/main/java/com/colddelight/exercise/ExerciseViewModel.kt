@@ -1,5 +1,6 @@
 package com.colddelight.exercise
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
@@ -22,7 +23,8 @@ class ExerciseViewModel @Inject constructor(
 
     val exerciseUiState: StateFlow<ExerciseUiState> = todayRoutineInfo
         .combine(todayExerciseList) { routine, exerciseList ->
-            ExerciseUiState.Success(routine, 0, exerciseList)
+            val curIndex = exerciseList.indexOfFirst { !it.isDone }
+            ExerciseUiState.Success(routine, curIndex, exerciseList)
         }.catch {
             ExerciseUiState.Error(it.message ?: "Error")
         }.stateIn(
@@ -31,11 +33,11 @@ class ExerciseViewModel @Inject constructor(
             initialValue = ExerciseUiState.Loading
         )
 
-    init {
-        viewModelScope.launch {
-//            repository.addTmp()
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+////            repository.addTmp()
+//        }
+//    }
 
 
 }

@@ -51,7 +51,7 @@ import com.colddelight.model.ExerciseCategory
 @Composable
 fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
-    onDetailButtonClick: (Int) -> Unit
+    onDetailButtonClick: () -> Unit
 ) {
     val exerciseUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     Scaffold(
@@ -69,21 +69,21 @@ fun ExerciseScreen(
 }
 
 @Composable
-private fun ExerciseContentWithState(onDetailButtonClick: (Int) -> Unit, uiState: ExerciseUiState) {
+private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: ExerciseUiState) {
     when (uiState) {
         is ExerciseUiState.Loading -> ExerciseLoading()
         is ExerciseUiState.Error -> Text(text = uiState.msg)
         is ExerciseUiState.Success -> ExerciseContent(
             onDetailButtonClick,
             uiState.routineInfo, uiState.exerciseList, uiState
-                .cur
+                .curIndex
         )
     }
 }
 
 @Composable
 private fun ExerciseContent(
-    onDetailButtonClick: (Int) -> Unit,
+    onDetailButtonClick: () -> Unit,
     routineInfo: TodayRoutine,
     exerciseList: List<Exercise>,
     cur: Int
@@ -115,7 +115,7 @@ private fun ExerciseContent(
                 CurExerciseItem(item)
             } else {
                 if (item.isDone) {
-                    DoneExerciseItem(item.name, item.time)
+                    DoneExerciseItem(item.name)
                 } else {
                     TodoExerciseItem(item.name)
                 }
@@ -127,12 +127,12 @@ private fun ExerciseContent(
 }
 
 @Composable
-fun ExerciseButton(exercise: Exercise, onDetailButtonClick: (Int) -> Unit) {
+fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = BackGray
         ),
-        onClick = { onDetailButtonClick(11) },
+        onClick = { onDetailButtonClick() },
         modifier = Modifier
             .size(300.dp)
             .background(Main, shape = CircleShape)
@@ -199,7 +199,7 @@ fun CurExerciseItem(item: Exercise) {
 }
 
 @Composable
-fun DoneExerciseItem(name: String, time: String) {
+fun DoneExerciseItem(name: String) {
     Column(
         modifier = Modifier
             .padding(top = 16.dp),
@@ -333,11 +333,11 @@ private fun ExerciseContentPreview() {
         {},
         routineInfo,
         listOf(
-            Exercise.Weight("벤치 프레스", 20, 40, "+ 15 min 47sec", 1, true),
-            Exercise.Weight("스쿼트", 40, 100, "", 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, "", 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, "", 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, "", 3, false)
+            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
+            Exercise.Weight("스쿼트", 40, 100, 2, false),
+            Exercise.Weight("데드 리프트", 40, 100, 2, false),
+            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
+            Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
         ), 1
     )
 
