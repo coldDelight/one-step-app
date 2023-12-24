@@ -69,7 +69,6 @@ class RoutineRepositoryImpl @Inject constructor(
                                             Exercise.Calisthenics(
                                                 exerciseId = exercise.id,
                                                 name = exercise.name,
-                                                time = "",
                                                 reps = dayExercise.repsList.maxOrNull() ?: 0,
                                                 set = dayExercise.repsList.size
                                             )
@@ -78,7 +77,6 @@ class RoutineRepositoryImpl @Inject constructor(
                                             Exercise.Weight(
                                                 exerciseId = exercise.id,
                                                 name = exercise.name,
-                                                time = "",
                                                 min = dayExercise.kgList.minOrNull() ?: 0,
                                                 max = dayExercise.kgList.maxOrNull() ?: 0
                                             )

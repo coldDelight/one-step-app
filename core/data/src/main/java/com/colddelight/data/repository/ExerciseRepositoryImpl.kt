@@ -5,15 +5,21 @@ import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
+import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
+import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
+import com.colddelight.database.model.RoutineDayEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
+import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 class ExerciseRepositoryImpl @Inject constructor(
@@ -48,12 +54,16 @@ class ExerciseRepositoryImpl @Inject constructor(
         return Exercise.Calisthenics(
             exerciseId = exercise.id,
             name = exercise.name,
-            time = "",
             reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
             set = historyExerciseEntity.repsList.size,
             isDone = historyExerciseEntity.isDone,
-
-            )
+            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
+                SetInfo(
+                    kg,
+                    historyExerciseEntity.repsList[index]
+                )
+            }
+        )
     }
 
     private fun transformWeightExercise(
@@ -63,10 +73,15 @@ class ExerciseRepositoryImpl @Inject constructor(
         return Exercise.Weight(
             exerciseId = exercise.id,
             name = exercise.name,
-            time = "",
             min = historyExerciseEntity.kgList.minOrNull() ?: 0,
             max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
-            isDone = historyExerciseEntity.isDone
+            isDone = historyExerciseEntity.isDone,
+            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
+                SetInfo(
+                    kg,
+                    historyExerciseEntity.repsList[index]
+                )
+            }
 
         )
     }
@@ -74,7 +89,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, 2)
+                routineDayDao.getTodayRoutineInfo(routineId, 6)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
                         val routineInfo = TodayRoutine(
@@ -94,31 +109,26 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun addTmp() {
 
-//        val history = historyExerciseDao.getHistoryExercises().first()
-//        Log.e("TAG", "지윽은ㄹ : $history", )
 
-        /** 해당 routine day에 모든 운동 히스토리로 옮기느 작업
-
-        val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
-        val historyExercises = dayExercises.map { dayExercise ->
-        HistoryExerciseEntity(
-        historyId = 1,
-        exerciseId = dayExercise.exerciseId,
-        index = dayExercise.index,
-        isDone = false, // Set default value
-        time = "", // Set default value
-        kgList = dayExercise.kgList,
-        repsList = dayExercise.repsList
-        )
-        }
-        historyExerciseDao.insertAll(historyExercises)
-         **/
-
-    }
-}
+//        /** 해당 routine day에 모든 운동 히스토리로 옮기느 작업
+//
+//        val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
+//        val historyExercises = dayExercises.map { dayExercise ->
+//            HistoryExerciseEntity(
+//                historyId = 1,
+//                exerciseId = dayExercise.exerciseId,
+//                index = dayExercise.index,
+//                isDone = false,
+//                time = "",
+//                kgList = dayExercise.kgList,
+//                repsList = dayExercise.repsList
+//            )
+//        }
+//        historyExerciseDao.insertAll(historyExercises)
+//         **/
 
 
-//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
+//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 6, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
 //                1,
@@ -138,7 +148,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                1,
-//                1,
+//                0,
 //                listOf(60, 60, 80),
 //                listOf(12, 12, 12),
 //            )
@@ -147,7 +157,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                2,
-//                2,
+//                1,
 //                listOf(60, 60, 80),
 //                listOf(12, 12, 12),
 //            )
@@ -156,7 +166,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                3,
-//                3,
+//                2,
 //                listOf(60, 80, 100),
 //                listOf(12, 12, 12),
 //            )
@@ -165,15 +175,15 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                4,
-//                4,
+//                3,
 //                listOf(0, 0, 0),
 //                listOf(12, 12, 12),
 //            )
 //        )
-//
-//    }
 
-//}
+    }
+
+}
 
 
 

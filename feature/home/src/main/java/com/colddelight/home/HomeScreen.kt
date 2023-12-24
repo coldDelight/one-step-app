@@ -25,7 +25,7 @@ import com.colddelight.designsystem.theme.NotoTypography
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    onStartButtonClick: (Int) -> Unit
+    onStartButtonClick: () -> Unit
 ) {
 //    val token = homeViewModel.token.collectAsStateWithLifecycle(initialValue = "")
 //    val action = client.composeAuth.rememberLoginWithGoogle(
@@ -70,12 +70,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeButton(onStartButtonClick: (Int) -> Unit) {
+fun HomeButton(onStartButtonClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = BackGray
         ),
-        onClick = { onStartButtonClick(1) },
+        onClick = { onStartButtonClick() },
         modifier = Modifier
             .size(300.dp)
             .background(Main, shape = CircleShape)
