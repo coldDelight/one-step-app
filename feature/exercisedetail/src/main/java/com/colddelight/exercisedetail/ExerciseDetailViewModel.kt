@@ -8,7 +8,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExerciseDetailViewModel @Inject constructor(
-    private val repository: ExerciseRepository,
 
     ) : ViewModel() {
 //    init {

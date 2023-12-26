@@ -26,6 +26,12 @@ interface HistoryExerciseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistoryExercise(historyExerciseEntity: HistoryExerciseEntity)
 
+    @Query("UPDATE history_exercise SET kg_list = :kgList WHERE id = :historyExerciseId")
+    suspend fun updateKgList(historyExerciseId: Int, kgList: List<Int>)
+
+    @Query("UPDATE history_exercise SET reps_list = :repsList WHERE id = :historyExerciseId")
+    suspend fun updateRepsList(historyExerciseId: Int, repsList: List<Int>)
+
 
     // Insert a list of HistoryExerciseEntity
     @Insert(onConflict = OnConflictStrategy.REPLACE)
