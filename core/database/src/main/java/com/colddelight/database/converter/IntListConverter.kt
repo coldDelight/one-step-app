@@ -6,7 +6,8 @@ class IntListConverter {
 
     @TypeConverter
     fun fromString(value: String): List<Int> {
-        return value.split(",").map { it.toInt() }
+        return if(value.isBlank()) emptyList()
+        else value.split(",").map { it.toInt() }
     }
 
     @TypeConverter

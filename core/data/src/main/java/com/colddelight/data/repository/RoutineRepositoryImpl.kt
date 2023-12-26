@@ -98,7 +98,7 @@ class RoutineRepositoryImpl @Inject constructor(
                             missingDays.forEach { missingDay ->
                                 val nullRoutineDayInfo = RoutineDayInfo(
                                     routineId = routineId,
-                                    routineDayId = null,
+                                    routineDayId = 0,
                                     dayOfWeek = missingDay,
                                     categoryList = emptyList(),
                                     exerciseList = emptyList()
@@ -116,7 +116,7 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertRoutineDay(routinDay: RoutineDayInfo) {
-        routinDay.routineDayId
+        Log.e("TAG", "아곳이요 : ${routinDay.categoryList}", )
         val routineDayEntity = RoutineDayEntity(
             routineId = routinDay.routineId,
             categoryList = routinDay.categoryList?: emptyList(),
@@ -126,23 +126,36 @@ class RoutineRepositoryImpl @Inject constructor(
         routineDayDao.insertRoutineDay(routineDayEntity)
     }
 
+    override suspend fun insertExercise(exercise: ExerciseInfo) {
+        val exerciseEntity = ExerciseEntity(
+            category = exercise.category,
+            name = exercise.name
+        )
+        exerciseDao.insertExercise(exerciseEntity)
+    }
+
+
     override suspend fun addRoutine(): List<ExerciseEntity> {
         //routineDayDao.deleteRoutineDayAndRelatedData(9)
 
-        /** 1. Exercise Add
+        //1. Exercise Add
         exerciseDao.insertExercise(ExerciseEntity("벤치프레스",ExerciseCategory.CHEST))
         exerciseDao.insertExercise(ExerciseEntity("덤벨 컬",ExerciseCategory.ARM))
-        exerciseDao.insertExercise(ExerciseEntity("턱걸이",ExerciseCategory.CALISTHENICS))**/
+        exerciseDao.insertExercise(ExerciseEntity("턱걸이",ExerciseCategory.CALISTHENICS))
 
-        /** 2. RoutineDay Add
-        //routineDayDao.insertRoutineDay(RoutineDayEntity(1,2, listOf(1,2)))**/
+        //2. RoutineDay Add
+        routineDayDao.insertRoutineDay(RoutineDayEntity(1,2, listOf(1,2)))
 
-        /** 3. DayExercise Add
+         //3. DayExercise Add
         dayExerciseDao.insertDayExercise(DayExerciseEntity(1,1,0, listOf(20,40), listOf(12,12)))
         dayExerciseDao.insertDayExercise(DayExerciseEntity(1,2,1, listOf(40,60), listOf(10,10)))
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1,3,1, listOf(0,0), listOf(20,20)))**/
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1,3,1, listOf(0,0), listOf(20,20)))
         Log.e("TAG", "나 로그찍는다?: ", )
         return exerciseDao.getExercise().first()
+    }
+
+    override suspend fun deleteRoutineDay(routineDayId: Int) {
+        routineDayDao.deleteRoutineDayById(routineDayId)
     }
 
     override fun getAllExerciseList(): Flow<List<ExerciseInfo>> {

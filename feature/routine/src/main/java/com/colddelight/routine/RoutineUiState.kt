@@ -24,3 +24,7 @@ sealed interface ExerciseListState {
     data object None: ExerciseListState
     data class NotNone(val exerciseList: List<ExerciseInfo>): ExerciseListState
 }
+
+enum class ExerciseDialogState {
+    None, Basic, Edit, Delete
+}

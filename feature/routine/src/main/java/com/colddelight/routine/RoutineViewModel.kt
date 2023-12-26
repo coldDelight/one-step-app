@@ -49,6 +49,19 @@ class RoutineViewModel @Inject constructor(
         }
     }
 
+    fun insertExercise(exerciseInfo: ExerciseInfo){
+        viewModelScope.launch {
+            repository.insertExercise(exerciseInfo)
+        }
+    }
+
+    fun deleteRoutineDay(routineDayId: Int){
+        viewModelScope.launch {
+            repository.deleteRoutineDay(routineDayId)
+        }
+    }
+
+
     val routineInfoUiState: StateFlow<RoutineInfoUiState> =
         repository.getRoutine()
             .map {  RoutineInfoUiState.Success(it) }

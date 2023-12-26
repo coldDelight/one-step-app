@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -29,6 +31,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -37,11 +42,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -57,11 +65,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeek
@@ -69,18 +78,22 @@ import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.FilterChip
+import com.colddelight.designsystem.icons.IconPack
+import com.colddelight.designsystem.icons.iconpack.Trash
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
+import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
+
 
 @Composable
 fun RoutineScreen(
@@ -105,10 +118,18 @@ fun RoutineScreen(
             RoutineContentWithState(
                 routineInfoUiState = routineInfoUiState,
                 routineDayInfoUiState = routineDayInfoUiState,
-                onNewCategorySelected = { newRoutineDayInfo ->
+                insertRoutineDay = { newRoutineDayInfo ->
                     viewModel.insertRoutineDay(newRoutineDayInfo)
+//                    Log.e(javaClass.simpleName, "RoutineScreen: 이거 수정할게? $newRoutineDayInfo", )
                 },
-                exerciseListState = exerciseListState
+                exerciseListState = exerciseListState,
+                insertExercise = { exerciseInfo ->
+                    viewModel.insertExercise(exerciseInfo)
+                    Log.e(javaClass.simpleName, "RoutineScreen: 이거 수정할게? $exerciseInfo")
+                },
+                deleteRoutineDay = {
+                    viewModel.deleteRoutineDay(it)
+                }
             )
         }
     }
@@ -119,14 +140,18 @@ private fun RoutineContentWithState(
     routineInfoUiState: RoutineInfoUiState,
     routineDayInfoUiState: RoutineDayInfoUiState,
     exerciseListState: ExerciseListState,
-    onNewCategorySelected: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    insertExercise: (ExerciseInfo) -> Unit,
+    deleteRoutineDay: (Int) -> Unit,
 ) {
     when {
         routineInfoUiState is RoutineInfoUiState.Success && routineDayInfoUiState is RoutineDayInfoUiState.Success && exerciseListState is ExerciseListState.NotNone -> RoutineContent(
             routineInfoUiState.routine,
             routineDayInfoUiState.routineDayInfo,
             exerciseListState.exerciseList,
-            onNewCategorySelected
+            insertRoutineDay,
+            insertExercise,
+            deleteRoutineDay
         )
 
         routineInfoUiState is RoutineInfoUiState.Loading -> RoutineLoading()
@@ -148,7 +173,9 @@ private fun RoutineContent(
     routine: Routine,
     routineDayList: List<RoutineDayInfo>,
     exerciseList: List<ExerciseInfo>,
-    onNewCategorySelected: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    insertExercise: (ExerciseInfo) -> Unit,
+    deleteRoutineDay: (Int) -> Unit,
 ) {
     var screenWidth by remember { mutableStateOf(0) }
     val density = LocalDensity.current.density
@@ -184,38 +211,109 @@ private fun RoutineContent(
         }
         RoutineDayScreen(
             routineDayList[currentDayOfWeek - 1],
-            onNewCategorySelected = onNewCategorySelected,
-            exerciseList = exerciseList
+            insertRoutineDay = insertRoutineDay,
+            exerciseList = exerciseList,
+            insertExercise = insertExercise,
+            deleteRoutineDay = deleteRoutineDay
         )
         //}
     }
 }
 
 @Composable
-fun DayOfWeekAndDot(routineDayInfo: RoutineDayInfo) {
+fun DayOfWeekAndDot(
+    routineDayInfo: RoutineDayInfo, deleteRoutineDay: (Int) -> Unit,
+) {
     Row(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+
+        ) {
         val modifier = Modifier.padding(end = 20.dp)
-        Text(
-            modifier = modifier,
-            text = getDayOfWeek(routineDayInfo.dayOfWeek),
-            style = NotoTypography.headlineSmall
-        )
-        routineDayInfo.exerciseList?.let {
-            if (it.isNotEmpty()) {
-                ExerciseProgress(modifier = modifier, it.size, it.size)
-                Text(text = it.size.toString(), style = NotoTypography.bodyMedium)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = modifier,
+                text = getDayOfWeek(routineDayInfo.dayOfWeek),
+                style = NotoTypography.headlineSmall
+            )
+            routineDayInfo.exerciseList?.let {
+                if (it.isNotEmpty()) {
+                    ExerciseProgress(modifier = modifier, it.size, it.size)
+                    Text(text = it.size.toString(), style = NotoTypography.bodyMedium)
+                }
             }
         }
+        RoutineDayDeleteBtn(routineDayInfo.routineDayId, deleteRoutineDay)
     }
 }
+
+@Composable
+fun RoutineDayDeleteBtn(
+    routineDayId: Int,
+    deleteRoutineDay: (Int) -> Unit,
+) {
+    var openAlertDialog by remember { mutableStateOf(false) }
+
+    IconButton(onClick = { openAlertDialog = true }) {
+        Icon(imageVector = IconPack.Trash, contentDescription = "루틴데이삭제", tint = LightGray)
+    }
+    if (openAlertDialog) {
+        RoutineDayDeleteDialog(
+            onDismissRequest = {
+                openAlertDialog = it
+            }, onConfirmation = {
+                if (it) deleteRoutineDay(routineDayId)
+            })
+    }
+}
+
+@Composable
+fun RoutineDayDeleteDialog(
+    onDismissRequest: (Boolean) -> Unit,
+    onConfirmation: (Boolean) -> Unit,
+) {
+    AlertDialog(
+        containerColor = BackGray,
+        text = {
+            Text(
+                text = "해당 요일의 모든 데이터를 삭제하시겠습니까?",
+                style = NotoTypography.bodyMedium,
+                color = TextGray
+            )
+        },
+        onDismissRequest = {
+            onDismissRequest(true)
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation(true)
+                    onDismissRequest(false)
+                }
+            ) {
+                Text(text = "삭제", style = NotoTypography.bodyMedium, color = Red)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest(false)
+                }
+            ) {
+                Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
+            }
+        }
+    )
+}
+
 
 @Composable
 fun ExerciseGridList(
     exerciseList: List<Exercise>,
     allExerciseList: List<ExerciseInfo>,
+    insertExercise: (ExerciseInfo) -> Unit,
 ) {
 
     Column {
@@ -244,7 +342,10 @@ fun ExerciseGridList(
                 }
             }
             item {
-                AddExerciseToRoutineDayBtn(allExerciseList)
+                AddExerciseToRoutineDayBtn(
+                    allExerciseList,
+                    insertExercise
+                )
             }
         }
     }
@@ -254,9 +355,9 @@ fun ExerciseGridList(
 @Composable
 fun AddExerciseToRoutineDayBtn(
     exerciseList: List<ExerciseInfo>,
+    insertExercise: (ExerciseInfo) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
@@ -279,7 +380,10 @@ fun AddExerciseToRoutineDayBtn(
         ExerciseBottomSheet(
             onDismissSheet = {
                 showBottomSheet = it
-            }, sheetState = sheetState, exerciseList = exerciseList ?: emptyList()
+            },
+            sheetState = sheetState,
+            exerciseList = exerciseList ?: emptyList(),
+            insertExercise = insertExercise
         )
     }
 }
@@ -291,6 +395,7 @@ fun ExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
     exerciseList: List<ExerciseInfo>,
+    insertExercise: (ExerciseInfo) -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismissSheet(false) },
@@ -303,29 +408,33 @@ fun ExerciseBottomSheet(
 
         LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
             items(categoryList) { categoryIndex ->
-                FilterChip(ExerciseCategory.toName(categoryIndex),
-                    categoryIndex,
-                    onChipSelected = { isSelected ->
-                        selectedChipIndices =
-                            if (isSelected) {
-                                selectedChipIndices + ExerciseCategory.fromId(categoryIndex)!!
-                            } else {
-                                selectedChipIndices - ExerciseCategory.fromId(categoryIndex)!!
-                            }
-                    })
+                FilterChip(ExerciseCategory.toName(categoryIndex)) { isSelected ->
+                    selectedChipIndices =
+                        if (isSelected) {
+                            selectedChipIndices + ExerciseCategory.fromId(categoryIndex)!!
+                        } else {
+                            selectedChipIndices - ExerciseCategory.fromId(categoryIndex)!!
+                        }
+                }
             }
         }
 
         LazyColumn(modifier = Modifier.padding(horizontal = 20.dp)) {
             if (selectedChipIndices.isEmpty()) {
                 itemsIndexed(exerciseList) { index, it ->
-                    AllExerciseListItem(it)
+                    AllExerciseListItem(
+                        it,
+                        insertExercise = insertExercise,
+                    )
                     if (index < exerciseList.lastIndex) Divider(color = LightGray, thickness = 1.dp)
                 }
             } else {
                 val filteredList = exerciseList.filter { it.category in selectedChipIndices }
                 itemsIndexed(filteredList) { index, it ->
-                    AllExerciseListItem(it)
+                    AllExerciseListItem(
+                        it,
+                        insertExercise = insertExercise,
+                    )
                     if (index < exerciseList.lastIndex) Divider(
                         color = LightGray,
                         thickness = 1.dp
@@ -333,18 +442,296 @@ fun ExerciseBottomSheet(
                 }
             }
         }
-        //DropDownCategoryList()
+
+        var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 105.dp),
+
+            ) {
+            DropDownCategoryList(onCategorySelected = {
+                insertCategory = it
+            })
+            ExerciseNameOutlineTextField(
+                isIconVisible = true,
+                originExerciseName = "",
+                insertExerciseName = {
+                    insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownCategoryList(onCategorySelected: (ExerciseCategory) -> Unit) {
+    val categoryList = (1..6).map { ExerciseCategory.fromId(it) }.toList()
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(ExerciseCategory.CHEST) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded, onExpandedChange = { expanded = it },
+    ) {
+        TextField(
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(0.3f)
+                .border(1.dp, LightGray, RoundedCornerShape(10.dp)),
+            readOnly = true,
+            textStyle = NotoTypography.bodyMedium,
+            value = selectedOptionText.let { ExerciseCategory.toName(it.id) },
+            onValueChange = {},
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = TextGray,
+                unfocusedTextColor = TextGray,
+                disabledContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTrailingIconColor = TextGray,
+                unfocusedTrailingIconColor = TextGray,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(DarkGray),
+        ) {
+            categoryList.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(ExerciseCategory.toName(selectionOption!!.id)) },
+                    onClick = {
+                        selectedOptionText = selectionOption!!
+                        expanded = false
+                        onCategorySelected(selectedOptionText)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun AllExerciseListItem(exerciseInfo: ExerciseInfo) {
-    Box(modifier = Modifier.fillMaxWidth()) {
+fun ExerciseNameOutlineTextField(
+    isIconVisible: Boolean,
+    originExerciseName: String,
+    insertExerciseName: (String) -> Unit,
+) {
+    var textState by remember { mutableStateOf(originExerciseName) }
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp),
+        value = textState,
+        onValueChange = {
+            textState = it
+        },
+        placeholder = {
+            Text(
+                text = "새 운동 추가",
+                style = NotoTypography.bodyMedium,
+                color = DarkGray
+            )
+        },
+        singleLine = true,
+        textStyle = NotoTypography.bodyMedium,
+        trailingIcon = {
+            if (textState != "" && isIconVisible)
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    tint = TextGray,
+                    contentDescription = "추가",
+                    modifier = Modifier
+                        .border(
+                            1.dp, Main,
+                            CircleShape
+                        )
+                        .clickable {
+                            insertExerciseName(textState)
+                            textState = ""
+                        }
+                )
+
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = TextGray,
+            unfocusedTextColor = TextGray,
+            focusedBorderColor = Main,
+            unfocusedBorderColor = LightGray,
+            focusedContainerColor = BackGray,
+            unfocusedContainerColor = BackGray,
+        ),
+
+        )
+}
+
+@Composable
+fun AllExerciseListItem(
+    exerciseInfo: ExerciseInfo,
+    insertExercise: (ExerciseInfo) -> Unit,
+) {
+    var dialogState by remember { mutableStateOf(ExerciseDialogState.None) }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onLongPress = {
+                    dialogState = ExerciseDialogState.Basic
+                }
+            )
+        }) {
         Text(
             text = exerciseInfo.name,
             style = NotoTypography.bodyMedium,
             modifier = Modifier.padding(vertical = 22.dp)
         )
+    }
+
+    when(dialogState){
+        ExerciseDialogState.Basic -> ExerciseDialog({dialogState = it})
+        ExerciseDialogState.Edit -> EditExerciseDialog(exerciseInfo,{dialogState = it},insertExercise)
+        ExerciseDialogState.Delete -> {} //DeleteExerciseDialog()
+        else -> {}
+    }
+
+}
+
+
+@Composable
+fun ExerciseDialog(
+    changeDialogState: (ExerciseDialogState) -> Unit,
+) {
+
+    Dialog(onDismissRequest = { changeDialogState(ExerciseDialogState.None) }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.5f),
+            shape = RoundedCornerShape(10.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = BackGray,
+                contentColor = TextGray
+            )
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                TextButton(onClick = {
+                    changeDialogState(ExerciseDialogState.Edit)
+                }) {
+                    Text(
+                        text = "수정", style = NotoTypography.bodyMedium,
+                    )
+                }
+                Divider(
+                    modifier = Modifier
+                        .height(1.dp),
+                    color = LightGray
+                )
+                TextButton(onClick = {
+                    changeDialogState(ExerciseDialogState.Delete)
+                }) {
+                    Text(
+                        text = "삭제", style = NotoTypography.bodyMedium,
+                    )
+                }
+            }
+
+        }
+    }
+
+
+}
+
+@Composable
+fun EditExerciseDialog(
+    exerciseInfo: ExerciseInfo,
+    onDismissDialog: (ExerciseDialogState) -> Unit,
+    insertExercise: (ExerciseInfo) -> Unit,
+) {
+    var insertCategory by remember { mutableStateOf(exerciseInfo.category) }
+    var insertName by remember { mutableStateOf(exerciseInfo.name)}
+
+    AlertDialog(
+        containerColor = DarkGray,
+        onDismissRequest = { onDismissDialog(ExerciseDialogState.None) },
+        text = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+
+                ) {
+                DropDownCategoryList(onCategorySelected = {
+                    insertCategory = it
+                })
+                ExerciseNameOutlineTextField(
+                    false,
+                    originExerciseName = insertName,
+                    insertExerciseName = {
+                        insertName = it
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    insertExercise(ExerciseInfo(id = exerciseInfo.id, name = insertName, category = insertCategory))
+                    onDismissDialog(ExerciseDialogState.None)
+                }
+            ) {
+                Text(text = "완료", style = NotoTypography.bodyMedium, color = Main)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissDialog(ExerciseDialogState.None)
+                }
+            ) {
+                Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
+            }
+        }
+    )
+}
+
+
+@Composable
+fun DeleteExerciseDialog(
+    onDismissSheet: (Boolean) -> Unit,
+) {
+    Dialog(onDismissRequest = { onDismissSheet(false) }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.5f),
+            shape = RoundedCornerShape(10.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = BackGray,
+                contentColor = TextGray
+            )
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+            ) {
+
+
+            }
+
+        }
     }
 }
 
@@ -406,20 +793,21 @@ fun ExerciseItem(
 @Composable
 fun RoutineDayScreen(
     routineDayInfo: RoutineDayInfo,
-    onNewCategorySelected: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDayInfo) -> Unit,
     exerciseList: List<ExerciseInfo>,
+    insertExercise: (ExerciseInfo) -> Unit,
+    deleteRoutineDay: (Int) -> Unit,
 ) {
-    DayOfWeekAndDot(routineDayInfo)
-    val categoryList: List<String> = routineDayInfo.categoryList?.map {
-        ExerciseCategory.toName(it)
-    } ?: emptyList()
-    Row {
-        AddCategoryBtn(
-            routineDayInfo = routineDayInfo, onNewCategorySelected = onNewCategorySelected
-        )
-        CategoryList(categoryList = categoryList, 16)
+    DayOfWeekAndDot(routineDayInfo, deleteRoutineDay)
+    LazyRow {
+        item {
+            AddCategoryBtn(
+                routineDayInfo = routineDayInfo, insertRoutineDay = insertRoutineDay
+            )
+            CategoryList(true, routineDayInfo, 16, insertRoutineDay = insertRoutineDay)
+        }
     }
-    ExerciseGridList(routineDayInfo.exerciseList ?: listOf(), exerciseList)
+    ExerciseGridList(routineDayInfo.exerciseList ?: listOf(), exerciseList, insertExercise)
 }
 
 @Composable
@@ -428,8 +816,6 @@ fun ExerciseCardRow(
     widthDp: Int,
     onCardClicked: (Int) -> Unit,
 ) {
-    Log.e("TAG", "받았슈: $widthDp")
-
     LazyRow {
         items(routineDayList) { routineDayInfo ->
             Box(
@@ -442,7 +828,6 @@ fun ExerciseCardRow(
                     onCardClicked = {
                         // 클릭 시 선택한 dayOfWeek를 콜백으로 전달
                         onCardClicked(it)
-                        Log.e("TAG", "ExerciseCardRow: ${it}")
                     })
             }
         }
@@ -453,24 +838,17 @@ fun ExerciseCardRow(
 fun CountDate(
     cnt: Int,
 ) {
-    val date = getTodayDate()
-    Column {
-        Text(
-            text = "$date ~", style = HortaTypography.labelMedium
-        )
-        Row {
-            Text(text = "+ ", style = HortaTypography.headlineSmall)
-            Text(text = cnt.toString(), style = HortaTypography.headlineSmall, color = Main)
-            Text(text = " days ", style = HortaTypography.headlineSmall)
-        }
+    Row {
+        Text(text = "+ ", style = HortaTypography.headlineSmall)
+        Text(text = cnt.toString(), style = HortaTypography.headlineSmall, color = Main)
+        Text(text = " days ", style = HortaTypography.headlineSmall)
     }
-
 }
 
 @Composable
 fun AddCategoryBtn(
     routineDayInfo: RoutineDayInfo,
-    onNewCategorySelected: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDayInfo) -> Unit,
 ) {
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var selectedCategory: Int by remember { mutableStateOf(-1) } // 추가
@@ -481,7 +859,9 @@ fun AddCategoryBtn(
         .padding(
             start = 24.dp, end = 24.dp, top = 15.dp, bottom = 15.dp
         )
-        .clickable { isDropDownMenuExpanded = true }) {
+        .clickable {
+            isDropDownMenuExpanded = true
+        }) {
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = null,
@@ -494,8 +874,10 @@ fun AddCategoryBtn(
         .width(60.dp)
         .background(DarkGray),
         expanded = isDropDownMenuExpanded,
-        onDismissRequest = { isDropDownMenuExpanded = false }) {
-        val list = (1..6).toList() - routineDayInfo.categoryList.orEmpty().toSet()
+        onDismissRequest = {
+            isDropDownMenuExpanded = false
+        }) {
+        val list = (1..6).toList() - routineDayInfo.categoryList.toSet()
 
         list.forEachIndexed { index, it ->
             DropdownMenuItem(modifier = Modifier.wrapContentSize(), text = {
@@ -503,7 +885,7 @@ fun AddCategoryBtn(
                     ExerciseCategory.toName(it),
                     style = NotoTypography.labelMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth() // 가로로 꽉 차도록 설정
+                    modifier = Modifier.fillMaxWidth()
                 )
             }, onClick = {
                 selectedCategory = it // 선택된 카테고리를 저장
@@ -514,18 +896,18 @@ fun AddCategoryBtn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 6.dp)
-                        .height(1.dp)
-                        .background(color = Color.Red)
+                        .height(1.dp),
+                    color = LightGray
                 )
             }
         }
     }
 
     DisposableEffect(selectedCategory) {
-        if (selectedCategory != -1) {
-            val newCategoryList = routineDayInfo.categoryList.orEmpty() + selectedCategory
+        if (selectedCategory != -1 && !routineDayInfo.categoryList.contains(selectedCategory)) {
+            val newCategoryList = routineDayInfo.categoryList + selectedCategory
             val newRoutineDayInfo = routineDayInfo.copy(categoryList = newCategoryList)
-            onNewCategorySelected(newRoutineDayInfo)
+            insertRoutineDay(newRoutineDayInfo)
         }
         onDispose { }
     }
@@ -535,58 +917,6 @@ fun AddCategoryBtn(
 fun RoutineList(name: String) {
     Text(text = name, style = NotoTypography.headlineMedium)
 }
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun DropDownCategoryList() {
-//    val categoryList = (1..6).map { ExerciseCategory.fromId(it) }.toList()
-//
-//    var expanded by remember { mutableStateOf(false) }
-//    var selectedOptionText by remember { mutableStateOf( categoryList[0]) }
-//
-//    ExposedDropdownMenuBox(
-//        expanded = expanded, onExpandedChange = { expanded = it },
-//    ) {
-//        TextField(
-//            // The `menuAnchor` modifier must be passed to the text field for correctness.
-//            modifier = Modifier
-//                .menuAnchor()
-//                .fillMaxWidth(0.4f),
-//            readOnly = true,
-//            textStyle = NotoTypography.headlineSmall,
-//            value = selectedOptionText?.let { ExerciseCategory.toName(it.id) },
-//            onValueChange = {},
-//            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-//            colors = TextFieldDefaults.colors(
-//                focusedTextColor = TextGray,
-//                unfocusedTextColor = TextGray,
-//                disabledContainerColor = Color.Transparent,
-//                focusedContainerColor = Color.Transparent,
-//                unfocusedContainerColor = Color.Transparent,
-//                focusedTrailingIconColor = TextGray,
-//                unfocusedTrailingIconColor = TextGray,
-//                focusedIndicatorColor = TextGray,
-//                unfocusedIndicatorColor = TextGray,
-//            ),
-//        )
-//
-//        ExposedDropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false },
-//        ) {
-//            categoryList.forEach { selectionOption ->
-//                DropdownMenuItem(
-//                    text = { Text(selectionOption) },
-//                    onClick = {
-//                        selectedOptionText = selectionOption
-//                        expanded = false
-//                    },
-//                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-//                )
-//            }
-//        }
-//    }
-//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -664,11 +994,11 @@ fun ExerciseCardView(
                 style = NotoTypography.bodyMedium,
                 modifier = Modifier.padding(start = 10.dp)
             )
-            val categoryList: List<String> = routineDayInfo.categoryList?.map {
-                ExerciseCategory.toName(it)
-            } ?: emptyList()
-
-            CategoryList(categoryList, 8)
+            LazyRow {
+                item {
+                    CategoryList(false, routineDayInfo, 8, {})
+                }
+            }
 
         }
         Box(
@@ -689,13 +1019,26 @@ fun ExerciseCardView(
 
 @Composable
 fun CategoryList(
-    categoryList: List<String>,
+    isCanDelete: Boolean,
+    routineDayInfo: RoutineDayInfo,
     size: Int,
+    insertRoutineDay: (RoutineDayInfo) -> Unit,
 ) {
     Row(
     ) {
-        categoryList.forEach {
-            CategoryChip(it, size)
+        routineDayInfo.categoryList?.forEach {
+            CategoryChip(
+                isCanDelete,
+                ExerciseCategory.toName(it),
+                it,
+                size
+            ) { selectedCategory ->
+                if (routineDayInfo.categoryList.contains(selectedCategory)) {
+                    val newCategoryList = routineDayInfo.categoryList - selectedCategory
+                    val newRoutineDayInfo = routineDayInfo.copy(categoryList = newCategoryList)
+                    insertRoutineDay(newRoutineDayInfo)
+                }
+            }
         }
     }
 }

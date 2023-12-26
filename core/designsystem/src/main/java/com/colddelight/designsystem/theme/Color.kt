@@ -17,4 +17,4 @@ val LightGray = Color(0xFF565857)
 val DarkGray = Color(0xFF303231)
 val BackGray = Color(0xFF242524)
 
-val TimerRed = Color(0xFFD84747)
+val Red = Color(0xFFD84747)
