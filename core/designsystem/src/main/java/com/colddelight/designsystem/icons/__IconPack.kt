@@ -12,6 +12,7 @@ import com.colddelight.designsystem.icons.iconpack.Pluscircle
 import com.colddelight.designsystem.icons.iconpack.Routineselected
 import com.colddelight.designsystem.icons.iconpack.Routineunselected
 import com.colddelight.designsystem.icons.iconpack.Topback
+import com.colddelight.designsystem.icons.iconpack.Trash
 import kotlin.collections.List as ____KtList
 
 public object IconPack
@@ -24,6 +25,6 @@ public val IconPack.AllIcons: ____KtList<ImageVector>
       return __AllIcons!!
     }
     __AllIcons= listOf(Topback, Pluscircle, Historyunselected, Hamburger, Homeselected, Minuscircle,
-        Routineselected, Close, Homeunselected, Routineunselected, Historyselected)
+        Routineselected, Close, Trash, Homeunselected, Routineunselected, Historyselected)
     return __AllIcons!!
   }
