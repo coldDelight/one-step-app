@@ -52,7 +52,7 @@ class ExerciseRepositoryImpl @Inject constructor(
         exercise: ExerciseEntity
     ): Exercise.Calisthenics {
         return Exercise.Calisthenics(
-            exerciseId = exercise.id,
+            exerciseId = historyExerciseEntity.id,
             name = exercise.name,
             reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
             set = historyExerciseEntity.repsList.size,
@@ -71,7 +71,7 @@ class ExerciseRepositoryImpl @Inject constructor(
         exercise: ExerciseEntity
     ): Exercise.Weight {
         return Exercise.Weight(
-            exerciseId = exercise.id,
+            exerciseId = historyExerciseEntity.id,
             name = exercise.name,
             min = historyExerciseEntity.kgList.minOrNull() ?: 0,
             max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
@@ -89,7 +89,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, 6)
+                routineDayDao.getTodayRoutineInfo(routineId, 2)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
                         val routineInfo = TodayRoutine(
@@ -107,11 +107,20 @@ class ExerciseRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun upDateKgList(historyExerciseId: Int, kgList: List<Int>) {
+        historyExerciseDao.updateKgList(historyExerciseId, kgList)
+    }
+
+    override suspend fun upDateRepsList(historyExerciseId: Int, repsList: List<Int>) {
+        historyExerciseDao.updateRepsList(historyExerciseId, repsList)
+
+    }
+
     override suspend fun addTmp() {
 
 
 //        /** 해당 routine day에 모든 운동 히스토리로 옮기느 작업
-//
+////
 //        val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
 //        val historyExercises = dayExercises.map { dayExercise ->
 //            HistoryExerciseEntity(
@@ -128,7 +137,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //         **/
 
 
-//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 6, listOf(1, 2)))
+//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
 //                1,

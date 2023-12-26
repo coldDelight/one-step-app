@@ -18,7 +18,7 @@ fun NavGraphBuilder.exerciseDetailScreen(
         val nonNullViewModelStoreOwner = requireNotNull(viewModelStoreOwner)
 
         ExerciseDetailScreen(
-            exerciseDetailViewModel = hiltViewModel(nonNullViewModelStoreOwner)
+            viewModel = hiltViewModel(nonNullViewModelStoreOwner)
         )
     }
 }
