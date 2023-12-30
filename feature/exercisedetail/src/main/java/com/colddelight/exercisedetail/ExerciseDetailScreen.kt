@@ -13,8 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,21 +22,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
+import com.colddelight.designsystem.component.EditText
+import com.colddelight.designsystem.component.EditTextKg
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
+import com.colddelight.designsystem.component.NoBackSetButton
 import com.colddelight.designsystem.component.SmallSetButton
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.icons.IconPack
+import com.colddelight.designsystem.icons.iconpack.Delete
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
-import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.exercise.CategoryIconList
@@ -112,10 +116,10 @@ private fun ExerciseDetailContent(
             ExerciseInfo(exercise, Modifier)
         }
         item {
-            ExerciseProgress(Modifier.fillMaxWidth(), curSetIndex, exercise.setInfoList.size)
+            TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
         }
         item {
-            TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
+            ExerciseProgress(Modifier.fillMaxWidth(), curSetIndex, exercise.setInfoList.size)
         }
         item {
             when (uiState) {
@@ -143,22 +147,23 @@ private fun ExerciseDetailContent(
         itemsIndexed(exercise.setInfoList) { index, item ->
             ExerciseDetailItem(item.kg, item.reps, index, setAction)
             if (curSetIndex == index || curSetIndex - 1 == index) {
-                Divider(color = Main, modifier = Modifier.padding(top = 16.dp), thickness = 2.dp)
+                Divider(color = Main, thickness = 2.dp)
             } else {
                 Divider(
                     color = DarkGray,
-                    modifier = Modifier.padding(top = 16.dp),
                     thickness = 2.dp
                 )
             }
         }
         item {
-            MainButton(onClick = { setAction(SetAction.AddSet) }) {
-                Text(text = "세트 추가")
-            }
+            ClickableText(
+                text = AnnotatedString("+ 세트 추가"),
+                style = NotoTypography.headlineSmall.copy(color = DarkGray),
+                onClick = { setAction(SetAction.AddSet) })
         }
     }
 }
+
 
 @Composable
 fun SetButtonWithState(
@@ -206,36 +211,53 @@ fun ExerciseDetailItem(
     kg: Int, reps: Int, index: Int,
     setAction: (SetAction) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
-            .padding(top = 16.dp),
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            SmallSetButton(Icons.Filled.Clear) {
+            NoBackSetButton(IconPack.Delete) {
                 setAction(SetAction.DeleteSet(index))
             }
-            SmallSetButton(IconPack.Minus) {
-                setAction(SetAction.UpdateKg(kg - 10, index))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SmallSetButton(IconPack.Minus) {
+                    setAction(SetAction.UpdateKg(kg - 10, index))
+                }
+                EditTextKg(kg.toString(), focusManager) { newKg ->
+                    setAction(SetAction.UpdateKg(newKg, index))
+                }
+                SmallSetButton(IconPack.Plus) {
+                    setAction(SetAction.UpdateKg(kg + 10, index))
+                }
             }
-            Text(text = "${kg}kg", style = HortaTypography.bodyMedium)
-            SmallSetButton(IconPack.Plus) {
-                setAction(SetAction.UpdateKg(kg + 10, index))
-            }
-            SmallSetButton(IconPack.Minus) {
-                setAction(SetAction.UpdateReps(reps - 1, index))
-            }
-            Text(text = "${reps}reps", style = HortaTypography.bodyMedium)
-            SmallSetButton(IconPack.Plus) {
-                setAction(SetAction.UpdateReps(reps + 1, index))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SmallSetButton(IconPack.Minus) {
+                    setAction(SetAction.UpdateReps(reps - 1, index))
+                }
+                EditText(reps.toString(), focusManager) { newReps ->
+                    setAction(SetAction.UpdateReps(newReps, index))
+                }
+                SmallSetButton(IconPack.Plus) {
+                    setAction(SetAction.UpdateReps(reps + 1, index))
+                }
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SddPreview() {
+    ExerciseDetailItem(660, 12, 1) {}
 }
 
 @Composable
@@ -267,24 +289,15 @@ private fun CurrentSetButtons(
     setAction: (SetAction) -> Unit,
     curIndex: Int
 ) {
-//    val fixedItemSize = with(LocalDensity.current) { 40.dp.toPx() }
-//    val fixedHeightSize = with(LocalDensity.current) { 80.dp.toPx() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-//            .height(fixedHeightSize.dp)
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         SingleSetButtons(setInfo.kg, 10, true, showSetButton, 150, setAction, curIndex)
         SingleSetButtons(setInfo.reps, 1, false, showSetButton, 150, setAction, curIndex)
     }
-}
-
-@Preview
-@Composable
-fun SetPreview() {
-    CurrentSetButtons(SetInfo(50, 20), true, {}, 0)
 }
 
 @Composable

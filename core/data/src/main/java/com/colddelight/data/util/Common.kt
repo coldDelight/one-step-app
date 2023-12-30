@@ -7,7 +7,7 @@ import java.util.Date
 
 fun getTodayDate(): String {
     val currentDate = Date()
-    val dateFormat = SimpleDateFormat("yy.MM.dd")
+    val dateFormat = SimpleDateFormat("yyyy.MM.dd")
     return dateFormat.format(currentDate)
 }
 
@@ -29,6 +29,20 @@ fun getDayOfWeek(
         5 -> "금요일"
         6 -> "토요일"
         else -> "일요일"
+    }
+}
+
+fun getDayOfWeekEn(
+    dayOfWeek: Int
+): String {
+    return when (dayOfWeek) {
+        1 -> "Mon"
+        2 -> "Tue"
+        3 -> "Wed"
+        4 -> "Thu"
+        5 -> "Fri"
+        6 -> "Sat"
+        else -> "Sun"
     }
 }
 

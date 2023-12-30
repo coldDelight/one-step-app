@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -18,7 +19,9 @@ import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Homeunselected
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
+import com.colddelight.designsystem.icons.iconpack.Trash
 import com.colddelight.designsystem.theme.DarkGray
+import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.TextGray
 
 @Composable
@@ -57,6 +60,23 @@ fun SmallSetButton(icon: ImageVector, onClick: () -> Unit) {
     }
 }
 
+@Composable
+fun NoBackSetButton(icon: ImageVector, onClick: () -> Unit) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .padding(vertical = 16.dp)
+            .size(20.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = LightGray,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
 @Preview
 @Composable
 fun SetButtonPreview() {
@@ -67,7 +87,7 @@ fun SetButtonPreview() {
         BigSetButton(IconPack.Minus) {
 
         }
-        BigSetButton(Icons.Default.Add) {
+        NoBackSetButton(IconPack.Trash) {
 
         }
         SmallSetButton(Icons.Default.Add) {

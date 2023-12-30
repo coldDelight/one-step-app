@@ -89,7 +89,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, 2)
+                routineDayDao.getTodayRoutineInfo(routineId, 6)
                     .map { routineDayInfoMap ->
                         val routine = routineDayInfoMap.keys.firstOrNull()
                         val routineInfo = TodayRoutine(
@@ -137,7 +137,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //         **/
 
 
-//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
+//        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 1, listOf(1, 2)))
 //        historyDao.insertHistory(
 //            HistoryEntity(
 //                1,

@@ -24,6 +24,9 @@ interface HistoryDao {
     fun getTodayHistoryId(createTime: LocalDate): Flow<Map<@MapColumn("id") Int, @MapColumn("is_free") Boolean>>
 
 
+    @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_free = 0 AND is_done = 1")
+    fun getHistoryForThisWeek(startDate: LocalDate): Flow<List<LocalDate>>
+
     // 히스토리 아이디임
     @Query("UPDATE history SET is_done = 1 WHERE id = (:id)")
     fun updateHistory(id: Int)

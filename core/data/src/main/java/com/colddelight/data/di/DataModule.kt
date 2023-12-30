@@ -2,6 +2,8 @@ package com.colddelight.data.di
 
 import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.data.repository.ExerciseRepositoryImpl
+import com.colddelight.data.repository.HomeRepository
+import com.colddelight.data.repository.HomeRepositoryImpl
 import com.colddelight.data.repository.RoutineRepository
 import com.colddelight.data.repository.RoutineRepositoryImpl
 import com.colddelight.data.util.ConnectivityManagerNetworkMonitor
@@ -28,6 +30,12 @@ interface DataModule {
     fun bindsExerciseRepository(
         exerciseRepository: ExerciseRepositoryImpl
     ): ExerciseRepository
+
+    @Binds
+    fun bindsHomeRepository(
+        homeRepository: HomeRepositoryImpl
+    ): HomeRepository
+
 
     @Binds
     fun bindsRoutineRepository(

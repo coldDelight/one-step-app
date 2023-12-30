@@ -68,7 +68,7 @@ fun StepNavigationBar(
 @Preview
 @Composable
 fun StepNavigationPreview() {
-    val items = listOf("Routine","Home", "History")
+    val items = listOf("Routine", "Home", "History")
     val icons = listOf(
         IconPack.Routineunselected,
         IconPack.Homeunselected,

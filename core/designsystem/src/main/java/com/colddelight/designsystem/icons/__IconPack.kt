@@ -2,6 +2,8 @@ package com.colddelight.designsystem.icons
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.colddelight.designsystem.icons.iconpack.Close
+import com.colddelight.designsystem.icons.iconpack.Day
+import com.colddelight.designsystem.icons.iconpack.Delete
 import com.colddelight.designsystem.icons.iconpack.Hamburger
 import com.colddelight.designsystem.icons.iconpack.Historyselected
 import com.colddelight.designsystem.icons.iconpack.Historyunselected
@@ -25,7 +27,7 @@ public val IconPack.AllIcons: ____KtList<ImageVector>
             return __AllIcons!!
         }
         __AllIcons = listOf(
-            Topback, Minus, Historyunselected, Hamburger, Homeselected, Plus,Trash,
+            Delete, Day, Topback, Minus, Historyunselected, Hamburger, Homeselected, Plus, Trash,
             Routineselected, Close, Homeunselected, Routineunselected, Historyselected
         )
         return __AllIcons!!
