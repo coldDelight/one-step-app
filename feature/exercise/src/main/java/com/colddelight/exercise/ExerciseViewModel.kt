@@ -1,6 +1,5 @@
 package com.colddelight.exercise
 
-import androidx.compose.material3.Text
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +26,12 @@ class ExerciseViewModel @Inject constructor(
     private val _exerciseDetailUiState =
         MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default)
     val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
+
+    init {
+        viewModelScope.launch {
+            repository.initExercise()
+        }
+    }
 
     fun updateDetailUiState(newState: ExerciseDetailUiState) {
         when (newState) {
@@ -76,28 +80,31 @@ class ExerciseViewModel @Inject constructor(
     }
 
 
-    fun upDateKgList(exercise: Exercise, updatedKg: Int, toChange: Int) {
-        val kgList = exercise.setInfoList.mapIndexed { index, setInfo ->
-            if (index == toChange) updatedKg
-            else setInfo.kg
-        }
-        viewModelScope.launch {
-            repository.upDateKgList(exercise.exerciseId, kgList)
-        }
-
-    }
-
-    fun upDateRepsList(exercise: Exercise, updatedReps: Int, toChange: Int) {
-        val repsList = exercise.setInfoList.mapIndexed { index, setInfo ->
-            if (index == toChange) updatedReps
-            else setInfo.reps
-        }
-        viewModelScope.launch {
-            repository.upDateRepsList(exercise.exerciseId, repsList)
+    private fun upDateKgList(exercise: Exercise, updatedKg: Int, toChange: Int) {
+        if (updatedKg > 0) {
+            val kgList = exercise.setInfoList.mapIndexed { index, setInfo ->
+                if (index == toChange) updatedKg
+                else setInfo.kg
+            }
+            viewModelScope.launch {
+                repository.upDateKgList(exercise.exerciseId, kgList)
+            }
         }
     }
 
-    fun deleteSet(exercise: Exercise, toChange: Int) {
+    private fun upDateRepsList(exercise: Exercise, updatedReps: Int, toChange: Int) {
+        if (updatedReps > 0) {
+            val repsList = exercise.setInfoList.mapIndexed { index, setInfo ->
+                if (index == toChange) updatedReps
+                else setInfo.reps
+            }
+            viewModelScope.launch {
+                repository.upDateRepsList(exercise.exerciseId, repsList)
+            }
+        }
+    }
+
+    private fun deleteSet(exercise: Exercise, toChange: Int) {
         val setInfoList =
             exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
         viewModelScope.launch {
@@ -106,7 +113,7 @@ class ExerciseViewModel @Inject constructor(
         }
     }
 
-    fun addSet(exercise: Exercise) {
+    private fun addSet(exercise: Exercise) {
         val setInfoList =
             exercise.setInfoList.toMutableList()
         setInfoList.add(SetInfo(20, 12))

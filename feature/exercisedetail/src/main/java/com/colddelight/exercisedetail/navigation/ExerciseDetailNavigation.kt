@@ -1,7 +1,5 @@
 package com.colddelight.exercisedetail.navigation
 
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -14,12 +12,7 @@ fun NavController.navigateExerciseToExerciseDetail() {
 fun NavGraphBuilder.exerciseDetailScreen(
 ) {
     composable(route = ExerciseDetailRoute.route) {
-        val viewModelStoreOwner = LocalViewModelStoreOwner.current
-        val nonNullViewModelStoreOwner = requireNotNull(viewModelStoreOwner)
-
-        ExerciseDetailScreen(
-            viewModel = hiltViewModel(nonNullViewModelStoreOwner)
-        )
+        ExerciseDetailScreen()
     }
 }
 
