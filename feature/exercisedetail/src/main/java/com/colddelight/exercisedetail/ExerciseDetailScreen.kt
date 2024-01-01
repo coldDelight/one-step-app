@@ -22,22 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
-import com.colddelight.designsystem.component.EditText
-import com.colddelight.designsystem.component.EditTextKg
+import com.colddelight.designsystem.component.ExerciseDetailItem
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.NoBackSetButton
-import com.colddelight.designsystem.component.SmallSetButton
+import com.colddelight.designsystem.component.SetAction
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.icons.IconPack
-import com.colddelight.designsystem.icons.iconpack.Delete
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
 import com.colddelight.designsystem.theme.BackGray
@@ -48,7 +44,6 @@ import com.colddelight.exercise.CategoryIconList
 import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
-import com.colddelight.exercise.SetAction
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
 
@@ -206,53 +201,6 @@ fun SetButton(text: String, onClick: () -> Unit) {
     )
 }
 
-@Composable
-fun ExerciseDetailItem(
-    kg: Int, reps: Int, index: Int,
-    setAction: (SetAction) -> Unit
-) {
-    val focusManager = LocalFocusManager.current
-    Column(
-        modifier = Modifier
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            NoBackSetButton(IconPack.Delete) {
-                setAction(SetAction.DeleteSet(index))
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SmallSetButton(IconPack.Minus) {
-                    setAction(SetAction.UpdateKg(kg - 10, index))
-                }
-                EditTextKg(kg.toString(), focusManager) { newKg ->
-                    setAction(SetAction.UpdateKg(newKg, index))
-                }
-                SmallSetButton(IconPack.Plus) {
-                    setAction(SetAction.UpdateKg(kg + 10, index))
-                }
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SmallSetButton(IconPack.Minus) {
-                    setAction(SetAction.UpdateReps(reps - 1, index))
-                }
-                EditText(reps.toString(), focusManager) { newReps ->
-                    setAction(SetAction.UpdateReps(newReps, index))
-                }
-                SmallSetButton(IconPack.Plus) {
-                    setAction(SetAction.UpdateReps(reps + 1, index))
-                }
-            }
-        }
-    }
-}
 
 @Preview
 @Composable
