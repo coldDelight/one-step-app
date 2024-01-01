@@ -1,6 +1,5 @@
 package com.colddelight.exercise
 
-import androidx.compose.material3.Text
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +26,12 @@ class ExerciseViewModel @Inject constructor(
     private val _exerciseDetailUiState =
         MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default)
     val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
+
+    init {
+        viewModelScope.launch {
+            repository.initExercise()
+        }
+    }
 
     fun updateDetailUiState(newState: ExerciseDetailUiState) {
         when (newState) {

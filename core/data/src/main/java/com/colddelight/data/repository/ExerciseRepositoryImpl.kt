@@ -1,5 +1,6 @@
 package com.colddelight.data.repository
 
+import android.util.Log
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
@@ -17,6 +18,7 @@ import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -30,6 +32,8 @@ class ExerciseRepositoryImpl @Inject constructor(
     private val exerciseDao: ExerciseDao,
     private val userDataSource: UserPreferencesDataSource
 ) : ExerciseRepository {
+
+    val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now())
     override fun getTodayExerciseList(routineDayId: Int, historyId: Int): Flow<List<Exercise>> {
         return historyExerciseDao.getTodayHistoryExercises(historyId)
             .map { historyExercises ->
@@ -113,6 +117,46 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun upDateRepsList(historyExerciseId: Int, repsList: List<Int>) {
         historyExerciseDao.updateRepsList(historyExerciseId, repsList)
+
+    }
+
+    override suspend fun initExercise() {
+
+        val id = todayHistoryId.firstOrNull() ?: -1
+        when (id) {
+            -1 -> {
+                //히스토리 아이디
+                historyDao.insertHistory(
+                    HistoryEntity(
+                        1,
+                        LocalDate.now(),
+                        listOf(1, 2),
+                        "",
+                        isDone = false,
+                        isFree = false
+                    )
+                )
+
+                //루틴 복사
+                val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
+                val historyExercises = dayExercises.map { dayExercise ->
+                    HistoryExerciseEntity(
+                        historyId = id,
+                        exerciseId = dayExercise.exerciseId,
+                        index = dayExercise.index,
+                        isDone = false,
+                        time = "",
+                        kgList = dayExercise.kgList,
+                        repsList = dayExercise.repsList
+                    )
+                }
+                historyExerciseDao.insertAll(historyExercises)
+            }
+
+            else -> {
+
+            }
+        }
 
     }
 

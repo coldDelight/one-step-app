@@ -109,30 +109,42 @@ private fun HomeContent(
                 TitleText(text = "Today", modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
                 DateWithCnt(getTodayDate(), cnt)
             }
+
             HomeButton(state, onStartButtonClick)
         }
+
         when (state) {
             is HomeState.During -> {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    ToFreeButton(
-                        onStartButtonClick,
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                    )
-                    ToExerciseButton(
-                        onStartButtonClick,
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(2f)
-                            .padding(start = 16.dp)
-                    )
-                }
+                ToExerciseButton(
+                    onStartButtonClick,
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp)
+                )
+//                Row(modifier = Modifier.fillMaxWidth()) {
+//                    ToFreeButton(
+//                        onStartButtonClick,
+//                        Modifier
+//                            .fillMaxWidth()
+//                            .weight(1f)
+//                            .padding(end = 8.dp)
+//                    )
+//                    ToExerciseButton(
+//                        onStartButtonClick,
+//                        Modifier
+//                            .fillMaxWidth()
+//                            .weight(2f)
+//                            .padding(start = 16.dp)
+//                    )
+//                }
             }
 
             else -> {
-                ToFreeButton(onStartButtonClick, Modifier.fillMaxWidth())
+//                ToExerciseButton(
+//                    onStartButtonClick,
+//                    Modifier.fillMaxWidth().padding(start = 16.dp)
+//                )
+                ToFreeButton({ }, Modifier.fillMaxWidth())
             }
         }
 
@@ -157,8 +169,6 @@ fun ExerciseWeek(exerciseWeek: List<ExerciseDay>, today: Int) {
 //                    .width(1.dp).background(DarkGray)
 //            )
         }
-
-
     }
 }
 
@@ -201,21 +211,17 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
         Column {
             Text(text = state.text, style = NotoTypography.headlineMedium, color = state.textColor)
 
-            when (state) {
-                is HomeState.During -> {
-                    //카테고리 리스트 추가 리스트는 CHAN1
-                    //state.categoryList : List<ExerciseCategory>
-                    Text(text = state.categoryList.toString())
-                }
-
-                else -> {}
+            if (state is HomeState.During) {
+                //카테고리 리스트 추가 리스트는 CHAN1
+                //state.categoryList : List<ExerciseCategory>
+                Text(text = state.categoryList.toString())
             }
+
         }
 
 
     }
 }
-
 
 @Composable
 fun ToExerciseButton(onClick: () -> Unit, modifier: Modifier) {

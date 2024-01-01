@@ -25,6 +25,10 @@ interface RoutineDayDao {
     ): Flow<Map<RoutineEntity, @MapColumn("category_list")String>>
 
 
+    @Query("SELECT * FROM routine_day WHERE day_of_week = 3")
+    suspend fun getRoutineDayCategory(): List<RoutineDayEntity>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoutineDay(routineDay: RoutineDayEntity)
 
