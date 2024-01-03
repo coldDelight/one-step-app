@@ -1,5 +1,6 @@
 package com.colddelight.designsystem.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Button
@@ -12,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.OneStepTheme
+import com.colddelight.designsystem.theme.Red
 
 @Composable
 fun MainButton(
@@ -53,10 +55,34 @@ fun SubButton(
     )
 }
 
+@Composable
+fun RedButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Red
+        ),
+        contentPadding = contentPadding,
+        content = content,
+    )
+}
+
 @Preview
 @Composable
 fun StepButtonPreview() {
     OneStepTheme {
-        MainButton(onClick = {}, content = { Text("Test button") })
+        Column {
+            MainButton(onClick = {}, content = { Text("Test button") })
+            SubButton(onClick = {}, content = { Text("Test button") })
+            RedButton(onClick = {}, content = { Text("Test button") })
+        }
     }
 }

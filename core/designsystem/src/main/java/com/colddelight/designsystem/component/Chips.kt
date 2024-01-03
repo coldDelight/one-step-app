@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +69,6 @@ fun CategoryChip(
                             .size(18.dp)
                             .clickable {
                                 onDeleteClicked(categoryId)
-//                                Log.e(javaClass.simpleName, "CategoryChip: 이거 삭제 할게?", )
                             }
                     )
             }
@@ -77,28 +77,30 @@ fun CategoryChip(
 }
 
 @Composable
-fun FilterChip(text: String, onChipSelected: (Boolean) -> Unit){
+fun FilterChip(text: String, onChipSelected: (Boolean) -> Unit,isClickable: Boolean ,borderColor: Color){
     var isSelected by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .padding(8.dp)
+            .clickable(enabled = isClickable) {
+                isSelected = !isSelected
+                onChipSelected(isSelected)
+            }
     ) {
         Text(
             text = text,
             fontSize = 16.sp,
             color = TextGray,
             modifier = Modifier
-                .border(1.dp, if (isSelected) Main else LightGray, CircleShape)
+                .border(1.dp, if (isSelected) Main else borderColor, CircleShape)
                 .padding(
                     start = 16.dp,
                     end = 16.dp,
                     top = 8.dp,
                     bottom = 8.dp
                 )
-                .clickable {
-                    isSelected = !isSelected
-                    onChipSelected(isSelected)
-                }
+
         )
     }
 }

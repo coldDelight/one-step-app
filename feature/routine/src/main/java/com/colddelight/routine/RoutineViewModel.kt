@@ -4,8 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.RoutineRepository
+import com.colddelight.designsystem.component.SetAction
+import com.colddelight.model.DayExercise
+import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.RoutineDayInfo
+import com.colddelight.model.SetInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -55,9 +59,27 @@ class RoutineViewModel @Inject constructor(
         }
     }
 
+    fun insertDayExercise(dayExercise: DayExercise){
+        viewModelScope.launch {
+            repository.insertDayExercise(dayExercise)
+        }
+    }
+
     fun deleteRoutineDay(routineDayId: Int){
         viewModelScope.launch {
             repository.deleteRoutineDay(routineDayId)
+        }
+    }
+
+    fun deleteExercise(exerciseId: Int){
+        viewModelScope.launch {
+            repository.deleteExercise(exerciseId)
+        }
+    }
+
+    fun deleteDayExercise(dayExerciseId: Int){
+        viewModelScope.launch {
+            repository.deleteDayExercise(dayExerciseId)
         }
     }
 

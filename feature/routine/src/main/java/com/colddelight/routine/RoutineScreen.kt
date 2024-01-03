@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
@@ -68,17 +69,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.view.accessibility.AccessibilityEventCompat.setAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import com.colddelight.data.util.getDayOfWeek
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
+import com.colddelight.designsystem.component.ExerciseDetailItem
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.FilterChip
+import com.colddelight.designsystem.component.MainButton
+import com.colddelight.designsystem.component.RedButton
+import com.colddelight.designsystem.component.SetAction
 import com.colddelight.designsystem.icons.IconPack
+import com.colddelight.designsystem.icons.iconpack.Topback
 import com.colddelight.designsystem.icons.iconpack.Trash
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
@@ -88,11 +97,15 @@ import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
+import com.colddelight.model.DayExercise
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
+import com.colddelight.model.SetInfo
+import kotlinx.coroutines.launch
+import javax.annotation.meta.When
 
 
 @Composable
@@ -113,22 +126,29 @@ fun RoutineScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-            //.verticalScroll(rememberScrollState())
         ) {
             RoutineContentWithState(
                 routineInfoUiState = routineInfoUiState,
                 routineDayInfoUiState = routineDayInfoUiState,
                 insertRoutineDay = { newRoutineDayInfo ->
                     viewModel.insertRoutineDay(newRoutineDayInfo)
-//                    Log.e(javaClass.simpleName, "RoutineScreen: 이거 수정할게? $newRoutineDayInfo", )
                 },
                 exerciseListState = exerciseListState,
                 insertExercise = { exerciseInfo ->
                     viewModel.insertExercise(exerciseInfo)
-                    Log.e(javaClass.simpleName, "RoutineScreen: 이거 수정할게? $exerciseInfo")
                 },
                 deleteRoutineDay = {
                     viewModel.deleteRoutineDay(it)
+                },
+                deleteExercise = {
+                    viewModel.deleteExercise(it)
+                },
+                deleteDayExercise = {
+                    viewModel.deleteDayExercise(it)
+                },
+                insertDayExercise = {
+                    Log.e("TAG", "RoutineScreen: 이거 등록할게!")
+                    viewModel.insertDayExercise(it)
                 }
             )
         }
@@ -142,7 +162,10 @@ private fun RoutineContentWithState(
     exerciseListState: ExerciseListState,
     insertRoutineDay: (RoutineDayInfo) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    deleteDayExercise: (Int) -> Unit,
 ) {
     when {
         routineInfoUiState is RoutineInfoUiState.Success && routineDayInfoUiState is RoutineDayInfoUiState.Success && exerciseListState is ExerciseListState.NotNone -> RoutineContent(
@@ -151,7 +174,10 @@ private fun RoutineContentWithState(
             exerciseListState.exerciseList,
             insertRoutineDay,
             insertExercise,
-            deleteRoutineDay
+            insertDayExercise,
+            deleteRoutineDay,
+            deleteExercise,
+            deleteDayExercise,
         )
 
         routineInfoUiState is RoutineInfoUiState.Loading -> RoutineLoading()
@@ -175,7 +201,10 @@ private fun RoutineContent(
     exerciseList: List<ExerciseInfo>,
     insertRoutineDay: (RoutineDayInfo) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    deleteDayExercise: (Int) -> Unit,
 ) {
     var screenWidth by remember { mutableStateOf(0) }
     val density = LocalDensity.current.density
@@ -214,7 +243,10 @@ private fun RoutineContent(
             insertRoutineDay = insertRoutineDay,
             exerciseList = exerciseList,
             insertExercise = insertExercise,
-            deleteRoutineDay = deleteRoutineDay
+            deleteRoutineDay = deleteRoutineDay,
+            deleteExercise = deleteExercise,
+            deleteDayExercise = deleteDayExercise,
+            insertDayExercise = insertDayExercise
         )
         //}
     }
@@ -311,9 +343,13 @@ fun RoutineDayDeleteDialog(
 
 @Composable
 fun ExerciseGridList(
+    routineDayId: Int,
     exerciseList: List<Exercise>,
     allExerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    deleteDayExercise: (Int) -> Unit,
 ) {
 
     Column {
@@ -323,7 +359,10 @@ fun ExerciseGridList(
             if (exerciseList.isNotEmpty()) {
                 item {
                     ExerciseItem(
+                        routineDayId = routineDayId,
                         exercise = exerciseList[0],
+                        insertDayExercise = insertDayExercise,
+                        deleteDayExercise = deleteDayExercise
                     )
                 }
                 item {
@@ -337,14 +376,22 @@ fun ExerciseGridList(
                 if (exerciseList.size >= 2) {
                     val itemsList = exerciseList.subList(1, exerciseList.size)
                     items(itemsList) {
-                        ExerciseItem(exercise = it)
+                        ExerciseItem(
+                            routineDayId = routineDayId,
+                            exercise = it,
+                            insertDayExercise = insertDayExercise,
+                            deleteDayExercise = deleteDayExercise
+                        )
                     }
                 }
             }
             item {
                 AddExerciseToRoutineDayBtn(
+                    routineDayId,
                     allExerciseList,
-                    insertExercise
+                    insertExercise,
+                    insertDayExercise,
+                    deleteExercise,
                 )
             }
         }
@@ -354,8 +401,11 @@ fun ExerciseGridList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExerciseToRoutineDayBtn(
+    routineDayId: Int,
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
+    deleteExercise: (Int) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -377,25 +427,133 @@ fun AddExerciseToRoutineDayBtn(
     }
 
     if (showBottomSheet) {
-        ExerciseBottomSheet(
+        ExerciseListBottomSheet(
+            routineDayId = routineDayId,
             onDismissSheet = {
                 showBottomSheet = it
             },
             sheetState = sheetState,
-            exerciseList = exerciseList ?: emptyList(),
-            insertExercise = insertExercise
+            exerciseList = exerciseList,
+            insertExercise = insertExercise,
+            deleteExercise = deleteExercise,
+            insertDayExercise = insertDayExercise
         )
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InsertDayExerciseBottomSheet(
+    onDismissSheet: (Boolean) -> Unit,
+    sheetState: SheetState,
+    insertDayExercise: (DayExercise) -> Unit,
+    deleteDayExercise: (Int) -> Unit,
+    routineDayId: Int,
+    exercise: Exercise,
+) {
+    val categoryList = (1..6).toList()
+    var setInfoList by remember { mutableStateOf(exercise.setInfoList) }
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismissSheet(false) },
+        sheetState = sheetState,
+        containerColor = BackGray,
+    ) {
+        LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
+            items(categoryList) { categoryIndex ->
+                FilterChip(
+                    ExerciseCategory.toName(categoryIndex),
+                    {},
+                    false,
+                    if (categoryIndex == exercise.category.id) Main else LightGray
+                )
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .padding(top = 16.dp)
+        ) {
+
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Main, RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = exercise.name,
+                            style = NotoTypography.bodyMedium,
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
+                }
+            }
+            itemsIndexed(setInfoList) { index, item ->
+                ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+                    setInfoList = performSetAction(
+                        setInfoList, setAction
+                    )
+                }
+                Divider(
+                    color = DarkGray,
+                    thickness = 2.dp
+                )
+
+            }
+            item {
+                ClickableText(
+                    text = AnnotatedString("+ 세트 추가"),
+                    style = NotoTypography.headlineSmall.copy(color = DarkGray),
+                    onClick = {
+                        setInfoList = performSetAction(setInfoList, SetAction.AddSet)
+                    })
+            }
+            item {
+                Row {
+                    RedButton(
+                        onClick = { deleteDayExercise(exercise.dayExerciseId)
+                                  onDismissSheet(false)},
+                        content = { Text("삭제", style = NotoTypography.bodyMedium) })
+                    MainButton(
+                        modifier = Modifier.fillMaxWidth(), onClick = {
+                            insertDayExercise(
+                                DayExercise(
+                                    routineDayId = routineDayId,
+                                    exerciseId = exercise.exerciseId,
+                                    index = 0, //TODO 인덱스?
+                                    kgList = setInfoList.map { it.kg },
+                                    repsList = setInfoList.map { it.reps },
+                                    id = exercise.dayExerciseId
+                                )
+                            )
+                            onDismissSheet(false)
+                        }) {
+                        Text(text = "완료", style = NotoTypography.bodyMedium)
+                    }
+                }
+            }
+        }
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExerciseBottomSheet(
+fun ExerciseListBottomSheet(
+    routineDayId: Int,
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismissSheet(false) },
@@ -403,69 +561,244 @@ fun ExerciseBottomSheet(
         containerColor = BackGray,
     ) {
         val categoryList = (1..6).toList()
-
         var selectedChipIndices by remember { mutableStateOf(emptyList<ExerciseCategory>()) }
-
-        LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
-            items(categoryList) { categoryIndex ->
-                FilterChip(ExerciseCategory.toName(categoryIndex)) { isSelected ->
-                    selectedChipIndices =
-                        if (isSelected) {
-                            selectedChipIndices + ExerciseCategory.fromId(categoryIndex)!!
-                        } else {
-                            selectedChipIndices - ExerciseCategory.fromId(categoryIndex)!!
-                        }
-                }
-            }
-        }
-
-        LazyColumn(modifier = Modifier.padding(horizontal = 20.dp)) {
-            if (selectedChipIndices.isEmpty()) {
-                itemsIndexed(exerciseList) { index, it ->
-                    AllExerciseListItem(
-                        it,
-                        insertExercise = insertExercise,
-                    )
-                    if (index < exerciseList.lastIndex) Divider(color = LightGray, thickness = 1.dp)
-                }
-            } else {
-                val filteredList = exerciseList.filter { it.category in selectedChipIndices }
-                itemsIndexed(filteredList) { index, it ->
-                    AllExerciseListItem(
-                        it,
-                        insertExercise = insertExercise,
-                    )
-                    if (index < exerciseList.lastIndex) Divider(
-                        color = LightGray,
-                        thickness = 1.dp
-                    )
-                }
-            }
-        }
-
-        var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 105.dp),
-
-            ) {
-            DropDownCategoryList(onCategorySelected = {
-                insertCategory = it
-            })
-            ExerciseNameOutlineTextField(
-                isIconVisible = true,
-                originExerciseName = "",
-                insertExerciseName = {
-                    insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
-                }
+        var bottomSheetState by remember { mutableStateOf(ExerciseBottomSheetState.List) }
+        var selectedExercise by remember {
+            mutableStateOf(
+                ExerciseInfo(
+                    -1,
+                    "",
+                    ExerciseCategory.CHEST
+                )
             )
+        }
+        var setInfoList by remember {
+            mutableStateOf(List(5) { SetInfo(20, 12) })
+        }
+
+        when (bottomSheetState) {
+            ExerciseBottomSheetState.Selected -> {
+                LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
+                    items(categoryList) { categoryIndex ->
+                        FilterChip(
+                            ExerciseCategory.toName(categoryIndex),
+                            {},
+                            false,
+                            if (categoryIndex == selectedExercise.id) Main else LightGray
+                        )
+                    }
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 16.dp)
+                ) {
+
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IconButton(onClick = {
+                                bottomSheetState = ExerciseBottomSheetState.List
+                            }) {
+                                Icon(
+                                    imageVector = IconPack.Topback,
+                                    contentDescription = "운동 선택",
+                                    tint = TextGray
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(1.dp, Main, RoundedCornerShape(10.dp))
+                            ) {
+                                Text(
+                                    text = selectedExercise.name,
+                                    style = NotoTypography.bodyMedium,
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                )
+                            }
+                        }
+                    }
+                    itemsIndexed(setInfoList) { index, item ->
+                        ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+                            setInfoList = performSetAction(
+                                setInfoList, setAction
+                            )
+                        }
+                        Divider(
+                            color = DarkGray,
+                            thickness = 2.dp
+                        )
+
+                    }
+                    item {
+                        ClickableText(
+                            text = AnnotatedString("+ 세트 추가"),
+                            style = NotoTypography.headlineSmall.copy(color = DarkGray),
+                            onClick = {
+                                setInfoList = performSetAction(setInfoList, SetAction.AddSet)
+                            })
+                    }
+                    item {
+                        MainButton(
+                            modifier = Modifier.fillMaxWidth(), onClick = {
+                                insertDayExercise(
+                                    DayExercise(
+                                        routineDayId = routineDayId,
+                                        exerciseId = selectedExercise.id,
+                                        index = 0,
+                                        kgList = setInfoList.map { it.kg },
+                                        repsList = setInfoList.map { it.reps },
+                                        id = 0
+                                    )
+                                )
+                                onDismissSheet(false)
+                            }) {
+                            Text(text = "완료", style = NotoTypography.bodyMedium)
+                        }
+                    }
+                }
+
+            }
+
+            else -> {
+                LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
+                    items(categoryList) { categoryIndex ->
+                        FilterChip(ExerciseCategory.toName(categoryIndex), { isSelected ->
+                            selectedChipIndices =
+                                if (isSelected) {
+                                    selectedChipIndices + ExerciseCategory.fromId(categoryIndex)!!
+                                } else {
+                                    selectedChipIndices - ExerciseCategory.fromId(categoryIndex)!!
+                                }
+                        }, true, LightGray)
+                    }
+                }
+
+                LazyColumn(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    if (selectedChipIndices.isEmpty()) {
+                        itemsIndexed(exerciseList) { index, it ->
+                            AllExerciseListItem(
+                                it,
+                                insertExercise = insertExercise,
+                                deleteExercise = deleteExercise,
+                                isItemSelected = {
+                                    selectedExercise = it
+                                    bottomSheetState = ExerciseBottomSheetState.Selected
+                                }
+                            )
+                            if (index < exerciseList.lastIndex) Divider(
+                                color = LightGray,
+                                thickness = 1.dp
+                            )
+                        }
+                    } else {
+                        val filteredList =
+                            exerciseList.filter { it.category in selectedChipIndices }
+                        itemsIndexed(filteredList) { index, it ->
+                            AllExerciseListItem(
+                                it,
+                                insertExercise = insertExercise,
+                                deleteExercise = deleteExercise,
+                                isItemSelected = {
+                                    selectedExercise = it
+                                    bottomSheetState = ExerciseBottomSheetState.Selected
+                                }
+                            )
+                            if (index < exerciseList.lastIndex) Divider(
+                                color = LightGray,
+                                thickness = 1.dp
+                            )
+                        }
+                    }
+                }
+
+                var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 105.dp),
+
+                    ) {
+                    DropDownCategoryList(onCategorySelected = {
+                        insertCategory = it
+                    })
+                    ExerciseNameOutlineTextField(
+                        isIconVisible = true,
+                        originExerciseName = "",
+                        insertExerciseName = {
+                            insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
+                        }
+                    )
+                }
+            }
         }
     }
 }
+
+fun performSetAction(setInfoList: List<SetInfo>, action: SetAction): List<SetInfo> {
+    when (action) {
+        is SetAction.UpdateKg ->
+            return upDateNewKgList(setInfoList, action.updatedKg, action.toChange)
+
+        is SetAction.UpdateReps ->
+            return upDateNewRepsList(setInfoList, action.updatedReps, action.toChange)
+
+        is SetAction.DeleteSet ->
+            return deleteSet(setInfoList, action.toChange)
+
+        is SetAction.AddSet ->
+            return addSet(setInfoList)
+    }
+}
+
+fun upDateNewKgList(setInfoList: List<SetInfo>, updatedKg: Int, toChange: Int): List<SetInfo> {
+    if (updatedKg > 0) {
+        return setInfoList.mapIndexed { index, setInfo ->
+            if (index >= toChange) {
+                setInfo.copy(kg = updatedKg)
+            } else {
+                setInfo
+            }
+        }
+    } else {
+        return setInfoList
+    }
+}
+
+fun upDateNewRepsList(setInfoList: List<SetInfo>, updatedReps: Int, toChange: Int): List<SetInfo> {
+    return if (updatedReps > 0) {
+        setInfoList.mapIndexed { index, setInfo ->
+            if (index >= toChange) {
+                setInfo.copy(reps = updatedReps)
+            } else {
+                setInfo
+            }
+        }
+    } else {
+        setInfoList
+    }
+}
+
+fun deleteSet(setInfoList: List<SetInfo>, toChange: Int): List<SetInfo> {
+    val setInfoList =
+        setInfoList.filterIndexed { index, _ -> index != toChange }
+    return setInfoList
+}
+
+private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
+    val setInfoList =
+        setInfoList.toMutableList()
+    setInfoList.add(SetInfo(20, 12))
+    return setInfoList
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -581,6 +914,8 @@ fun ExerciseNameOutlineTextField(
 fun AllExerciseListItem(
     exerciseInfo: ExerciseInfo,
     insertExercise: (ExerciseInfo) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    isItemSelected: (ExerciseInfo) -> Unit,
 ) {
     var dialogState by remember { mutableStateOf(ExerciseDialogState.None) }
 
@@ -588,6 +923,9 @@ fun AllExerciseListItem(
         .fillMaxWidth()
         .pointerInput(Unit) {
             detectTapGestures(
+                onTap = {
+                    isItemSelected(exerciseInfo)
+                },
                 onLongPress = {
                     dialogState = ExerciseDialogState.Basic
                 }
@@ -600,13 +938,22 @@ fun AllExerciseListItem(
         )
     }
 
-    when(dialogState){
-        ExerciseDialogState.Basic -> ExerciseDialog({dialogState = it})
-        ExerciseDialogState.Edit -> EditExerciseDialog(exerciseInfo,{dialogState = it},insertExercise)
-        ExerciseDialogState.Delete -> {} //DeleteExerciseDialog()
+    when (dialogState) {
+        ExerciseDialogState.Basic -> ExerciseDialog { dialogState = it }
+        ExerciseDialogState.Edit -> EditExerciseDialog(
+            exerciseInfo,
+            { dialogState = it },
+            insertExercise
+        )
+
+        ExerciseDialogState.Delete -> DeleteExerciseDialog(
+            exerciseInfo,
+            { dialogState = it },
+            deleteExercise
+        )
+
         else -> {}
     }
-
 }
 
 
@@ -627,7 +974,7 @@ fun ExerciseDialog(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+            ) {
                 TextButton(onClick = {
                     changeDialogState(ExerciseDialogState.Edit)
                 }) {
@@ -662,7 +1009,7 @@ fun EditExerciseDialog(
     insertExercise: (ExerciseInfo) -> Unit,
 ) {
     var insertCategory by remember { mutableStateOf(exerciseInfo.category) }
-    var insertName by remember { mutableStateOf(exerciseInfo.name)}
+    var insertName by remember { mutableStateOf(exerciseInfo.name) }
 
     AlertDialog(
         containerColor = DarkGray,
@@ -690,7 +1037,13 @@ fun EditExerciseDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    insertExercise(ExerciseInfo(id = exerciseInfo.id, name = insertName, category = insertCategory))
+                    insertExercise(
+                        ExerciseInfo(
+                            id = exerciseInfo.id,
+                            name = insertName,
+                            category = insertCategory
+                        )
+                    )
                     onDismissDialog(ExerciseDialogState.None)
                 }
             ) {
@@ -712,47 +1065,95 @@ fun EditExerciseDialog(
 
 @Composable
 fun DeleteExerciseDialog(
-    onDismissSheet: (Boolean) -> Unit,
+    exerciseInfo: ExerciseInfo,
+    onDismissDialog: (ExerciseDialogState) -> Unit,
+    deleteExercise: (Int) -> Unit,
 ) {
-    Dialog(onDismissRequest = { onDismissSheet(false) }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(0.5f),
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = BackGray,
-                contentColor = TextGray
+    AlertDialog(
+        containerColor = BackGray,
+        text = {
+            Text(
+                text = "운동을 삭제하면 관련 데이터가 전부 삭제됩니다.",
+                style = NotoTypography.bodyMedium,
+                color = TextGray
             )
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
+        },
+        onDismissRequest = {
+            onDismissDialog(ExerciseDialogState.None)
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    deleteExercise(exerciseInfo.id)
+                    onDismissDialog(ExerciseDialogState.None)
+                }
             ) {
-
-
+                Text(text = "삭제", style = NotoTypography.bodyMedium, color = Red)
             }
-
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissDialog(ExerciseDialogState.None)
+                }
+            ) {
+                Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
+            }
         }
-    }
+    )
+
+
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseItem(
+    routineDayId: Int,
+    insertDayExercise: (DayExercise) -> Unit,
     exercise: Exercise,
+    deleteDayExercise: (Int) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .aspectRatio(1f / 1f)
-            .padding(16.dp)
-            .background(BackGray, CircleShape)
-            .border(4.dp, Main, CircleShape)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        when (exercise) {
-            is Exercise.Weight -> {
-                Column {
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedExercise by remember {
+        mutableStateOf<Exercise>(
+            Exercise.Calisthenics(
+                "",
+                0,
+                0,
+                0,
+                0,
+                false,
+                emptyList(),
+                ExerciseCategory.CHEST
+            )
+        )
+    }
+
+    val boxModifier = Modifier
+        .fillMaxSize()
+        .aspectRatio(1f / 1f)
+        .padding(16.dp)
+        .background(BackGray, CircleShape)
+        .border(4.dp, Main, CircleShape)
+        .padding(16.dp)
+        .clip(CircleShape)
+
+
+    when (exercise) {
+        is Exercise.Weight -> {
+            Box(boxModifier.pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        selectedExercise = exercise
+                        showBottomSheet = true
+                    },
+                    onLongPress = {
+                    }
+                )
+            }) {
+                Column(modifier = Modifier.align(Alignment.Center)) {
                     Text(
                         text = exercise.name,
                         style = NotoTypography.bodySmall,
@@ -770,9 +1171,20 @@ fun ExerciseItem(
                     )
                 }
             }
+        }
 
-            is Exercise.Calisthenics -> {
-                Column {
+        is Exercise.Calisthenics -> {
+            Box(boxModifier.pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        selectedExercise = exercise
+                        showBottomSheet = true
+                    },
+                    onLongPress = {
+                    }
+                )
+            }) {
+                Column(modifier = Modifier.align(Alignment.Center)) {
                     Text(
                         text = exercise.name,
                         style = NotoTypography.bodySmall,
@@ -787,6 +1199,19 @@ fun ExerciseItem(
             }
         }
     }
+
+    if (showBottomSheet) {
+        InsertDayExerciseBottomSheet(
+            onDismissSheet = { showBottomSheet = it },
+            sheetState = sheetState,
+            insertDayExercise = insertDayExercise,
+            routineDayId = routineDayId,
+            exercise = selectedExercise,
+            deleteDayExercise = deleteDayExercise
+        )
+    }
+
+
 }
 
 
@@ -796,7 +1221,10 @@ fun RoutineDayScreen(
     insertRoutineDay: (RoutineDayInfo) -> Unit,
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
+    deleteExercise: (Int) -> Unit,
+    deleteDayExercise: (Int) -> Unit,
 ) {
     DayOfWeekAndDot(routineDayInfo, deleteRoutineDay)
     LazyRow {
@@ -807,7 +1235,15 @@ fun RoutineDayScreen(
             CategoryList(true, routineDayInfo, 16, insertRoutineDay = insertRoutineDay)
         }
     }
-    ExerciseGridList(routineDayInfo.exerciseList ?: listOf(), exerciseList, insertExercise)
+    ExerciseGridList(
+        routineDayInfo.routineDayId,
+        routineDayInfo.exerciseList,
+        exerciseList,
+        insertExercise,
+        insertDayExercise,
+        deleteExercise,
+        deleteDayExercise
+    )
 }
 
 @Composable
@@ -1035,7 +1471,8 @@ fun CategoryList(
             ) { selectedCategory ->
                 if (routineDayInfo.categoryList.contains(selectedCategory)) {
                     val newCategoryList = routineDayInfo.categoryList - selectedCategory
-                    val newRoutineDayInfo = routineDayInfo.copy(categoryList = newCategoryList)
+                    val newRoutineDayInfo =
+                        routineDayInfo.copy(categoryList = newCategoryList)
                     insertRoutineDay(newRoutineDayInfo)
                 }
             }
@@ -1080,7 +1517,6 @@ fun ExerciseText(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
-//            .background(DarkGray)
     ) {
         Box(
             modifier = Modifier
