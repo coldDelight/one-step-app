@@ -2,11 +2,17 @@ package com.colddelight.data.repository
 
 import android.util.Log
 import com.colddelight.data.util.getDayOfWeekEn
+import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.HistoryDao
+import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
+import com.colddelight.database.model.HistoryEntity
+import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.model.ExerciseDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
@@ -15,7 +21,6 @@ class HomeRepositoryImpl @Inject constructor(
     private val historyDao: HistoryDao,
     private val routineDayDao: RoutineDayDao,
 ) : HomeRepository {
-
     override fun getExerciseWeek(): Flow<List<ExerciseDay>> {
         val now = LocalDate.now()
         val startOfWeek = now.with(DayOfWeek.MONDAY)
@@ -47,7 +52,6 @@ class HomeRepositoryImpl @Inject constructor(
                 )
             )
         }
-        Log.e("TAG", "generateExerciseDays: $exerciseDays", )
         return exerciseDays
     }
 

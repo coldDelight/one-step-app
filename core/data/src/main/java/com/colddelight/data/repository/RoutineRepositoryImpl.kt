@@ -67,7 +67,8 @@ class RoutineRepositoryImpl @Inject constructor(
                                 val exerciseList = mutableListOf<Exercise>()
 
                                 val routineDayMap =
-                                    dayExerciseDao.getDayExercise(routineDayEntity.id).distinctUntilChanged()
+                                    dayExerciseDao.getDayExercise(routineDayEntity.id)
+                                        .distinctUntilChanged()
 
 
                                 routineDayMap.first().forEach { (dayExercise, exercise) ->
@@ -175,7 +176,6 @@ class RoutineRepositoryImpl @Inject constructor(
     override suspend fun insertDayExercise(dayExercise: DayExercise) {
         val dayExerciseEntity = DayExerciseEntity(
             id = dayExercise.id,
-            index = dayExercise.index,
             routineDayId = dayExercise.routineDayId,
             exerciseId = dayExercise.exerciseId,
             kgList = dayExercise.kgList,
@@ -199,9 +199,9 @@ class RoutineRepositoryImpl @Inject constructor(
         routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
 
         //3. DayExercise Add
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, 0, listOf(20, 40), listOf(12, 12)))
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 2, 1, listOf(40, 60), listOf(10, 10)))
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 3, 1, listOf(0, 0), listOf(20, 20)))
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 0, listOf(20, 40), listOf(12, 12)))
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(40, 60), listOf(10, 10)))
+        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(0, 0), listOf(20, 20)))
         Log.e("TAG", "나 로그찍는다?: ")
         return exerciseDao.getExercise().first()
     }

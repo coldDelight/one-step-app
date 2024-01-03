@@ -18,12 +18,3 @@ data class RoutineEntity(
             RoutineEntity(id = DEFAULT_ROUTINE_ID, name = "내 루틴", createdTime = LocalDate.now(), cnt = 0)
     }
 }
-
-
-//
-//fun RoutineEntity.asNetworkRoutine() = NetworkRoutine(
-//    room_id = id,
-//    name = name,
-//    created_time = dateFormat.format(createdTime),
-//    cnt = cnt,
-//)
