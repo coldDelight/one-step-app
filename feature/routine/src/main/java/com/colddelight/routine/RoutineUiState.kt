@@ -28,3 +28,7 @@ sealed interface ExerciseListState {
 enum class ExerciseDialogState {
     None, Basic, Edit, Delete
 }
+
+enum class ExerciseBottomSheetState{
+    List, Selected, Existed
+}
