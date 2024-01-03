@@ -133,12 +133,9 @@ class ExerciseRepositoryImpl @Inject constructor(
                 Log.e("TAG", "initExercise: 최초 등장")
                 historyDao.insertHistory(
                     HistoryEntity(
-                        1,
                         LocalDate.now(),
                         listOf(1, 2),
-                        "",
                         isDone = false,
-                        isFree = false
                     )
                 )
                 val dayExercises = dayExerciseDao.getDayExercisesByRoutineDayId(1).first()
@@ -146,9 +143,7 @@ class ExerciseRepositoryImpl @Inject constructor(
                     HistoryExerciseEntity(
                         historyId = todayHistoryId.firstOrNull() ?: -1,
                         exerciseId = dayExercise.exerciseId,
-                        index = dayExercise.index,
                         isDone = false,
-                        time = "",
                         kgList = dayExercise.kgList,
                         repsList = dayExercise.repsList
                     )

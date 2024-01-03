@@ -13,11 +13,3 @@ data class RoutineDayEntity(
 )
 
 
-
-
-//fun RoutineDayEntity.asNetworkRoutineDay() = NetworkRoutineDay(
-//    room_id = id,
-//    routine_id = routineId,
-//    day_of_week = dayOfWeek,
-//    category_list = categoryList,
-//)

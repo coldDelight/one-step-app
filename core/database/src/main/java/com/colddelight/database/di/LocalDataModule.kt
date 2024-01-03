@@ -1,10 +1,8 @@
 package com.colddelight.database.di
 
 import com.colddelight.database.StepDatabase
-import com.colddelight.database.dao.BodyWeightDao
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
-import com.colddelight.database.dao.FreeExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDao
@@ -21,11 +19,6 @@ object LocalDataModule {
     fun providesExerciseDao(
         database: StepDatabase,
     ): ExerciseDao = database.exerciseDao()
-
-    @Provides
-    fun providesBodyWeightDao(
-        database: StepDatabase,
-    ): BodyWeightDao = database.bodyWeightDao()
 
     @Provides
     fun providesRoutineDao(
@@ -51,11 +44,4 @@ object LocalDataModule {
     fun providesHistoryExerciseDao(
         database: StepDatabase,
     ): HistoryExerciseDao = database.historyExerciseDao()
-
-    @Provides
-    fun providesFreeExerciseDao(
-        database: StepDatabase,
-    ): FreeExerciseDao = database.freeExerciseDao()
-
-
 }

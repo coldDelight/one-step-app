@@ -8,18 +8,14 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.colddelight.database.converter.DateConverter
 import com.colddelight.database.converter.IntListConverter
-import com.colddelight.database.dao.BodyWeightDao
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
-import com.colddelight.database.dao.FreeExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.BodyWeightEntity
 import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
-import com.colddelight.database.model.FreeExerciseEntity
 import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.database.model.RoutineDayEntity
@@ -30,9 +26,9 @@ import java.util.concurrent.Executors
 @Database(
     entities = [
         RoutineEntity::class, RoutineDayEntity::class, DayExerciseEntity::class,
-        ExerciseEntity::class, BodyWeightEntity::class,
+        ExerciseEntity::class,
         HistoryEntity::class, HistoryExerciseEntity::class,
-        FreeExerciseEntity::class
+
     ],
     version = 7
 )
@@ -57,12 +53,11 @@ abstract class StepDatabase : RoomDatabase() {
     }
 
     abstract fun exerciseDao(): ExerciseDao
-    abstract fun bodyWeightDao(): BodyWeightDao
     abstract fun routineDao(): RoutineDao
     abstract fun routineDayDao(): RoutineDayDao
     abstract fun dayExerciseDao(): DayExerciseDao
     abstract fun historyDao(): HistoryDao
     abstract fun historyExerciseDao(): HistoryExerciseDao
-    abstract fun freeExerciseDao(): FreeExerciseDao
+
 
 }

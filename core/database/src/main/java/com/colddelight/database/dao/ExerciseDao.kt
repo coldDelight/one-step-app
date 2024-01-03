@@ -24,7 +24,6 @@ interface ExerciseDao {
     suspend fun deleteExerciseAndRelatedData(exerciseId: Int) {
         deleteDayExercisesByExerciseId(exerciseId)
         deleteHistoryExercisesByExerciseId(exerciseId)
-        deleteFreeExercisesByExerciseId(exerciseId)
         deleteExerciseById(exerciseId)
     }
 
@@ -37,6 +36,4 @@ interface ExerciseDao {
     @Query("DELETE FROM history_exercise WHERE exercise_id = :exerciseId")
     suspend fun deleteHistoryExercisesByExerciseId(exerciseId: Int)
 
-    @Query("DELETE FROM free_exercise WHERE exercise_id = :exerciseId")
-    suspend fun deleteFreeExercisesByExerciseId(exerciseId: Int)
 }

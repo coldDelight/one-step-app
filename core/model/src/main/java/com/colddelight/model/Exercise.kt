@@ -7,6 +7,7 @@ sealed interface Exercise {
     val exerciseId: Int
     val setInfoList: List<SetInfo>
     val category: ExerciseCategory
+    val dayExerciseId: Int
 
     data class Weight(
         override val name: String,
@@ -16,7 +17,9 @@ sealed interface Exercise {
         override val isDone: Boolean = false,
         override val setInfoList: List<SetInfo> = listOf(),
         override val category: ExerciseCategory = ExerciseCategory.CHEST,
-    ) : Exercise
+        override val dayExerciseId: Int = -1,
+
+        ) : Exercise
 
     data class Calisthenics(
         override val name: String,
@@ -26,8 +29,9 @@ sealed interface Exercise {
         override val isDone: Boolean = false,
         override val setInfoList: List<SetInfo> = listOf(),
         override val category: ExerciseCategory = ExerciseCategory.CHEST,
+        override val dayExerciseId: Int = -1,
 
-    ) : Exercise
+        ) : Exercise
 }
 
 data class SetInfo(

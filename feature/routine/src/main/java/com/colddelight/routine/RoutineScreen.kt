@@ -518,8 +518,10 @@ fun InsertDayExerciseBottomSheet(
             item {
                 Row {
                     RedButton(
-                        onClick = { deleteDayExercise(exercise.dayExerciseId)
-                                  onDismissSheet(false)},
+                        onClick = {
+                            deleteDayExercise(exercise.dayExerciseId)
+                            onDismissSheet(false)
+                        },
                         content = { Text("삭제", style = NotoTypography.bodyMedium) })
                     MainButton(
                         modifier = Modifier.fillMaxWidth(), onClick = {
@@ -1123,10 +1125,10 @@ fun ExerciseItem(
                 0,
                 0,
                 0,
-                0,
                 false,
                 emptyList(),
-                ExerciseCategory.CHEST
+                ExerciseCategory.CHEST,
+                0,
             )
         )
     }
