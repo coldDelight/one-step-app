@@ -31,9 +31,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeekEn
 import com.colddelight.data.util.getTodayDate
+import com.colddelight.designsystem.component.CategoryChip
 import com.colddelight.designsystem.component.DateWithCnt
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.SubButton
 import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Day
@@ -51,7 +51,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onStartButtonClick: () -> Unit
 ) {
+
     val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -61,24 +63,36 @@ fun HomeScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            HomeContentWithState(uiState = homeUiState, onStartButtonClick)
+            HomeContentWithState(
+                uiState = homeUiState,
+                onStartButtonClick
+            )
         }
     }
 }
 
-
 @Composable
-private fun HomeContentWithState(uiState: HomeUiState, onStartButtonClick: () -> Unit) {
+private fun HomeContentWithState(
+    uiState: HomeUiState,
+    onStartButtonClick: () -> Unit
+) {
+
+
     when (uiState) {
+
         is HomeUiState.Loading -> {}
         is HomeUiState.Error -> Text(text = uiState.msg)
-        is HomeUiState.Success -> HomeContent(
-            uiState.cnt,
-            uiState.state,
-            uiState.exerciseWeek,
-            uiState.today,
-            onStartButtonClick
-        )
+        is HomeUiState.Success ->
+
+            HomeContent(
+                uiState.cnt,
+                uiState.state,
+                uiState.exerciseWeek,
+                uiState.today,
+                onStartButtonClick
+            )
+
+
     }
 }
 
@@ -121,30 +135,10 @@ private fun HomeContent(
                         .fillMaxWidth()
                         .padding(start = 16.dp)
                 )
-//                Row(modifier = Modifier.fillMaxWidth()) {
-//                    ToFreeButton(
-//                        onStartButtonClick,
-//                        Modifier
-//                            .fillMaxWidth()
-//                            .weight(1f)
-//                            .padding(end = 8.dp)
-//                    )
-//                    ToExerciseButton(
-//                        onStartButtonClick,
-//                        Modifier
-//                            .fillMaxWidth()
-//                            .weight(2f)
-//                            .padding(start = 16.dp)
-//                    )
-//                }
             }
 
             else -> {
-//                ToExerciseButton(
-//                    onStartButtonClick,
-//                    Modifier.fillMaxWidth().padding(start = 16.dp)
-//                )
-                ToFreeButton({ }, Modifier.fillMaxWidth())
+                Spacer(Modifier)
             }
         }
 
@@ -193,14 +187,16 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
     val borderWidthRatio = 0.2f
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = BackGray
+            containerColor = BackGray,
+            disabledContainerColor = BackGray
         ),
+        enabled = state is HomeState.During,
         onClick = { onStartButtonClick() },
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
             .aspectRatio(1f)
-            .background(Main, shape = CircleShape)
+            .background(BackGray, shape = CircleShape)
             .border(
                 width = with(LocalDensity.current) { (LocalDensity.current.density * 8.dp.toPx() * borderWidthRatio).toDp() },
                 color = state.strokeColor,
@@ -208,18 +204,24 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
             )
     ) {
 
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(text = state.text, style = NotoTypography.headlineMedium, color = state.textColor)
-
             if (state is HomeState.During) {
-                //카테고리 리스트 추가 리스트는 CHAN1
-                //state.categoryList : List<ExerciseCategory>
-                Text(text = state.categoryList.toString())
+                Row {
+                    state.categoryList.forEach {
+                        CategoryChip(
+                            isCanDelete = false,
+                            label = ExerciseCategory.toName(it.id),
+                            categoryId = it.id,
+                            size = 16,
+                            onDeleteClicked = { }
+                        )
+                    }
+                }
             }
-
         }
-
-
     }
 }
 
@@ -239,32 +241,16 @@ fun ToExerciseButton(onClick: () -> Unit, modifier: Modifier) {
     )
 }
 
-@Composable
-fun ToFreeButton(onClick: () -> Unit, modifier: Modifier) {
-    SubButton(
-        onClick = onClick,
-        content = {
-            Text(
-                text = "자유운동",
-                style = NotoTypography.bodyMedium,
-                color = Main,
-                modifier = Modifier.padding(vertical = 6.dp)
-            )
-        }, modifier = modifier
-    )
-}
-
-
 @Preview
 @Composable
 fun homePreview() {
     HomeContent(
         11,
-//        HomeState.Done(),
-        HomeState.During(
-            text = "3분할",
-            categoryList = listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK)
-        ),
+        HomeState.Resting(),
+//        HomeState.During(
+//            text = "3분할",
+//            categoryList = listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK)
+//        ),
         listOf(
             ExerciseDay(1, getDayOfWeekEn(1), false, false),
             ExerciseDay(2, getDayOfWeekEn(2), true, true),

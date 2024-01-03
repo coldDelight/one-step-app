@@ -5,4 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface HomeRepository {
     fun getExerciseWeek(): Flow<List<ExerciseDay>>
+
+//    suspend fun initExercise()
+
 }

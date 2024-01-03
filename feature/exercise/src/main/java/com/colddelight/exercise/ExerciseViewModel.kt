@@ -1,5 +1,6 @@
 package com.colddelight.exercise
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
@@ -22,11 +23,13 @@ class ExerciseViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
-    private val todayExerciseList = repository.getTodayExerciseList(1, 1)
+    private val todayExerciseList = repository.getTodayExerciseList()
 
     private val _exerciseDetailUiState =
         MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default)
     val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
+
+
 
     init {
         viewModelScope.launch {

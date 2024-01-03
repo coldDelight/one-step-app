@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.data.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    repository: ExerciseRepository,
+    val repository: ExerciseRepository,
     homeRepository: HomeRepository,
 ) : ViewModel() {
 
@@ -52,12 +53,11 @@ class HomeViewModel @Inject constructor(
             initialValue = HomeUiState.Loading
         )
 
-//    init {
-//        viewModelScope.launch{
-//            repository.addTmp()
-//
-//        }
-//    }
+    init {
+        viewModelScope.launch {
+            repository.addTmp()
+        }
+    }
 }
 
 

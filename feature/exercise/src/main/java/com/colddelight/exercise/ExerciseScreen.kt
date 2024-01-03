@@ -1,5 +1,6 @@
 package com.colddelight.exercise
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,7 +72,8 @@ fun ExerciseScreen(
 @Composable
 private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: ExerciseUiState) {
     when (uiState) {
-        is ExerciseUiState.Loading -> ExerciseLoading()
+
+        is ExerciseUiState.Loading -> Text(text = "dd")
         is ExerciseUiState.Error -> Text(text = uiState.msg)
         is ExerciseUiState.Success -> ExerciseContent(
             onDetailButtonClick,
@@ -103,11 +105,12 @@ private fun ExerciseContent(
                     .fillMaxWidth()
                     .padding(16.dp), Alignment.Center
             ) {
-                ExerciseButton(exerciseList[cur], onDetailButtonClick)
+                if (cur != -1) {
+                    ExerciseButton(exerciseList[cur], onDetailButtonClick)
+
+                }
             }
-            SubButton(
-                {},
-                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
+            SubButton({},Modifier.padding(bottom = 16.dp), content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
 
         }
         itemsIndexed(exerciseList) { index, item ->
