@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.Flow
 interface DayExerciseDao {
 
 
-    @Query("SELECT * FROM day_exercise JOIN exercise ON day_exercise.exercise_id = exercise.id WHERE routine_day_id=(:routineDayId)")
-    fun getAllDayExercise(routineDayId: Int): Flow<Map<DayExerciseEntity, ExerciseEntity>>
+    @Query("SELECT * FROM day_exercise JOIN exercise ON day_exercise.exercise_id = exercise.id")
+    fun getAllDayExercise(): Flow<Map<DayExerciseEntity, ExerciseEntity>>
 
 
     @Query("SELECT * FROM day_exercise JOIN exercise ON day_exercise.exercise_id = exercise.id WHERE day_exercise.routine_day_id=(:routineDayId)")

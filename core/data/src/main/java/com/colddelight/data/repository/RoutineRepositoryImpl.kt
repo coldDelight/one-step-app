@@ -20,6 +20,8 @@ import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -56,64 +58,59 @@ class RoutineRepositoryImpl @Inject constructor(
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
                 routineDayDao.getAllRoutineDay(routineId)
-                    .flatMapLatest { routineDayList ->
-                        flow {
-                            // 누락된 요일을 순서대로 생성
-                            val missingDays =
-                                (1..7).toSet() - routineDayList.map { it.dayOfWeek }.toSet()
+                    .combine(dayExerciseDao.getAllDayExercise()) { routineDayList, dayExerciseMapList ->
+                        val resultList = mutableListOf<RoutineDayInfo>()
 
-                            // 누락된 요일에 대한 RoutineDayInfo 객체를 생성하고 리스트에 추가
-                            val routineDayInfoList = routineDayList.map { routineDayEntity ->
-                                val exerciseList = mutableListOf<Exercise>()
+                        val missingDays =
+                            (1..7).toSet() - routineDayList.map { it.dayOfWeek }.toSet()
 
-                                val routineDayMap =
-                                    dayExerciseDao.getDayExercise(routineDayEntity.id)
-                                        .distinctUntilChanged()
+                        for (routineDayEntity in routineDayList) {
+                            val exerciseList = mutableListOf<Exercise>()
 
-
-                                routineDayMap.first().forEach { (dayExercise, exercise) ->
-                                    when (exercise.category) {
-                                        ExerciseCategory.CALISTHENICS ->
-                                            transformCalisthenicsExercise(dayExercise, exercise)
-
-                                        else -> transformWeightExercise(dayExercise, exercise)
-
-                                    }.apply {
-                                        exerciseList.add(this)
-                                    }
-
-                                }
-                                RoutineDayInfo(
-                                    routineId = routineDayEntity.routineId,
-                                    routineDayId = routineDayEntity.id,
-                                    categoryList = routineDayEntity.categoryList,
-                                    dayOfWeek = routineDayEntity.dayOfWeek,
-                                    exerciseList = exerciseList
-                                )
-                            }.toMutableList()
-
-                            // 누락된 요일에 대한 RoutineDayInfo 객체 생성 및 추가
-                            missingDays.forEach { missingDay ->
-                                val nullRoutineDayInfo = RoutineDayInfo(
-                                    routineId = routineId,
-                                    routineDayId = 0,
-                                    dayOfWeek = missingDay,
-                                    categoryList = emptyList(),
-                                    exerciseList = emptyList()
-                                )
-                                routineDayInfoList.add(nullRoutineDayInfo)
+                            val routineDayMap = dayExerciseMapList.filterKeys {
+                                it.routineDayId == routineDayEntity.id
                             }
 
-                            // dayOfWeek로 정렬
-                            val sortedRoutineDayInfoList =
-                                routineDayInfoList.sortedBy { it.dayOfWeek }
+                            routineDayMap.forEach { (dayExercise, exercise) ->
+                                when (exercise.category) {
+                                    ExerciseCategory.CALISTHENICS ->
+                                        transformCalisthenicsExercise(dayExercise, exercise)
 
-                            emit(sortedRoutineDayInfoList)
+                                    else -> transformWeightExercise(dayExercise, exercise)
+                                }.apply {
+                                    exerciseList.add(this)
+                                }
+                            }
+
+                            val routineDayInfo = RoutineDayInfo(
+                                routineId = routineDayEntity.routineId,
+                                routineDayId = routineDayEntity.id,
+                                dayOfWeek = routineDayEntity.dayOfWeek,
+                                categoryList = routineDayEntity.categoryList,
+                                exerciseList = exerciseList
+                            )
+                            resultList.add(routineDayInfo)
                         }
+
+                        missingDays.forEach { missingDay ->
+                            val nullRoutineDayInfo = RoutineDayInfo(
+                                routineId = routineId,
+                                routineDayId = 0,
+                                dayOfWeek = missingDay,
+                                categoryList = emptyList(),
+                                exerciseList = emptyList()
+                            )
+                            resultList.add(nullRoutineDayInfo)
+                        }
+
+                        // dayOfWeek로 정렬
+                        val sortedRoutineDayInfoList =
+                            resultList.sortedBy { it.dayOfWeek }
+
+                        sortedRoutineDayInfoList
                     }
             }
     }
-
 
     private fun transformCalisthenicsExercise(
         dayExerciseEntity: DayExerciseEntity,
@@ -167,6 +164,7 @@ class RoutineRepositoryImpl @Inject constructor(
 
     override suspend fun insertExercise(exercise: ExerciseInfo) {
         val exerciseEntity = ExerciseEntity(
+            id = exercise.id,
             category = exercise.category,
             name = exercise.name
         )
@@ -199,8 +197,22 @@ class RoutineRepositoryImpl @Inject constructor(
         routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
 
         //3. DayExercise Add
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 0, listOf(20, 40), listOf(12, 12)))
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(40, 60), listOf(10, 10)))
+        dayExerciseDao.insertDayExercise(
+            DayExerciseEntity(
+                1,
+                0,
+                listOf(20, 40),
+                listOf(12, 12)
+            )
+        )
+        dayExerciseDao.insertDayExercise(
+            DayExerciseEntity(
+                1,
+                1,
+                listOf(40, 60),
+                listOf(10, 10)
+            )
+        )
         dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(0, 0), listOf(20, 20)))
         Log.e("TAG", "나 로그찍는다?: ")
         return exerciseDao.getExercise().first()
