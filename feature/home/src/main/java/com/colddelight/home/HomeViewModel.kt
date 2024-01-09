@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.data.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,12 +17,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val repository: ExerciseRepository,
+    private val repository: ExerciseRepository,
     homeRepository: HomeRepository,
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
     private val exerciseWeek = homeRepository.getExerciseWeek()
+
+    fun initE(){
+        viewModelScope.launch {
+            repository.initExercise()
+        }
+    }
 
 
     val homeUiState: StateFlow<HomeUiState> = todayRoutineInfo

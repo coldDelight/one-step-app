@@ -24,7 +24,7 @@ class HomeRepositoryImpl @Inject constructor(
     override fun getExerciseWeek(): Flow<List<ExerciseDay>> {
         val now = LocalDate.now()
         val startOfWeek = now.with(DayOfWeek.MONDAY)
-        val routineDayFlow = routineDayDao.getAllRoutineDay(1)
+        val routineDayFlow = routineDayDao.getAllWorkDay(1)
         val historyFlow = historyDao.getHistoryForThisWeek(startOfWeek)
 
         return routineDayFlow.combine(historyFlow) { routineDays, historyDates ->
