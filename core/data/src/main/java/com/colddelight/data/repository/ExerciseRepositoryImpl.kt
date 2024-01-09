@@ -16,11 +16,17 @@ import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,7 +42,8 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     private val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now())
 
-    val dayOfWeek = LocalDate.now().dayOfWeek.value
+
+    private val dayOfWeek = LocalDate.now().dayOfWeek.value
     override fun getTodayExerciseList(): Flow<List<Exercise>> {
         return todayHistoryId.flatMapLatest {
             historyExerciseDao.getTodayHistoryExercises(it)
@@ -54,7 +61,6 @@ class ExerciseRepositoryImpl @Inject constructor(
                     exerciseList
                 }
         }
-
 
     }
 
@@ -114,8 +120,8 @@ class ExerciseRepositoryImpl @Inject constructor(
                         )
                         routineInfo
                     }
-
             }
+
     }
 
     override suspend fun upDateKgList(historyExerciseId: Int, kgList: List<Int>) {
@@ -199,7 +205,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                1,
-//                0,
 //                listOf(60, 60, 80),
 //                listOf(12, 12, 12),
 //            )
@@ -208,7 +213,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                2,
-//                1,
 //                listOf(60, 60, 80),
 //                listOf(12, 12, 12),
 //            )
@@ -217,7 +221,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                3,
-//                2,
 //                listOf(60, 80, 100),
 //                listOf(12, 12, 12),
 //            )
@@ -226,7 +229,6 @@ class ExerciseRepositoryImpl @Inject constructor(
 //            DayExerciseEntity(
 //                1,
 //                4,
-//                3,
 //                listOf(0, 0, 0),
 //                listOf(12, 12, 12),
 //            )

@@ -1,11 +1,14 @@
 package com.colddelight.exercisedetail
 
+import android.os.CountDownTimer
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,10 +21,16 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +49,7 @@ import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
+import com.colddelight.designsystem.theme.Red
 import com.colddelight.exercise.CategoryIconList
 import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
@@ -50,12 +60,14 @@ import com.colddelight.model.SetInfo
 @Composable
 fun ExerciseDetailScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
+    detailViewModel: ExerciseDetailViewModel = hiltViewModel(),
 ) {
     val dataUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
-    val uiState by viewModel.exerciseDetailUiState.collectAsStateWithLifecycle()
+    val uiState by detailViewModel.exerciseDetailUiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        containerColor = BackGray
     ) { padding ->
         Column(
             modifier = Modifier
@@ -67,7 +79,7 @@ fun ExerciseDetailScreen(
                 uiState = uiState,
                 { setAction -> viewModel.performSetAction(setAction) },
                 { newState ->
-                    viewModel.updateDetailUiState(newState)
+                    detailViewModel.updateDetailUiState(newState)
                 }
             )
         }
@@ -105,8 +117,9 @@ private fun ExerciseDetailContent(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-    ) {
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+
+        ) {
         item {
             ExerciseInfo(exercise, Modifier)
         }
@@ -117,23 +130,33 @@ private fun ExerciseDetailContent(
             ExerciseProgress(Modifier.fillMaxWidth(), curSetIndex, exercise.setInfoList.size)
         }
         item {
-            when (uiState) {
-                is ExerciseDetailUiState.Default -> CurrentSetButtons(
-                    exercise.setInfoList[curSetIndex],
-                    true,
-                    setAction,
-                    curSetIndex
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                Alignment.Center,
+            ) {
+                when (uiState) {
+                    is ExerciseDetailUiState.Default -> CurrentSetButtons(
+                        exercise.setInfoList[curSetIndex],
+                        true,
+                        setAction,
+                        curSetIndex
+                    )
 
-                is ExerciseDetailUiState.During -> CurrentSetButtons(
-                    exercise.setInfoList[curSetIndex],
-                    false,
-                    setAction,
-                    curSetIndex
-                )
+                    is ExerciseDetailUiState.During -> CurrentSetButtons(
+                        exercise.setInfoList[curSetIndex],
+                        false,
+                        setAction,
+                        curSetIndex
+                    )
 
-                is ExerciseDetailUiState.Resting -> {}
-                is ExerciseDetailUiState.Done -> {}
+                    is ExerciseDetailUiState.Resting -> {
+                        Timer()
+                    }
+
+                    is ExerciseDetailUiState.Done -> {}
+                }
             }
         }
         item {
@@ -202,10 +225,85 @@ fun SetButton(text: String, onClick: () -> Unit) {
 }
 
 
-@Preview
 @Composable
-fun SddPreview() {
-    ExerciseDetailItem(660, 12, 1) {}
+fun Timer() {
+    var timerSeconds by remember { mutableIntStateOf(90) }
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    var newTime by remember { mutableIntStateOf(90) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BigSetButton(IconPack.Minus) {
+            if (timerSeconds - 30 > 0) {
+                timerSeconds -= 30
+                newTime = timerSeconds
+
+            }
+        }
+        CircularTimer(timerSeconds, progress)
+
+        BigSetButton(IconPack.Plus) {
+            timerSeconds += 30
+            newTime = timerSeconds
+
+        }
+    }
+
+    DisposableEffect(newTime) {
+        val timer = object : CountDownTimer(newTime * 1000L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                timerSeconds = (millisUntilFinished / 1000).toInt()
+                progress = 1f - timerSeconds.toFloat() / newTime.toFloat()
+            }
+
+            override fun onFinish() {
+            }
+        }
+        timer.start()
+
+        onDispose {
+            timer.cancel()
+        }
+    }
+}
+
+
+@Composable
+fun CircularTimer(timerSeconds: Int, progress: Float) {
+    Box(
+        modifier = Modifier
+            .padding(16.dp)
+            .size(200.dp)
+            .background(BackGray, shape = CircleShape),
+        Alignment.Center,
+    ) {
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            drawArc(
+                color = DarkGray,
+                startAngle = -90f,
+                sweepAngle = 360f,
+                useCenter = false,
+                style = Stroke(width = 5.dp.toPx())
+            )
+            drawArc(
+                color = if (timerSeconds > 5) Main else Red,
+                startAngle = -90f,
+                sweepAngle = 360 * progress,
+                useCenter = false,
+                style = Stroke(width = 5.dp.toPx())
+            )
+        }
+        Text(
+            text = "${timerSeconds / 60}:${(timerSeconds % 60).toString().padStart(2, '0')}",
+            style = NotoTypography.headlineMedium
+        )
+    }
 }
 
 @Composable
@@ -222,13 +320,14 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
 //@Preview(name = "SMALL", device = Devices.PIXEL)
 ////@Preview(name = "BIG", device = Devices.PIXEL_4_XL)
 ////@Preview(name = "FOLDABLE", device = Devices.FOLDABLE)
-//@Composable
-//fun SetPreview() {
-//    ExerciseDetailContent(curSetIndex = 0, exercise = Exercise.Weight(
-//        "벤치 프레스", 20, 40, 1, true,
-//        setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
-//    ), uiState = ExerciseDetailUiState.Default, setAction = {}, updateUiState = {})
-//}
+@Preview
+@Composable
+fun SetPreview() {
+    ExerciseDetailContent(curSetIndex = 0, exercise = Exercise.Weight(
+        "벤치 프레스", 20, 40, 1, true,
+        setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
+    ), uiState = ExerciseDetailUiState.Default, setAction = {}, updateUiState = {})
+}
 
 @Composable
 private fun CurrentSetButtons(

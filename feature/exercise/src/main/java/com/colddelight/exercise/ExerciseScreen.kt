@@ -1,6 +1,5 @@
 package com.colddelight.exercise
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -110,7 +109,10 @@ private fun ExerciseContent(
 
                 }
             }
-            SubButton({},Modifier.padding(bottom = 16.dp), content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
+            SubButton(
+                {},
+                Modifier.padding(bottom = 16.dp),
+                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
 
         }
         itemsIndexed(exerciseList) { index, item ->
@@ -226,7 +228,6 @@ fun DoneExerciseItem(name: String) {
                         modifier = Modifier
                             .padding(start = 50.dp)
                     )
-                    // Line on the left
                     Box(
                         modifier = Modifier
                             .height(2.dp)

@@ -17,6 +17,8 @@ interface RoutineDayDao {
 
     @Query("SELECT * FROM routine_day WHERE routine_id=(:routineId)")
     fun getAllRoutineDay(routineId: Int): Flow<List<RoutineDayEntity>>
+    @Query("SELECT DISTINCT routine_day.* FROM routine_day INNER JOIN day_exercise ON routine_day.id = day_exercise.routine_day_id WHERE routine_day.routine_id = :routineId")
+    fun getAllWorkDay(routineId: Int): Flow<List<RoutineDayEntity>>
 
 
     @Query("SELECT * FROM routine JOIN routine_day ON (:dayOfWeek)=routine_day.day_of_week WHERE routine_day.routine_id = (:routineId)")
