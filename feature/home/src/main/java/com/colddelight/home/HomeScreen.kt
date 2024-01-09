@@ -64,9 +64,11 @@ fun HomeScreen(
                 .fillMaxSize()
         ) {
             HomeContentWithState(
-                uiState = homeUiState,
-                onStartButtonClick
-            )
+                uiState = homeUiState
+            ) {
+                homeViewModel.initE()
+                onStartButtonClick()
+            }
         }
     }
 }
@@ -76,14 +78,10 @@ private fun HomeContentWithState(
     uiState: HomeUiState,
     onStartButtonClick: () -> Unit
 ) {
-
-
     when (uiState) {
-
         is HomeUiState.Loading -> {}
         is HomeUiState.Error -> Text(text = uiState.msg)
         is HomeUiState.Success ->
-
             HomeContent(
                 uiState.cnt,
                 uiState.state,
@@ -91,8 +89,6 @@ private fun HomeContentWithState(
                 uiState.today,
                 onStartButtonClick
             )
-
-
     }
 }
 
