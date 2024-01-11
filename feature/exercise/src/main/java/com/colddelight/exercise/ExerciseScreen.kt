@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -101,12 +102,14 @@ private fun ExerciseContent(
             ExerciseProgress(Modifier.fillMaxWidth(), cur, exerciseList.size)
             Box(
                 modifier = Modifier
+                    .padding(16.dp)
                     .fillMaxWidth()
-                    .padding(16.dp), Alignment.Center
+                    .aspectRatio(1f), Alignment.Center
             ) {
-                if (cur != -1) {
+                if (cur == exerciseList.size) {
+                    ExerciseDoneButton()
+                } else {
                     ExerciseButton(exerciseList[cur], onDetailButtonClick)
-
                 }
             }
             SubButton(
@@ -132,6 +135,23 @@ private fun ExerciseContent(
 }
 
 @Composable
+fun ExerciseDoneButton() {
+    Button(
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Main
+        ),
+        onClick = { },
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .background(Main, shape = CircleShape)
+    ) {
+        Text("운동완료", style = NotoTypography.headlineMedium, color = Color.White)
+    }
+
+}
+
+@Composable
 fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
@@ -139,7 +159,8 @@ fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
         ),
         onClick = { onDetailButtonClick() },
         modifier = Modifier
-            .size(300.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
             .background(Main, shape = CircleShape)
             .border(
                 width = 4.dp,
@@ -165,7 +186,6 @@ fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
                             Text(exercise.name, style = NotoTypography.headlineMedium)
                             Text("min : ${exercise.min}kg", style = NotoTypography.bodyMedium)
                             Text("max : ${exercise.max}kg", style = NotoTypography.bodyMedium)
-
                         }
                         Text(
                             "운동하기",

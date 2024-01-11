@@ -29,7 +29,7 @@ fun StepNavHost(
         historyScreen()
         routineScreen()
         exerciseScreen(onDetailButtonClick = navController::navigateExerciseToExerciseDetail)
-        exerciseDetailScreen()
+        exerciseDetailScreen(onDoneButtonClick = navController::popBackStack)
     }
 
 }

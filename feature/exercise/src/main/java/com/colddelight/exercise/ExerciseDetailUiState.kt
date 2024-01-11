@@ -2,8 +2,11 @@ package com.colddelight.exercise
 
 
 sealed interface ExerciseDetailUiState {
-    data object Default : ExerciseDetailUiState
-    data object During : ExerciseDetailUiState
-    data object Resting : ExerciseDetailUiState
-    data object Done : ExerciseDetailUiState
+    val curSet: Int
+    data class Default(override val curSet: Int) : ExerciseDetailUiState
+    data class During(override val curSet: Int) : ExerciseDetailUiState
+    data class Resting(override val curSet: Int) : ExerciseDetailUiState
+    data class Done(override val curSet: Int) : ExerciseDetailUiState
+
+
 }

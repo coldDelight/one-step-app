@@ -13,6 +13,8 @@ interface ExerciseRepository {
     suspend fun upDateRepsList(historyExerciseId: Int, repsList: List<Int>)
 
     suspend fun initExercise()
+    suspend fun updateHistoryExercise(id: Int, isDone: Boolean)
+
     suspend fun addTmp()
 
 }

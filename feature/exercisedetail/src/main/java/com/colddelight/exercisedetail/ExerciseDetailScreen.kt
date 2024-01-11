@@ -1,6 +1,7 @@
 package com.colddelight.exercisedetail
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +51,7 @@ import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
+import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
@@ -59,11 +64,12 @@ import com.colddelight.model.SetInfo
 
 @Composable
 fun ExerciseDetailScreen(
-    viewModel: ExerciseViewModel = hiltViewModel(),
-    detailViewModel: ExerciseDetailViewModel = hiltViewModel(),
+    onDoneButtonClick: () -> Unit,
+    viewModel: ExerciseViewModel = hiltViewModel()
+//    detailViewModel: ExerciseDetailViewModel = hiltViewModel(),
 ) {
     val dataUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
-    val uiState by detailViewModel.exerciseDetailUiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.exerciseDetailUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -79,7 +85,11 @@ fun ExerciseDetailScreen(
                 uiState = uiState,
                 { setAction -> viewModel.performSetAction(setAction) },
                 { newState ->
-                    detailViewModel.updateDetailUiState(newState)
+                    viewModel.updateDetailUiState(newState)
+                },
+                {
+                    viewModel.setDone()
+                    onDoneButtonClick()
                 }
             )
         }
@@ -92,16 +102,19 @@ private fun ExerciseDetailContentWithState(
     uiState: ExerciseDetailUiState,
     setAction: (SetAction) -> Unit,
     updateUiState: (newState: ExerciseDetailUiState) -> Unit,
-) {
+    onDoneButtonClick: () -> Unit,
+
+    ) {
     when (dataUiState) {
         is ExerciseUiState.Loading -> {}
         is ExerciseUiState.Error -> Text(text = dataUiState.msg)
         is ExerciseUiState.Success -> ExerciseDetailContent(
             uiState,
             dataUiState.exerciseList[dataUiState.curIndex],
-            dataUiState.curSetIndex,
+            uiState.curSet,
             setAction,
-            updateUiState
+            updateUiState,
+            onDoneButtonClick
         )
     }
 }
@@ -110,9 +123,10 @@ private fun ExerciseDetailContentWithState(
 private fun ExerciseDetailContent(
     uiState: ExerciseDetailUiState,
     exercise: Exercise,
-    curSetIndex: Int,
+    curSet: Int,
     setAction: (SetAction) -> Unit,
     updateUiState: (newState: ExerciseDetailUiState) -> Unit,
+    onDoneButtonClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -127,7 +141,7 @@ private fun ExerciseDetailContent(
             TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
         }
         item {
-            ExerciseProgress(Modifier.fillMaxWidth(), curSetIndex, exercise.setInfoList.size)
+            ExerciseProgress(Modifier.fillMaxWidth(), curSet, exercise.setInfoList.size)
         }
         item {
             Box(
@@ -138,24 +152,22 @@ private fun ExerciseDetailContent(
             ) {
                 when (uiState) {
                     is ExerciseDetailUiState.Default -> CurrentSetButtons(
-                        exercise.setInfoList[curSetIndex],
+                        exercise.setInfoList[curSet],
                         true,
                         setAction,
-                        curSetIndex
+                        curSet
                     )
 
                     is ExerciseDetailUiState.During -> CurrentSetButtons(
-                        exercise.setInfoList[curSetIndex],
+                        exercise.setInfoList[curSet],
                         false,
                         setAction,
-                        curSetIndex
+                        curSet
                     )
 
-                    is ExerciseDetailUiState.Resting -> {
-                        Timer()
-                    }
+                    is ExerciseDetailUiState.Resting -> Timer()
 
-                    is ExerciseDetailUiState.Done -> {}
+                    is ExerciseDetailUiState.Done -> DoneSetButton(onDoneButtonClick)
                 }
             }
         }
@@ -164,7 +176,7 @@ private fun ExerciseDetailContent(
         }
         itemsIndexed(exercise.setInfoList) { index, item ->
             ExerciseDetailItem(item.kg, item.reps, index, setAction)
-            if (curSetIndex == index || curSetIndex - 1 == index) {
+            if (curSet == index || curSet - 1 == index) {
                 Divider(color = Main, thickness = 2.dp)
             } else {
                 Divider(
@@ -182,6 +194,23 @@ private fun ExerciseDetailContent(
     }
 }
 
+@Composable
+fun DoneSetButton(onDoneButtonClick: () -> Unit) {
+    Button(
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Main,
+        ),
+        onClick = { onDoneButtonClick() },
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(0.7f)
+            .aspectRatio(1f)
+            .background(Main, shape = CircleShape)
+
+    ) {
+        Text(text = "세트종료", style = NotoTypography.headlineMedium, color = Color.White)
+    }
+}
 
 @Composable
 fun SetButtonWithState(
@@ -190,20 +219,18 @@ fun SetButtonWithState(
 ) {
     when (uiState) {
         is ExerciseDetailUiState.Default -> SetButton("세트시작") {
-            updateUiState(ExerciseDetailUiState.During)
+            updateUiState(ExerciseDetailUiState.During(uiState.curSet))
         }
 
         is ExerciseDetailUiState.During -> SetButton("세트종료") {
-            updateUiState(ExerciseDetailUiState.Resting)
+            updateUiState(ExerciseDetailUiState.Resting(uiState.curSet))
         }
 
         is ExerciseDetailUiState.Resting -> SetButton("휴식종료") {
-            updateUiState(ExerciseDetailUiState.Default)
+            updateUiState(ExerciseDetailUiState.Default(uiState.curSet + 1))
         }
 
-        is ExerciseDetailUiState.Done -> SetButton("마지막") {
-
-        }
+        is ExerciseDetailUiState.Done -> {}
     }
 
 }
@@ -271,13 +298,13 @@ fun Timer() {
     }
 }
 
-
 @Composable
 fun CircularTimer(timerSeconds: Int, progress: Float) {
     Box(
         modifier = Modifier
             .padding(16.dp)
-            .size(200.dp)
+            .fillMaxWidth(0.7f)
+            .aspectRatio(1f)
             .background(BackGray, shape = CircleShape),
         Alignment.Center,
     ) {
@@ -323,10 +350,15 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
 @Preview
 @Composable
 fun SetPreview() {
-    ExerciseDetailContent(curSetIndex = 0, exercise = Exercise.Weight(
-        "벤치 프레스", 20, 40, 1, true,
-        setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
-    ), uiState = ExerciseDetailUiState.Default, setAction = {}, updateUiState = {})
+    ExerciseDetailContent(curSet = 0,
+        exercise = Exercise.Weight(
+            "벤치 프레스", 20, 40, 1, true,
+            setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
+        ),
+        uiState = ExerciseDetailUiState.Default(0),
+        setAction = {},
+        updateUiState = {},
+        onDoneButtonClick = {})
 }
 
 @Composable

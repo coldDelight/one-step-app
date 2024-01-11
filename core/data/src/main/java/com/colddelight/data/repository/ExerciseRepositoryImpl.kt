@@ -16,7 +16,6 @@ import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,7 +39,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     private val userDataSource: UserPreferencesDataSource
 ) : ExerciseRepository {
 
-    private val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now())
+    val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now())
 
 
     private val dayOfWeek = LocalDate.now().dayOfWeek.value
@@ -74,6 +73,7 @@ class ExerciseRepositoryImpl @Inject constructor(
             reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
             set = historyExerciseEntity.repsList.size,
             isDone = historyExerciseEntity.isDone,
+            category = ExerciseCategory.CALISTHENICS,
             setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
                 SetInfo(
                     kg,
@@ -93,6 +93,7 @@ class ExerciseRepositoryImpl @Inject constructor(
             min = historyExerciseEntity.kgList.minOrNull() ?: 0,
             max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
             isDone = historyExerciseEntity.isDone,
+            category = exercise.category,
             setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
                 SetInfo(
                     kg,
@@ -136,7 +137,6 @@ class ExerciseRepositoryImpl @Inject constructor(
         val id = todayHistoryId.firstOrNull() ?: -1
         when (id) {
             -1 -> {
-                Log.e("TAG", "initExercise: 최초 등장")
                 historyDao.insertHistory(
                     HistoryEntity(
                         LocalDate.now(),
@@ -157,10 +157,12 @@ class ExerciseRepositoryImpl @Inject constructor(
                 historyExerciseDao.insertAll(historyExercises)
             }
 
-            else -> {
-                Log.e("TAG", "initExercise: 최초 등장아님")
-            }
+            else -> {}
         }
+    }
+
+    override suspend fun updateHistoryExercise(id: Int, isDone: Boolean) {
+        historyExerciseDao.updateHistoryExercise(id, isDone)
     }
 
     override suspend fun addTmp() {
