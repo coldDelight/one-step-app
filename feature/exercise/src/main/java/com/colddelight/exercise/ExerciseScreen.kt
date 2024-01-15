@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,7 +52,9 @@ import com.colddelight.model.ExerciseCategory
 @Composable
 fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
-    onDetailButtonClick: () -> Unit
+    onDetailButtonClick: () -> Unit,
+    onFinishClick: () -> Unit,
+
 ) {
     val exerciseUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     Scaffold(
@@ -63,13 +66,20 @@ fun ExerciseScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState)
+            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState) {
+                viewModel.finExercise()
+                onFinishClick()
+            }
         }
     }
 }
 
 @Composable
-private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: ExerciseUiState) {
+private fun ExerciseContentWithState(
+    onDetailButtonClick: () -> Unit,
+    uiState: ExerciseUiState,
+    onFinishClick: () -> Unit
+) {
     when (uiState) {
 
         is ExerciseUiState.Loading -> Text(text = "dd")
@@ -77,7 +87,7 @@ private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: E
         is ExerciseUiState.Success -> ExerciseContent(
             onDetailButtonClick,
             uiState.routineInfo, uiState.exerciseList, uiState
-                .curIndex
+                .curIndex, onFinishClick
         )
     }
 }
@@ -87,7 +97,8 @@ private fun ExerciseContent(
     onDetailButtonClick: () -> Unit,
     routineInfo: TodayRoutine,
     exerciseList: List<Exercise>,
-    cur: Int
+    cur: Int,
+    onFinishClick: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -101,16 +112,18 @@ private fun ExerciseContent(
             ExerciseProgress(Modifier.fillMaxWidth(), cur, exerciseList.size)
             Box(
                 modifier = Modifier
+                    .padding(16.dp)
                     .fillMaxWidth()
-                    .padding(16.dp), Alignment.Center
+                    .aspectRatio(1f), Alignment.Center
             ) {
-                if (cur != -1) {
+                if (cur == exerciseList.size) {
+                    ExerciseDoneButton(onFinishClick)
+                } else {
                     ExerciseButton(exerciseList[cur], onDetailButtonClick)
-
                 }
             }
             SubButton(
-                {},
+                onFinishClick,
                 Modifier.padding(bottom = 16.dp),
                 content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
 
@@ -132,6 +145,23 @@ private fun ExerciseContent(
 }
 
 @Composable
+fun ExerciseDoneButton(onFinishClick: () -> Unit) {
+    Button(
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Main
+        ),
+        onClick = { onFinishClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .background(Main, shape = CircleShape)
+    ) {
+        Text("운동완료", style = NotoTypography.headlineMedium, color = Color.White)
+    }
+
+}
+
+@Composable
 fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
@@ -139,7 +169,8 @@ fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
         ),
         onClick = { onDetailButtonClick() },
         modifier = Modifier
-            .size(300.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
             .background(Main, shape = CircleShape)
             .border(
                 width = 4.dp,
@@ -165,7 +196,6 @@ fun ExerciseButton(exercise: Exercise, onDetailButtonClick: () -> Unit) {
                             Text(exercise.name, style = NotoTypography.headlineMedium)
                             Text("min : ${exercise.min}kg", style = NotoTypography.bodyMedium)
                             Text("max : ${exercise.max}kg", style = NotoTypography.bodyMedium)
-
                         }
                         Text(
                             "운동하기",
@@ -342,7 +372,7 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
-        ), 1
+        ), 1,{}
     )
 
 }

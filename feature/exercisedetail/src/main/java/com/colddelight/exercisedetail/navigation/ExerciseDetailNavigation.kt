@@ -10,9 +10,10 @@ fun NavController.navigateExerciseToExerciseDetail() {
 }
 
 fun NavGraphBuilder.exerciseDetailScreen(
+    onDoneButtonClick: () -> Unit
 ) {
     composable(route = ExerciseDetailRoute.route) {
-        ExerciseDetailScreen()
+        ExerciseDetailScreen(onDoneButtonClick)
     }
 }
 

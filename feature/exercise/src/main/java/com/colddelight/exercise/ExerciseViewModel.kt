@@ -7,16 +7,11 @@ import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.designsystem.component.SetAction
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
-import com.colddelight.model.TodayRoutine
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,18 +23,55 @@ class ExerciseViewModel @Inject constructor(
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
     private val todayExerciseList = repository.getTodayExerciseList()
 
-    val exerciseUiState: StateFlow<ExerciseUiState> = todayRoutineInfo
-        .combine(todayExerciseList) { routine, exerciseList ->
-            val curIndex = exerciseList.indexOfFirst { !it.isDone }
-            ExerciseUiState.Success(routine, curIndex, exerciseList)
-        }.catch {
-            ExerciseUiState.Error(it.message ?: "Error")
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ExerciseUiState.Loading
-        )
+    private val _exerciseDetailUiState =
+        MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default(0))
+    val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
 
+
+    private val _exerciseUiState =
+        MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
+    val exerciseUiState: StateFlow<ExerciseUiState> = _exerciseUiState
+
+
+    init {
+        viewModelScope.launch {
+            repository.initExercise()
+            todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
+                val curIndex = exerciseList.filter { it.isDone }.size
+                ExerciseUiState.Success(routine, curIndex, exerciseList)
+            }.collectLatest {
+                _exerciseUiState.value = it
+            }
+        }
+    }
+
+    fun finExercise() {
+        viewModelScope.launch {
+            repository.updateHistory()
+        }
+    }
+
+    fun setDone() {
+        val exerciseState = exerciseUiState.value as ExerciseUiState.Success
+        val cur = exerciseState.curIndex
+        viewModelScope.launch {
+            repository.updateHistoryExercise(exerciseState.exerciseList[cur].exerciseId, true)
+        }
+    }
+
+    fun updateDetailUiState(newState: ExerciseDetailUiState) {
+        val curExercise = (exerciseUiState.value as ExerciseUiState.Success)
+        val cur = curExercise.curIndex
+        val maxIndex = curExercise.exerciseList[cur].setInfoList.size
+
+        if (newState.curSet == maxIndex) {
+            viewModelScope.launch {
+                _exerciseDetailUiState.value = ExerciseDetailUiState.Done(maxIndex)
+            }
+        } else {
+            _exerciseDetailUiState.value = newState
+        }
+    }
 
     fun performSetAction(action: SetAction) {
         when (val current = exerciseUiState.value) {
@@ -67,7 +99,7 @@ class ExerciseViewModel @Inject constructor(
     private fun upDateKgList(exercise: Exercise, updatedKg: Int, toChange: Int) {
         if (updatedKg > 0) {
             val kgList = exercise.setInfoList.mapIndexed { index, setInfo ->
-                if (index == toChange) updatedKg
+                if (index >= toChange) updatedKg
                 else setInfo.kg
             }
             viewModelScope.launch {
@@ -79,7 +111,7 @@ class ExerciseViewModel @Inject constructor(
     private fun upDateRepsList(exercise: Exercise, updatedReps: Int, toChange: Int) {
         if (updatedReps > 0) {
             val repsList = exercise.setInfoList.mapIndexed { index, setInfo ->
-                if (index == toChange) updatedReps
+                if (index >= toChange) updatedReps
                 else setInfo.reps
             }
             viewModelScope.launch {
@@ -89,21 +121,23 @@ class ExerciseViewModel @Inject constructor(
     }
 
     private fun deleteSet(exercise: Exercise, toChange: Int) {
-        val setInfoList =
-            exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
+        val setInfoList = exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
         viewModelScope.launch {
-            repository.upDateRepsList(exercise.exerciseId, setInfoList.map { it.reps })
-            repository.upDateKgList(exercise.exerciseId, setInfoList.map { it.kg })
+            repository.upDateSetInfo(
+                exercise.exerciseId,
+                setInfoList.map { it.kg },
+                setInfoList.map { it.reps })
         }
     }
 
     private fun addSet(exercise: Exercise) {
-        val setInfoList =
-            exercise.setInfoList.toMutableList()
+        val setInfoList = exercise.setInfoList.toMutableList()
         setInfoList.add(SetInfo(20, 12))
         viewModelScope.launch {
-            repository.upDateRepsList(exercise.exerciseId, setInfoList.map { it.reps })
-            repository.upDateKgList(exercise.exerciseId, setInfoList.map { it.kg })
+            repository.upDateSetInfo(
+                exercise.exerciseId,
+                setInfoList.map { it.kg },
+                setInfoList.map { it.reps })
         }
     }
 }

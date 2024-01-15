@@ -25,9 +25,9 @@ class HomeViewModel @Inject constructor(
     private val exerciseWeek = homeRepository.getExerciseWeek()
 
     fun initE(){
-        viewModelScope.launch {
-            repository.initExercise()
-        }
+//        viewModelScope.launch {
+//            repository.initExercise()
+//        }
     }
 
 

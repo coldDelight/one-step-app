@@ -12,7 +12,6 @@ sealed interface ExerciseUiState {
         val routineInfo: TodayRoutine,
         val curIndex: Int,
         val exerciseList: List<Exercise>,
-        val curSetIndex: Int = 0,
     ) : ExerciseUiState
 
 }
