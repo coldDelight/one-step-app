@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
@@ -31,11 +33,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -73,6 +77,7 @@ import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExerciseDetailScreen(
@@ -140,6 +145,7 @@ private fun ExerciseDetailContent(
     updateUiState: (newState: ExerciseDetailUiState) -> Unit,
     onDoneButtonClick: () -> Unit,
 ) {
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -186,6 +192,7 @@ private fun ExerciseDetailContent(
         item {
             SetButtonWithState(uiState, updateUiState)
         }
+
         itemsIndexed(exercise.setInfoList) { index, item ->
             ExerciseDetailItem(item.kg, item.reps, index, setAction)
             if (curSet == index || curSet - 1 == index) {
@@ -205,8 +212,15 @@ private fun ExerciseDetailContent(
         }
 
     }
+//    ScrollToBottom(listState)
 
 }
+//@Composable
+//fun ScrollToBottom(listState: LazyListState) {
+//    LaunchedEffect(listState){
+//        listState.scrollToItem(index = Int.MAX_VALUE - 1)
+//    }
+//}
 
 @Composable
 fun DoneSetButton(onDoneButtonClick: () -> Unit) {

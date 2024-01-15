@@ -96,11 +96,9 @@ class ExerciseRepositoryImpl @Inject constructor(
             category = exercise.category,
             setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
                 SetInfo(
-                    kg,
-                    historyExerciseEntity.repsList[index]
+                    kg, historyExerciseEntity.repsList[index]
                 )
             }
-
         )
     }
 
@@ -131,6 +129,14 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun upDateRepsList(historyExerciseId: Int, repsList: List<Int>) {
         historyExerciseDao.updateRepsList(historyExerciseId, repsList)
+    }
+
+    override suspend fun upDateSetInfo(
+        historyExerciseId: Int,
+        kgList: List<Int>,
+        repsList: List<Int>
+    ) {
+        historyExerciseDao.updateSetInfoList(historyExerciseId, kgList, repsList)
     }
 
     override suspend fun initExercise() {

@@ -45,7 +45,7 @@ class ExerciseViewModel @Inject constructor(
         }
     }
 
-    fun finExercise(){
+    fun finExercise() {
         viewModelScope.launch {
             repository.updateHistory()
         }
@@ -121,21 +121,23 @@ class ExerciseViewModel @Inject constructor(
     }
 
     private fun deleteSet(exercise: Exercise, toChange: Int) {
-        val setInfoList =
-            exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
+        val setInfoList = exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
         viewModelScope.launch {
-            repository.upDateRepsList(exercise.exerciseId, setInfoList.map { it.reps })
-            repository.upDateKgList(exercise.exerciseId, setInfoList.map { it.kg })
+            repository.upDateSetInfo(
+                exercise.exerciseId,
+                setInfoList.map { it.kg },
+                setInfoList.map { it.reps })
         }
     }
 
     private fun addSet(exercise: Exercise) {
-        val setInfoList =
-            exercise.setInfoList.toMutableList()
+        val setInfoList = exercise.setInfoList.toMutableList()
         setInfoList.add(SetInfo(20, 12))
         viewModelScope.launch {
-            repository.upDateRepsList(exercise.exerciseId, setInfoList.map { it.reps })
-            repository.upDateKgList(exercise.exerciseId, setInfoList.map { it.kg })
+            repository.upDateSetInfo(
+                exercise.exerciseId,
+                setInfoList.map { it.kg },
+                setInfoList.map { it.reps })
         }
     }
 }
