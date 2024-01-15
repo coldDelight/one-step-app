@@ -1,10 +1,16 @@
 package com.colddelight.exercisedetail
 
+import android.content.Context
+import android.media.MediaPlayer
 import android.os.CountDownTimer
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
+import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,13 +34,19 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -191,7 +203,9 @@ private fun ExerciseDetailContent(
                 style = NotoTypography.headlineSmall.copy(color = DarkGray),
                 onClick = { setAction(SetAction.AddSet) })
         }
+
     }
+
 }
 
 @Composable
@@ -259,8 +273,17 @@ fun Timer() {
 
     var newTime by remember { mutableIntStateOf(90) }
 
+
+    val context = LocalContext.current
+
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+//    val mediaPlayer: MediaPlayer by remember { mutableStateOf(MediaPlayer.create(context, R.raw.timer_sound)) }
+
+    val density = LocalDensity.current.density
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -288,14 +311,23 @@ fun Timer() {
             }
 
             override fun onFinish() {
+                vibrator.vibrate(
+                    VibrationEffect.createWaveform(
+                        longArrayOf(200, 500),
+                        0
+                    )
+                )
             }
         }
         timer.start()
 
         onDispose {
+            vibrator.cancel()
             timer.cancel()
         }
+
     }
+
 }
 
 @Composable

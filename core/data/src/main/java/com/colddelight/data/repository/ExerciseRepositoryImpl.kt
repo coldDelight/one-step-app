@@ -165,6 +165,10 @@ class ExerciseRepositoryImpl @Inject constructor(
         historyExerciseDao.updateHistoryExercise(id, isDone)
     }
 
+    override suspend fun updateHistory() {
+        historyDao.updateHistory(todayHistoryId.firstOrNull() ?: -1)
+    }
+
     override suspend fun addTmp() {
 
 //        /** 해당 routine day에 모든 운동 히스토리로 옮기느 작업
@@ -184,7 +188,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        historyExerciseDao.insertAll(historyExercises)
 //         **/
 
-
+//
 //        routineDayDao.insertRoutineDay(RoutineDayEntity(1, dayOfWeek, listOf(1, 2)))
 ////        historyDao.insertHistory(
 ////            HistoryEntity(

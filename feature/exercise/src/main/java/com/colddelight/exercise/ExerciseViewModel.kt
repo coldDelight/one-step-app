@@ -34,7 +34,6 @@ class ExerciseViewModel @Inject constructor(
 
 
     init {
-
         viewModelScope.launch {
             repository.initExercise()
             todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
@@ -46,14 +45,18 @@ class ExerciseViewModel @Inject constructor(
         }
     }
 
+    fun finExercise(){
+        viewModelScope.launch {
+            repository.updateHistory()
+        }
+    }
 
     fun setDone() {
-        val curExercise = (exerciseUiState.value as ExerciseUiState.Success)
-        val cur = curExercise.curIndex
+        val exerciseState = exerciseUiState.value as ExerciseUiState.Success
+        val cur = exerciseState.curIndex
         viewModelScope.launch {
-            repository.updateHistoryExercise(curExercise.exerciseList[cur].exerciseId, true)
+            repository.updateHistoryExercise(exerciseState.exerciseList[cur].exerciseId, true)
         }
-
     }
 
     fun updateDetailUiState(newState: ExerciseDetailUiState) {

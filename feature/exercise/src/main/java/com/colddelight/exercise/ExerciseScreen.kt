@@ -52,7 +52,9 @@ import com.colddelight.model.ExerciseCategory
 @Composable
 fun ExerciseScreen(
     viewModel: ExerciseViewModel = hiltViewModel(),
-    onDetailButtonClick: () -> Unit
+    onDetailButtonClick: () -> Unit,
+    onFinishClick: () -> Unit,
+
 ) {
     val exerciseUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     Scaffold(
@@ -64,13 +66,20 @@ fun ExerciseScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState)
+            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState) {
+                viewModel.finExercise()
+                onFinishClick()
+            }
         }
     }
 }
 
 @Composable
-private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: ExerciseUiState) {
+private fun ExerciseContentWithState(
+    onDetailButtonClick: () -> Unit,
+    uiState: ExerciseUiState,
+    onFinishClick: () -> Unit
+) {
     when (uiState) {
 
         is ExerciseUiState.Loading -> Text(text = "dd")
@@ -78,7 +87,7 @@ private fun ExerciseContentWithState(onDetailButtonClick: () -> Unit, uiState: E
         is ExerciseUiState.Success -> ExerciseContent(
             onDetailButtonClick,
             uiState.routineInfo, uiState.exerciseList, uiState
-                .curIndex
+                .curIndex, onFinishClick
         )
     }
 }
@@ -88,7 +97,8 @@ private fun ExerciseContent(
     onDetailButtonClick: () -> Unit,
     routineInfo: TodayRoutine,
     exerciseList: List<Exercise>,
-    cur: Int
+    cur: Int,
+    onFinishClick: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -107,13 +117,13 @@ private fun ExerciseContent(
                     .aspectRatio(1f), Alignment.Center
             ) {
                 if (cur == exerciseList.size) {
-                    ExerciseDoneButton()
+                    ExerciseDoneButton(onFinishClick)
                 } else {
                     ExerciseButton(exerciseList[cur], onDetailButtonClick)
                 }
             }
             SubButton(
-                {},
+                onFinishClick,
                 Modifier.padding(bottom = 16.dp),
                 content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
 
@@ -135,12 +145,12 @@ private fun ExerciseContent(
 }
 
 @Composable
-fun ExerciseDoneButton() {
+fun ExerciseDoneButton(onFinishClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = Main
         ),
-        onClick = { },
+        onClick = { onFinishClick() },
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
@@ -362,7 +372,7 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
-        ), 1
+        ), 1,{}
     )
 
 }
