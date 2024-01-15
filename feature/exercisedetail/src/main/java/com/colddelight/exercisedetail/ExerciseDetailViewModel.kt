@@ -15,29 +15,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class ExerciseDetailViewModel @Inject constructor(
-
-) : ViewModel() {
-    private val _exerciseDetailUiState =
-        MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default)
-    val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
-
-
-
-
-//    init {
-//        repository.getTodayExerciseList(exerciseId)
+//@HiltViewModel
+//class ExerciseDetailViewModel @Inject constructor(
+//
+//) : ViewModel() {
+//    private val _exerciseDetailUiState =
+//        MutableStateFlow<ExerciseDetailUiState>(ExerciseDetailUiState.Default(0))
+//    val exerciseDetailUiState: StateFlow<ExerciseDetailUiState> = _exerciseDetailUiState
+//
+//
+////    init {
+////        repository.getTodayExerciseList(exerciseId)
+////    }
+//
+//    fun updateDetailUiState(newState: ExerciseDetailUiState) {
+//        when (newState) {
+//            is ExerciseDetailUiState.Default -> {}
+//            is ExerciseDetailUiState.During -> {}
+//            is ExerciseDetailUiState.Resting -> {}
+//            is ExerciseDetailUiState.Done -> {}
+//        }
+//        _exerciseDetailUiState.value = newState
 //    }
-
-    fun updateDetailUiState(newState: ExerciseDetailUiState) {
-        when (newState) {
-            is ExerciseDetailUiState.Default -> {}
-            is ExerciseDetailUiState.During -> {}
-            is ExerciseDetailUiState.Resting -> {}
-            is ExerciseDetailUiState.Done -> {}
-        }
-        _exerciseDetailUiState.value = newState
-    }
-
-}
+//
+//}

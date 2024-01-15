@@ -11,8 +11,12 @@ interface ExerciseRepository {
 
     suspend fun upDateKgList(historyExerciseId: Int, kgList: List<Int>)
     suspend fun upDateRepsList(historyExerciseId: Int, repsList: List<Int>)
+    suspend fun upDateSetInfo(historyExerciseId: Int,kgList: List<Int>, repsList: List<Int>)
 
     suspend fun initExercise()
+    suspend fun updateHistoryExercise(id: Int, isDone: Boolean)
+    suspend fun updateHistory()
+
     suspend fun addTmp()
 
 }
