@@ -103,6 +103,19 @@ val NotoTypography = Typography(
         trim = LineHeightStyle.Trim.None
     )
     ),
+    labelLarge = TextStyle(
+        color = TextGray,
+        fontFamily = notosanskr,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        ),
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Bottom,
+            trim = LineHeightStyle.Trim.None
+        )
+    ),
     labelMedium = TextStyle(
         color = TextGray,
         fontFamily = notosanskr,

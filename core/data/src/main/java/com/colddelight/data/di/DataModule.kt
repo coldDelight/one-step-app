@@ -2,6 +2,8 @@ package com.colddelight.data.di
 
 import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.data.repository.ExerciseRepositoryImpl
+import com.colddelight.data.repository.HistoryRepository
+import com.colddelight.data.repository.HistoryRepositoryImpl
 import com.colddelight.data.repository.HomeRepository
 import com.colddelight.data.repository.HomeRepositoryImpl
 import com.colddelight.data.repository.RoutineRepository
@@ -41,6 +43,11 @@ interface DataModule {
     fun bindsRoutineRepository(
         routineRepository: RoutineRepositoryImpl
     ): RoutineRepository
+
+    @Binds
+    fun bindsHistoryRepository(
+        historyRepository: HistoryRepositoryImpl
+    ): HistoryRepository
 
 
     @Binds
