@@ -29,8 +29,8 @@ interface HistoryDao {
     fun getAllDoneHistory(): Flow<List<LocalDate>>
 
     // 히스토리 아이디임
-//    @Query("UPDATE history SET is_done = 1 WHERE id = (:id)")
-//    fun updateHistory(id: Int)
+    @Query("UPDATE history SET is_done = 1 WHERE id = (:id)")
+    suspend fun updateHistory(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistory(history: HistoryEntity)

@@ -3,6 +3,7 @@ package com.colddelight.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,9 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -152,30 +157,38 @@ fun ExerciseWeek(exerciseWeek: List<ExerciseDay>, today: Int) {
 
         items(exerciseWeek) {
             WeekItem(it, today)
-
-//            Divider(
-//                modifier = Modifier
-//                    .height(40.dp)
-//                    .width(1.dp).background(DarkGray)
-//            )
         }
     }
 }
 
 @Composable
 fun WeekItem(exerciseDay: ExerciseDay, today: Int) {
+
+    val isToday = today == exerciseDay.dayOfWeekId
+
     val itemColor = when {
-        today == exerciseDay.dayOfWeekId -> Main
+        exerciseDay.isExerciseDone -> Main
         exerciseDay.isRestDay -> DarkGray
         else -> TextGray
     }
+    val modifier = if (isToday) {
+        Modifier
+            .border(width = 2.dp, color = Main, shape = CircleShape)
+    } else {
+        Modifier
+    }
+
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.padding(vertical = 14.dp, horizontal = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(imageVector = IconPack.Day, contentDescription = "d", tint = itemColor)
         Spacer(modifier = Modifier.height(8.dp))
         Text(exerciseDay.dayOfWeek, style = HortaTypography.bodyMedium, color = itemColor)
     }
+
+
 }
 
 @Composable
