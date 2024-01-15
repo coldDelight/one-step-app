@@ -22,6 +22,12 @@ interface HistoryDao {
     @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_done = 1")
     fun getHistoryForThisWeek(startDate: LocalDate): Flow<List<LocalDate>>
 
+    @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_done = 1")
+    fun getHistoryForSelectedMonth(startDate: LocalDate): Flow<List<LocalDate>>
+
+    @Query("SELECT created_time FROM history WHERE is_done = 1")
+    fun getAllDoneHistory(): Flow<List<LocalDate>>
+
     // 히스토리 아이디임
     @Query("UPDATE history SET is_done = 1 WHERE id = (:id)")
     suspend fun updateHistory(id: Int)
