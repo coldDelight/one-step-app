@@ -22,8 +22,8 @@ interface HistoryDao {
     @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_done = 1")
     fun getHistoryForThisWeek(startDate: LocalDate): Flow<List<LocalDate>>
 
-    @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_done = 1")
-    fun getHistoryForSelectedMonth(startDate: LocalDate): Flow<List<LocalDate>>
+    @Query("SELECT * FROM history WHERE created_time >= :startDate AND created_time <= :endDate AND is_done = 1")
+    fun getHistoryForSelectedMonth(startDate: LocalDate, endDate: LocalDate): Flow<List<HistoryEntity>>
 
     @Query("SELECT created_time FROM history WHERE is_done = 1")
     fun getAllDoneHistory(): Flow<List<LocalDate>>
