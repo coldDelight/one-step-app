@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
+import com.colddelight.designsystem.component.DoneExerciseDetailItem
 import com.colddelight.designsystem.component.ExerciseDetailItem
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
@@ -178,7 +179,11 @@ private fun ExerciseDetailContent(
         }
 
         itemsIndexed(exercise.setInfoList) { index, item ->
-            ExerciseDetailItem(item.kg, item.reps, index, setAction)
+            if (curSet > index) {
+                DoneExerciseDetailItem(item.kg, item.reps)
+            } else {
+                ExerciseDetailItem(item.kg, item.reps, index, setAction)
+            }
             if (curSet == index || curSet - 1 == index) {
                 Divider(color = Main, thickness = 2.dp)
             } else {

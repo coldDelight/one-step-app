@@ -71,7 +71,6 @@ fun HomeScreen(
             HomeContentWithState(
                 uiState = homeUiState
             ) {
-                homeViewModel.initE()
                 onStartButtonClick()
             }
         }
