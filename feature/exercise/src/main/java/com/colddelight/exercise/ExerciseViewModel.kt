@@ -121,12 +121,14 @@ class ExerciseViewModel @Inject constructor(
     }
 
     private fun deleteSet(exercise: Exercise, toChange: Int) {
-        val setInfoList = exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
-        viewModelScope.launch {
-            repository.upDateSetInfo(
-                exercise.exerciseId,
-                setInfoList.map { it.kg },
-                setInfoList.map { it.reps })
+        if (exercise.setInfoList.size != 1) {
+            val setInfoList = exercise.setInfoList.filterIndexed { index, _ -> index != toChange }
+            viewModelScope.launch {
+                repository.upDateSetInfo(
+                    exercise.exerciseId,
+                    setInfoList.map { it.kg },
+                    setInfoList.map { it.reps })
+            }
         }
     }
 

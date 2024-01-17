@@ -24,11 +24,7 @@ class HomeViewModel @Inject constructor(
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
     private val exerciseWeek = homeRepository.getExerciseWeek()
 
-    fun initE(){
-//        viewModelScope.launch {
-//            repository.initExercise()
-//        }
-    }
+
 
 
     val homeUiState: StateFlow<HomeUiState> = todayRoutineInfo

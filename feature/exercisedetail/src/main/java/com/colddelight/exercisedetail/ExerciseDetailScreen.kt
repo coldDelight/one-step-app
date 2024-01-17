@@ -4,9 +4,14 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.widget.EditText
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +21,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
@@ -31,18 +38,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
+import com.colddelight.designsystem.component.DoneExerciseDetailItem
+import com.colddelight.designsystem.component.EditText
 import com.colddelight.designsystem.component.ExerciseDetailItem
 import com.colddelight.designsystem.component.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
@@ -56,18 +70,19 @@ import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
+import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.exercise.CategoryIconList
 import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExerciseDetailScreen(
     onDoneButtonClick: () -> Unit,
     viewModel: ExerciseViewModel = hiltViewModel()
-//    detailViewModel: ExerciseDetailViewModel = hiltViewModel(),
 ) {
     val dataUiState by viewModel.exerciseUiState.collectAsStateWithLifecycle()
     val uiState by viewModel.exerciseDetailUiState.collectAsStateWithLifecycle()
@@ -129,13 +144,32 @@ private fun ExerciseDetailContent(
     updateUiState: (newState: ExerciseDetailUiState) -> Unit,
     onDoneButtonClick: () -> Unit,
 ) {
+    val lazyColumnState = rememberLazyListState()
+    val density = LocalDensity.current
+    val itemSizePx = with(density) { 100.dp.toPx() }
+    val coroutineScope = rememberCoroutineScope()
+
+
+    val focusManager = LocalFocusManager.current
+
+    fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .noRippleClickable {
+                focusManager.clearFocus()
+            },
+        state = lazyColumnState
+    ) {
 
-        ) {
+
         item {
             ExerciseInfo(exercise, Modifier)
         }
@@ -157,14 +191,16 @@ private fun ExerciseDetailContent(
                         exercise.setInfoList[curSet],
                         true,
                         setAction,
-                        curSet
+                        curSet,
+                        focusManager
                     )
 
                     is ExerciseDetailUiState.During -> CurrentSetButtons(
                         exercise.setInfoList[curSet],
                         false,
                         setAction,
-                        curSet
+                        curSet,
+                        focusManager
                     )
 
                     is ExerciseDetailUiState.Resting -> Timer()
@@ -178,7 +214,11 @@ private fun ExerciseDetailContent(
         }
 
         itemsIndexed(exercise.setInfoList) { index, item ->
-            ExerciseDetailItem(item.kg, item.reps, index, setAction)
+            if (curSet > index) {
+                DoneExerciseDetailItem(item.kg, item.reps)
+            } else {
+                ExerciseDetailItem(item.kg, item.reps, index, focusManager, setAction)
+            }
             if (curSet == index || curSet - 1 == index) {
                 Divider(color = Main, thickness = 2.dp)
             } else {
@@ -192,7 +232,15 @@ private fun ExerciseDetailContent(
             ClickableText(
                 text = AnnotatedString("+ 세트 추가"),
                 style = NotoTypography.headlineSmall.copy(color = DarkGray),
-                onClick = { setAction(SetAction.AddSet) })
+                onClick = {
+                    setAction(SetAction.AddSet)
+                    coroutineScope.launch {
+                        lazyColumnState.animateScrollBy(
+                            value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
+                            animationSpec = tween(durationMillis = 2000)
+                        )
+                    }
+                })
         }
 
     }
@@ -372,7 +420,7 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
 fun SetPreview() {
     ExerciseDetailContent(curSet = 0,
         exercise = Exercise.Weight(
-            "벤치 프레스", 20, 40, 1, true,
+            "벤치 프레스", 888, 888, 1, true,
             setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
         ),
         uiState = ExerciseDetailUiState.Default(0),
@@ -386,7 +434,8 @@ private fun CurrentSetButtons(
     setInfo: SetInfo,
     showSetButton: Boolean,
     setAction: (SetAction) -> Unit,
-    curIndex: Int
+    curIndex: Int,
+    focusManager: FocusManager,
 ) {
     Row(
         modifier = Modifier
@@ -394,8 +443,26 @@ private fun CurrentSetButtons(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        SingleSetButtons(setInfo.kg, 10, true, showSetButton, 150, setAction, curIndex)
-        SingleSetButtons(setInfo.reps, 1, false, showSetButton, 150, setAction, curIndex)
+        SingleSetButtons(
+            setInfo.kg,
+            10,
+            true,
+            showSetButton,
+            150,
+            setAction,
+            curIndex,
+            focusManager
+        )
+        SingleSetButtons(
+            setInfo.reps,
+            1,
+            false,
+            showSetButton,
+            150,
+            setAction,
+            curIndex,
+            focusManager
+        )
     }
 }
 
@@ -407,8 +474,10 @@ private fun SingleSetButtons(
     showSetButton: Boolean,
     size: Int,
     setAction: (SetAction) -> Unit,
-    curIndex: Int
-) {
+    curIndex: Int,
+    focusManager: FocusManager,
+
+    ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -434,11 +503,20 @@ private fun SingleSetButtons(
                 ),
             Alignment.Center
         ) {
-            if (isKg) {
-                Text("${target}kg", style = NotoTypography.headlineMedium)
-            } else {
-                Text("${target}회", style = NotoTypography.headlineMedium)
+            Row {
+                EditText(
+                    data = target.toString(),
+                    focusManager = focusManager,
+                    style = NotoTypography.headlineMedium,
+                    modifier = Modifier.width(70.dp),
+                    color = TextGray
+                ) { new ->
+                    if (isKg) setAction(SetAction.UpdateKg(new, curIndex))
+                    else setAction(SetAction.UpdateReps(new, curIndex))
+                }
+                Text(text = if (isKg) "kg" else "회", style = NotoTypography.headlineMedium)
             }
+
         }
         if (showSetButton) {
             BigSetButton(IconPack.Minus) {

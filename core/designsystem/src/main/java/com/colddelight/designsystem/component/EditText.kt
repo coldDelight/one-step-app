@@ -11,11 +11,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -23,39 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
-
-@Composable
-fun EditText(data: String, focusManager: FocusManager, onChange: (Int) -> Unit) {
-    BasicTextField(
-        value = data,
-        onValueChange = {
-            if (it.length <= 3 && it.isNotBlank()) {
-                onChange(it.toInt())
-            }
-        },
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .width(20.dp),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
-        ),
-        singleLine = true,
-        textStyle = HortaTypography.bodyMedium.copy(
-            textAlign = TextAlign.Center,
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Bottom,
-                trim = LineHeightStyle.Trim.None
-            )
-        ),
-        cursorBrush = SolidColor(Main)
-    )
-}
 
 @Composable
 fun EditTextKg(data: String, focusManager: FocusManager, onChange: (Int) -> Unit) {
@@ -67,35 +39,53 @@ fun EditTextKg(data: String, focusManager: FocusManager, onChange: (Int) -> Unit
         Alignment.Center,
     ) {
         Row {
-            BasicTextField(
-                value = data,
-                onValueChange = {
-                    if (it.length <= 3 && it.isNotBlank()) {
-                        onChange(it.toInt())
-                    }
-                },
+            EditText(
+                data, focusManager, HortaTypography.bodyMedium,
                 modifier = Modifier
-                    .width(20.dp),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                    }
-                ),
-                textStyle = HortaTypography.bodyMedium.copy(
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    lineHeightStyle = LineHeightStyle(
-                        alignment = LineHeightStyle.Alignment.Bottom,
-                        trim = LineHeightStyle.Trim.None
-                    )
-                ),
-                cursorBrush = SolidColor(Main)
+                    .width(20.dp), Color.White, onChange
             )
             Text("kg", style = HortaTypography.bodyMedium, color = Color.White)
         }
     }
+}
+
+@Composable
+fun EditText(
+    data: String,
+    focusManager: FocusManager,
+    style: TextStyle,
+    modifier: Modifier,
+    color: Color,
+    onChange: (Int) -> Unit,
+) {
+    var text by remember { mutableStateOf(data) }
+    BasicTextField(
+        value = if (text.isEmpty()) text else data,
+        onValueChange = {
+            text = it
+            if (it.length <= 3 && it.isNotBlank()) {
+                onChange(it.toInt())
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+            }
+        ),
+        singleLine = true,
+        textStyle = style.copy(
+            color = color,
+            textAlign = TextAlign.Center,
+            lineHeightStyle = LineHeightStyle(
+                alignment = LineHeightStyle.Alignment.Bottom,
+                trim = LineHeightStyle.Trim.None
+            )
+        ),
+        cursorBrush = SolidColor(Main)
+    )
 }

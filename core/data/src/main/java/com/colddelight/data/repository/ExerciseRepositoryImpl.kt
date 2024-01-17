@@ -1,6 +1,5 @@
 package com.colddelight.data.repository
 
-import android.util.Log
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
@@ -16,17 +15,11 @@ import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -194,7 +187,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 //        historyExerciseDao.insertAll(historyExercises)
 //         **/
 
-//
+
 //        routineDayDao.insertRoutineDay(RoutineDayEntity(1, dayOfWeek, listOf(1, 2)))
 ////        historyDao.insertHistory(
 ////            HistoryEntity(
