@@ -1,9 +1,11 @@
 package com.colddelight.routine
 
 import android.util.Log
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -63,6 +66,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -150,7 +154,6 @@ fun RoutineScreen(
                     viewModel.deleteDayExercise(it)
                 },
                 insertDayExercise = {
-                    Log.e("TAG", "RoutineScreen: 이거 등록할게!")
                     viewModel.insertDayExercise(it)
                 })
         }
@@ -426,7 +429,9 @@ fun AddExerciseToRoutineDayBtn(
     insertDayExercise: (DayExercise) -> Unit,
     deleteExercise: (Int) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     var showBottomSheet by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
@@ -470,18 +475,25 @@ fun AddExerciseToRoutineDayBtn(
     }
 }
 
+//야가 기존 운동 수정하는 거여 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsertDayExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,  //야여 야
     deleteDayExercise: (Int) -> Unit,
     routineDayInfo: RoutineDayInfo,
     exercise: Exercise,
 ) {
     val categoryList = (1..6).toList()
     var setInfoList by remember { mutableStateOf(exercise.setInfoList) }
+
+    val lazyColumnState = rememberLazyListState()
+    val density = LocalDensity.current
+    val itemSizePx = with(density) { 100.dp.toPx() }
+    val coroutineScope = rememberCoroutineScope()
+
 
     ModalBottomSheet(
         onDismissRequest = { onDismissSheet(false) },
@@ -502,7 +514,8 @@ fun InsertDayExerciseBottomSheet(
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
-                .padding(top = 16.dp)
+                .padding(top = 16.dp),
+            state = lazyColumnState
         ) {
 
             item {
@@ -539,6 +552,12 @@ fun InsertDayExerciseBottomSheet(
                     style = NotoTypography.headlineSmall.copy(color = DarkGray),
                     onClick = {
                         setInfoList = performSetAction(setInfoList, SetAction.AddSet)
+                        coroutineScope.launch {
+                            lazyColumnState.animateScrollBy(
+                                value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
+                                animationSpec = tween(durationMillis = 2000)
+                            )
+                        }
                     })
             }
             item {
@@ -562,7 +581,7 @@ fun InsertDayExerciseBottomSheet(
                         )
                         onDismissSheet(false)
                     }) {
-                        Text(text = "완료", style = NotoTypography.bodyMedium)
+                        Text(text = "완료", style = NotoTypography.bodyMedium, color = Color.White)
                     }
                 }
             }
@@ -570,7 +589,7 @@ fun InsertDayExerciseBottomSheet(
     }
 }
 
-
+//아따 여기에서도 쓴다잉 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListBottomSheet(
@@ -601,6 +620,12 @@ fun ExerciseListBottomSheet(
             mutableStateOf(List(5) { SetInfo(20, 12) })
         }
 
+        val lazyColumnState = rememberLazyListState()
+        val density = LocalDensity.current
+        val itemSizePx = with(density) { 100.dp.toPx() }
+        val coroutineScope = rememberCoroutineScope()
+
+
         when (bottomSheetState) {
             ExerciseBottomSheetState.Selected -> {
                 LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
@@ -617,7 +642,8 @@ fun ExerciseListBottomSheet(
                 LazyColumn(
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
-                        .padding(top = 16.dp)
+                        .padding(top = 16.dp),
+                    state = lazyColumnState
                 ) {
 
                     item {
@@ -662,6 +688,12 @@ fun ExerciseListBottomSheet(
                             style = NotoTypography.headlineSmall.copy(color = DarkGray),
                             onClick = {
                                 setInfoList = performSetAction(setInfoList, SetAction.AddSet)
+                                coroutineScope.launch {
+                                    lazyColumnState.animateScrollBy(
+                                        value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
+                                        animationSpec = tween(durationMillis = 2000)
+                                    )
+                                }
                             })
                     }
                     item {
@@ -680,7 +712,7 @@ fun ExerciseListBottomSheet(
                                 )
                                 onDismissSheet(false)
                             }) {
-                            Text(text = "완료", style = NotoTypography.bodyMedium)
+                            Text(text = "완료", style = NotoTypography.bodyMedium, color = Color.White)
                         }
                     }
                 }
@@ -716,9 +748,11 @@ fun ExerciseListBottomSheet(
                         }
                         if (exerciseList.isEmpty()) {
                             item {
-                                Box(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1.5f)) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1.5f)
+                                ) {
                                     Text(
                                         text = "운동을 추가해주세요",
                                         style = NotoTypography.headlineSmall,
@@ -745,9 +779,11 @@ fun ExerciseListBottomSheet(
                         }
                         if (filteredList.isEmpty()) {
                             item {
-                                Box(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1.5f)) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1.5f)
+                                ) {
                                     Text(
                                         text = "운동을 추가해주세요",
                                         style = NotoTypography.bodyMedium,
@@ -844,64 +880,6 @@ private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
     val setInfoList = setInfoList.toMutableList()
     setInfoList.add(SetInfo(20, 12))
     return setInfoList
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropDownCategoryList(
-    onCategorySelected: (ExerciseCategory) -> Unit,
-    fraction: Float,
-) {
-    val categoryList = (1..6).map { ExerciseCategory.fromId(it) }.toList()
-
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(ExerciseCategory.CHEST) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded, onExpandedChange = { expanded = it },
-    ) {
-        TextField(
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(fraction)
-                .border(1.dp, LightGray, RoundedCornerShape(10.dp)),
-            readOnly = true,
-            textStyle = NotoTypography.bodyMedium,
-            value = selectedOptionText.let { ExerciseCategory.toName(it.id) },
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = TextGray,
-                unfocusedTextColor = TextGray,
-                disabledContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTrailingIconColor = TextGray,
-                unfocusedTrailingIconColor = TextGray,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(DarkGray),
-        ) {
-            categoryList.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(ExerciseCategory.toName(selectionOption!!.id)) },
-                    onClick = {
-                        selectedOptionText = selectionOption!!
-                        expanded = false
-                        onCategorySelected(selectedOptionText)
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -1064,7 +1042,6 @@ fun EditExerciseDialog(
                     originExerciseName = insertName,
                     insertExerciseName = {
                         insertName = it
-                        Log.e("TAG", "EditExerciseDialog: ${insertName}  ${exerciseInfo.id}")
                     },
                     containerColor = DarkGray
                 )
@@ -1133,7 +1110,9 @@ fun ExerciseItem(
     exercise: Exercise,
     deleteDayExercise: (Int) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     var showBottomSheet by remember { mutableStateOf(false) }
     var recentId by remember { mutableStateOf(0) }
     var isDeleteMode by remember {
@@ -1166,22 +1145,24 @@ fun ExerciseItem(
         .padding(16.dp)
         .clip(CircleShape)
 
+    LaunchedEffect(showBottomSheet){
+        selectedExercise = exercise
+    }
 
     when (exercise) {
         is Exercise.Weight -> {
-            if (isDeleteMode) IconButton(onClick = { isDeleteMode = false }) {
-                Icon(
-                    imageVector = IconPack.Topback, contentDescription = "취소", tint = TextGray
-                )
-            }
-            Box(boxModifier.pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    selectedExercise = exercise
-                    if (!isDeleteMode) showBottomSheet = true
-                }, onLongPress = {
-                    isDeleteMode = true
-                })
-            }) {
+            Box(
+                boxModifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            if (!isDeleteMode) showBottomSheet = true
+                        },
+                        onLongPress = {
+                            isDeleteMode = true
+                        }
+                    )
+                }
+            ) {
                 if (!isDeleteMode) {
                     Column(modifier = Modifier.align(Alignment.Center)) {
                         Text(
@@ -1225,26 +1206,39 @@ fun ExerciseItem(
         is Exercise.Calisthenics -> {
             Box(boxModifier.pointerInput(Unit) {
                 detectTapGestures(onTap = {
-                    selectedExercise = exercise
                     showBottomSheet = true
-                }, onLongPress = {})
+                }, onLongPress = {
+                    isDeleteMode = true
+                })
             }) {
-                Column(modifier = Modifier.align(Alignment.Center)) {
-                    Text(
-                        text = exercise.name,
-                        style = NotoTypography.bodyMedium,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Text(
-                        text = "${exercise.reps}",
-                        style = NotoTypography.labelMedium,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Text(
-                        text = "${exercise.set}set",
-                        style = NotoTypography.labelMedium,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                if (!isDeleteMode) {
+                    Column(modifier = Modifier.align(Alignment.Center)) {
+                        Text(
+                            text = exercise.name,
+                            style = NotoTypography.bodyMedium,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                        Text(
+                            text = "${exercise.reps}",
+                            style = NotoTypography.labelMedium,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                        Text(
+                            text = "${exercise.set}set",
+                            style = NotoTypography.labelMedium,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
+                } else {
+                    Column(modifier = Modifier.align(Alignment.Center)) {
+                        IconButton(onClick = { deleteDayExercise(exercise.dayExerciseId) }) {
+                            Icon(
+                                imageVector = IconPack.Close,
+                                contentDescription = "취소",
+                                tint = TextGray
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1535,7 +1529,6 @@ fun ExerciseCardView(
                 .background(DarkGray, RoundedCornerShape(10.dp))
                 .clickable {
                     onCardClicked(routineDayInfo.dayOfWeek) // 클릭 시 콜백 호출
-                    Log.e("TAG", "ExerciseCardView: ${routineDayInfo.dayOfWeek}")
                 }
                 .padding(16.dp),
         ) {
