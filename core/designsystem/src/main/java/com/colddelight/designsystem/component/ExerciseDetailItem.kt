@@ -8,42 +8,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Delete
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
-import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
+import com.colddelight.designsystem.theme.TextGray
 
 @Composable
 fun ExerciseDetailItem(
     kg: Int, reps: Int, index: Int,
-    setAction: (SetAction) -> Unit
+    focusManager: FocusManager = LocalFocusManager.current,
+    setAction: (SetAction) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
     ) {
@@ -87,9 +77,15 @@ fun ExerciseDetailItem(
                     SmallSetButton(IconPack.Minus) {
                         setAction(SetAction.UpdateReps(reps - 1, index))
                     }
-                    EditText(reps.toString(), focusManager) { newReps ->
+                    EditText(
+                        reps.toString(), focusManager, HortaTypography.bodyMedium, Modifier
+                            .padding(horizontal = 8.dp)
+                            .width(20.dp),
+                        color = TextGray
+                    ) { newReps ->
                         setAction(SetAction.UpdateReps(newReps, index))
                     }
+
                     SmallSetButton(IconPack.Plus) {
                         setAction(SetAction.UpdateReps(reps + 1, index))
                     }
@@ -146,36 +142,6 @@ fun DoneExerciseDetailItem(
     }
 }
 
-
-@Preview
-@Composable
-fun ExerciseDetailItemPreview() {
-
-    val tmp = listOf<SetInfo>(SetInfo(60, 12), SetInfo(60, 12), SetInfo(60, 12))
-    val curSet = 1
-    LazyColumn() {
-        itemsIndexed(tmp) { index, item ->
-            if (curSet > index) {
-                DoneExerciseDetailItem(item.kg, item.reps)
-            } else {
-                ExerciseDetailItem(item.kg, item.reps, index, {})
-            }
-            if (curSet == index || curSet - 1 == index) {
-                Divider(color = Main, thickness = 2.dp)
-            } else {
-                Divider(
-                    color = DarkGray,
-                    thickness = 2.dp
-                )
-            }
-        }
-    }
-}
-
-data class SetInfo(
-    val kg: Int,
-    val reps: Int
-)
 
 sealed class SetAction {
     data class UpdateKg(val updatedKg: Int, val toChange: Int) : SetAction()
