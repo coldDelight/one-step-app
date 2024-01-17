@@ -16,6 +16,9 @@ interface HistoryExerciseDao {
     @Query("SELECT * FROM history_exercise JOIN exercise ON history_exercise.exercise_id = exercise.id WHERE history_exercise.history_id=(:historyId)")
     fun getTodayHistoryExercises(historyId: Int): Flow<Map<HistoryExerciseEntity, ExerciseEntity>>
 
+    @Query("SELECT * FROM history_exercise JOIN exercise ON history_exercise.exercise_id = exercise.id WHERE history_exercise.history_id=(:historyId) AND history_exercise.is_done = 1")
+    fun getDoneHistoryExercises(historyId: Int): Flow<Map<HistoryExerciseEntity, ExerciseEntity>>
+
     @Query("SELECT * FROM history_exercise ")
     fun getHistoryExercises(): Flow<List<HistoryExerciseEntity>>
 
