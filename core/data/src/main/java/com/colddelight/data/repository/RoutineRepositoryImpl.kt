@@ -4,6 +4,7 @@ import android.util.Log
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
+import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDao
 import com.colddelight.database.dao.RoutineDayDao
 import com.colddelight.database.model.DayExerciseEntity
@@ -24,11 +25,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import java.time.LocalDate
 import javax.inject.Inject
 
 class RoutineRepositoryImpl @Inject constructor(
@@ -37,7 +40,10 @@ class RoutineRepositoryImpl @Inject constructor(
     private val exerciseDao: ExerciseDao,
     private val routineDayDao: RoutineDayDao,
     private val userDataSource: UserPreferencesDataSource,
-) : RoutineRepository {
+    private val historyDao: HistoryDao,
+    private val historyExerciseDao: HistoryExerciseDao,
+
+    ) : RoutineRepository {
 
     override fun getRoutine(): Flow<Routine> {
         return userDataSource.currentRoutineId
@@ -172,6 +178,9 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertDayExercise(dayExercise: DayExercise) {
+
+        val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now()).firstOrNull()
+
         val dayExerciseEntity = DayExerciseEntity(
             id = dayExercise.id,
             routineDayId = dayExercise.routineDayId,
@@ -179,9 +188,20 @@ class RoutineRepositoryImpl @Inject constructor(
             kgList = dayExercise.kgList,
             repsList = dayExercise.repsList
         )
-        dayExerciseDao.insertDayExercise(dayExerciseEntity)
-        Log.e("TAG", "insertDayExercise: 했숩니다${dayExerciseEntity}")
+        val id = dayExerciseDao.insertDayExercise(dayExerciseEntity)
 
+        if (todayHistoryId != null) {
+            val historyExerciseEntity = HistoryExerciseEntity(
+                historyId = todayHistoryId,
+                exerciseId = dayExercise.exerciseId,
+                isDone = false,
+                kgList = dayExercise.kgList,
+                repsList = dayExercise.repsList,
+                dayExerciseId = id.toInt()
+            )
+            historyExerciseDao.insertHistoryExercise(historyExerciseEntity)
+        }
+        Log.e("TAG", "insertDayExercise: 했숩니다${dayExerciseEntity}")
     }
 
 
@@ -228,6 +248,11 @@ class RoutineRepositoryImpl @Inject constructor(
 
     override suspend fun deleteDayExercise(dayExerciseId: Int) {
         dayExerciseDao.deleteDayExerciseById(dayExerciseId)
+
+        val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now()).firstOrNull()
+        if (todayHistoryId != null) {
+            historyExerciseDao.deleteHistoryExerciseById(dayExerciseId)
+        }
     }
 
     override fun getAllExerciseList(): Flow<List<ExerciseInfo>> {

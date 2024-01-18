@@ -23,7 +23,7 @@ interface DayExerciseDao {
     fun getSimpleDayExercise(routineDayId: Int): Flow<List<DayExerciseEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDayExercise(dayExerciseEntity: DayExerciseEntity)
+    suspend fun insertDayExercise(dayExerciseEntity: DayExerciseEntity): Long
 
 
     @Query("DELETE FROM day_exercise WHERE id = :dayExerciseId")

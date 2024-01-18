@@ -4,14 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.RoutineRepository
-import com.colddelight.designsystem.component.SetAction
 import com.colddelight.model.DayExercise
-import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.RoutineDayInfo
-import com.colddelight.model.SetInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -32,8 +28,6 @@ class RoutineViewModel @Inject constructor(
         viewModelScope.launch {
             Log.e("TAG", "insertRoutineDay: 운동목록${repository.getAllExerciseList().first()}", )
             //repository.addRoutine()
-            //Log.e("부모델", "${repository.addRoutine()}: ", )
-            //Log.e("부모델", "${repository.check()}: ", )
         }
     }
 

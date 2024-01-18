@@ -150,7 +150,8 @@ class ExerciseRepositoryImpl @Inject constructor(
                         exerciseId = dayExercise.exerciseId,
                         isDone = false,
                         kgList = dayExercise.kgList,
-                        repsList = dayExercise.repsList
+                        repsList = dayExercise.repsList,
+                        dayExerciseId = dayExercise.id
                     )
                 }
                 historyExerciseDao.insertAll(historyExercises)
