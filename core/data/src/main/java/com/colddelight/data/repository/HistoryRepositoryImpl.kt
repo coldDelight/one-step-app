@@ -103,7 +103,8 @@ class HistoryRepositoryImpl @Inject constructor(
                 exerciseId = 2,
                 isDone = true,
                 kgList = listOf(20,60,80),
-                repsList = listOf(15,15,15)
+                repsList = listOf(15,15,15),
+                dayExerciseId = 0
             )
         )
 //        historyDao.insertHistory(

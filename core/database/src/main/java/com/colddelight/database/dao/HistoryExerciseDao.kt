@@ -19,13 +19,6 @@ interface HistoryExerciseDao {
     @Query("SELECT * FROM history_exercise JOIN exercise ON history_exercise.exercise_id = exercise.id WHERE history_exercise.history_id=(:historyId) AND history_exercise.is_done = 1")
     fun getDoneHistoryExercises(historyId: Int): Flow<Map<HistoryExerciseEntity, ExerciseEntity>>
 
-    @Query("SELECT * FROM history_exercise ")
-    fun getHistoryExercises(): Flow<List<HistoryExerciseEntity>>
-
-//    @Transaction
-//    @Query("SELECT * FROM day_exercise WHERE routine_day_id = :routineDayId")
-//    suspend fun convertDayExercisesAndInsertHistory(routineDayId: Int)
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistoryExercise(historyExerciseEntity: HistoryExerciseEntity)
 
@@ -44,5 +37,8 @@ interface HistoryExerciseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(historyExercises: List<HistoryExerciseEntity>)
+
+    @Query("DELETE FROM history_exercise WHERE day_exercise_id = :dayExerciseId")
+    suspend fun deleteHistoryExerciseById(dayExerciseId: Int)
 
 }

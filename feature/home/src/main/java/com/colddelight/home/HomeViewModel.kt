@@ -10,21 +10,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: ExerciseRepository,
+    repository: ExerciseRepository,
     homeRepository: HomeRepository,
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
     private val exerciseWeek = homeRepository.getExerciseWeek()
-
-
 
 
     val homeUiState: StateFlow<HomeUiState> = todayRoutineInfo
@@ -53,12 +49,4 @@ class HomeViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = HomeUiState.Loading
         )
-
-    init {
-        viewModelScope.launch {
-            repository.addTmp()
-        }
-    }
 }
-
-

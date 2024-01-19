@@ -17,6 +17,5 @@ interface ExerciseRepository {
     suspend fun updateHistoryExercise(id: Int, isDone: Boolean)
     suspend fun updateHistory()
 
-    suspend fun addTmp()
 
 }
