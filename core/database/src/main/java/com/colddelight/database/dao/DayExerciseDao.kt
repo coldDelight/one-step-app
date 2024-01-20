@@ -4,8 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
+import com.colddelight.database.model.RoutineDayEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -36,5 +38,7 @@ interface DayExerciseDao {
     @Query("DELETE FROM day_exercise WHERE routine_day_id = :routineDayId")
     fun deleteDayExercisesByRoutineDayId(routineDayId: Int)
 
+    @Update
+    suspend fun updateDayExercises(routineDays: List<DayExerciseEntity>)
 
 }

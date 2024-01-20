@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.colddelight.database.model.HistoryEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -15,7 +16,7 @@ import java.util.Date
 interface HistoryDao {
 
 
-//
+    //
     @Query("SELECT history.id FROM history WHERE created_time = :today")
     fun getHistoryForToday(today: LocalDate): Flow<Int>
 
@@ -23,16 +24,29 @@ interface HistoryDao {
     fun getHistoryForThisWeek(startDate: LocalDate): Flow<List<LocalDate>>
 
     @Query("SELECT * FROM history WHERE created_time >= :startDate AND created_time <= :endDate AND is_done = 1")
-    fun getHistoryForSelectedMonth(startDate: LocalDate, endDate: LocalDate): Flow<List<HistoryEntity>>
+    fun getHistoryForSelectedMonth(
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Flow<List<HistoryEntity>>
 
     @Query("SELECT created_time FROM history WHERE is_done = 1")
     fun getAllDoneHistory(): Flow<List<LocalDate>>
 
-    // 히스토리 아이디임
-    @Query("UPDATE history SET is_done = 1 WHERE id = (:id)")
-    suspend fun updateHistory(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistory(history: HistoryEntity)
+
+
+    @Transaction
+    suspend fun finToday(historyId: Int) {
+        finHistory(historyId)
+        finHistoryExercises(historyId)
+    }
+
+    @Query("UPDATE history SET is_done = 1 WHERE id = :historyId")
+    suspend fun finHistory(historyId: Int)
+
+    @Query("UPDATE history_exercise SET is_done = 1 WHERE history_id = :historyId")
+    suspend fun finHistoryExercises(historyId: Int)
 
 }

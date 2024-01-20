@@ -47,7 +47,14 @@ class ExerciseViewModel @Inject constructor(
 
     fun finExercise() {
         viewModelScope.launch {
-            repository.updateHistory()
+            repository.finHistory()
+        }
+    }
+
+    fun finExerciseWithUpdate() {
+        val cur = exerciseUiState.value as ExerciseUiState.Success
+        viewModelScope.launch {
+            repository.finHistoryWithUpdate(cur.exerciseList)
         }
     }
 

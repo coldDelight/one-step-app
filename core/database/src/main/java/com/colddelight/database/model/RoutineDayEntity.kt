@@ -3,6 +3,7 @@ package com.colddelight.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.colddelight.model.Exercise
 
 @Entity(tableName = "routine_day")
 data class RoutineDayEntity(
