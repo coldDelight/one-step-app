@@ -36,5 +36,7 @@ interface DayExerciseDao {
     @Query("DELETE FROM day_exercise WHERE routine_day_id = :routineDayId")
     fun deleteDayExercisesByRoutineDayId(routineDayId: Int)
 
+    @Query("UPDATE day_exercise SET kg_list = :kgList, reps_list = :repsList WHERE id = :id")
+    suspend fun updateKgRepsById(id: Int, kgList: List<Int>, repsList: List<Int>)
 
 }

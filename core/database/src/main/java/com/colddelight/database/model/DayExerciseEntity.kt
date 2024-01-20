@@ -3,6 +3,7 @@ package com.colddelight.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.colddelight.model.Exercise
 
 @Entity(tableName = "day_exercise")
 data class DayExerciseEntity(
@@ -13,7 +14,6 @@ data class DayExerciseEntity(
     @ColumnInfo(name = "reps_list") val repsList: List<Int>,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
-
 
 
 //fun DayExerciseEntity.asNetworkDayExercise() = NetworkDayExercise(

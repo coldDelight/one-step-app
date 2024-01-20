@@ -47,7 +47,7 @@ class ExerciseViewModel @Inject constructor(
 
     fun finExercise() {
         viewModelScope.launch {
-            repository.updateHistory()
+            repository.finHistory()
         }
     }
 
@@ -55,7 +55,14 @@ class ExerciseViewModel @Inject constructor(
         val exerciseState = exerciseUiState.value as ExerciseUiState.Success
         val cur = exerciseState.curIndex
         viewModelScope.launch {
+
+            Log.e("TAG", "setDone: 설정하려고하는 dayExerciseId${exerciseState.exerciseList[cur].dayExerciseId}", )
+            repository.updateDayExercise(
+                exerciseState.exerciseList[cur].dayExerciseId,
+                exerciseState.exerciseList[cur].setInfoList
+            )
             repository.updateHistoryExercise(exerciseState.exerciseList[cur].exerciseId, true)
+
         }
     }
 
