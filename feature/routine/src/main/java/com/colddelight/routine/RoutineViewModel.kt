@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.RoutineRepository
 import com.colddelight.model.DayExercise
 import com.colddelight.model.ExerciseInfo
+import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,6 +41,12 @@ class RoutineViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = ExerciseListState.None
             )
+
+    fun insertRoutine(routine: Routine){
+        viewModelScope.launch {
+            repository.insertRoutine(routine)
+        }
+    }
 
     fun insertRoutineDay(routineDayInfo: RoutineDayInfo){
         viewModelScope.launch {
