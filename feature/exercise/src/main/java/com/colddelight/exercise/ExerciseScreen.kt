@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +54,6 @@ import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
-import com.colddelight.designsystem.theme.TextGray
 import com.colddelight.model.Exercise
 import com.colddelight.model.TodayRoutine
 import com.colddelight.model.ExerciseCategory
@@ -77,10 +75,7 @@ fun ExerciseScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState, onUpdate = {
-                viewModel.finExerciseWithUpdate()
-                onFinishClick()
-            }, onConfirm = {
+            ExerciseContentWithState(onDetailButtonClick, uiState = exerciseUiState, onConfirm = {
                 viewModel.finExercise()
                 onFinishClick()
             })
@@ -93,7 +88,6 @@ private fun ExerciseContentWithState(
     onDetailButtonClick: () -> Unit,
     uiState: ExerciseUiState,
     onConfirm: () -> Unit,
-    onUpdate: () -> Unit
 ) {
     when (uiState) {
 
@@ -104,7 +98,6 @@ private fun ExerciseContentWithState(
             uiState.routineInfo, uiState.exerciseList,
             uiState
                 .curIndex,
-            onUpdate = { onUpdate() },
             onConfirm = { onConfirm() },
         )
     }
@@ -117,7 +110,6 @@ private fun ExerciseContent(
     exerciseList: List<Exercise>,
     cur: Int,
     onConfirm: () -> Unit,
-    onUpdate: () -> Unit
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -125,7 +117,6 @@ private fun ExerciseContent(
         FinishDialog(
             onDismiss = { showDialog = false },
             onConfirm = onConfirm,
-            onUpdate = onUpdate,
             count = 11,
             exerciseCnt = 5,
             setCnt = 15
@@ -186,7 +177,6 @@ fun FinishDialog(
     exerciseCnt: Int,
     setCnt: Int,
     onDismiss: () -> Unit,
-    onUpdate: () -> Unit,
     onConfirm: () -> Unit
 ) {
     AlertDialog(
@@ -238,48 +228,22 @@ fun FinishDialog(
                     Text(text = " 개", style = NotoTypography.bodyMedium)
 
                 }
+                MainButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    onClick = {
+                        onConfirm()
+                        onDismiss()
+                    },
+                    content = {
+                        Text(
+                            "완료",
+                            style = NotoTypography.bodyMedium,
+                            color = Color.White
+                        )
+                    })
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    Arrangement.SpaceAround,
-                    Alignment.CenterVertically
-                ) {
-
-                    Button(
-                        onClick = {
-                            onUpdate()
-                            onDismiss()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DarkGray
-                        ),
-                    ) {
-                        Text("변경적용", style = NotoTypography.bodyMedium, color = Main)
-                    }
-
-                    MainButton(
-                        onClick = {
-                            onConfirm()
-                            onDismiss()
-                        },
-                        content = {
-                            Text(
-                                "   완료   ",
-                                style = NotoTypography.bodyMedium,
-                                color = Color.White
-                            )
-                        })
-
-//                    MainButton(
-//                        modifier = Modifier.fillMaxWidth(0.4f),
-//                        onClick = {
-//                            onConfirm()
-//                            onDismiss()
-//                        },
-//                    ) {
-//                        Text(text = "완료", style = NotoTypography.bodyMedium)
-//                    }
-                }
             }
 
         }
@@ -514,7 +478,7 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
-        ), 1, {}, {}
+        ), 1, {}
     )
 
 }

@@ -1,11 +1,9 @@
 package com.colddelight.data.repository
 
 import com.colddelight.database.dao.DayExerciseDao
-import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
@@ -70,7 +68,8 @@ class ExerciseRepositoryImpl @Inject constructor(
                     kg,
                     historyExerciseEntity.repsList[index]
                 )
-            }
+            },
+            dayExerciseId = historyExerciseEntity.dayExerciseId
         )
     }
 
@@ -89,7 +88,8 @@ class ExerciseRepositoryImpl @Inject constructor(
                 SetInfo(
                     kg, historyExerciseEntity.repsList[index]
                 )
-            }
+            },
+            dayExerciseId = historyExerciseEntity.dayExerciseId
         )
     }
 
@@ -161,26 +161,18 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun updateHistoryExercise(id: Int, isDone: Boolean) {
         historyExerciseDao.updateHistoryExercise(id, isDone)
+
+    }
+
+    override suspend fun updateDayExercise(id: Int, setInfoList: List<SetInfo>) {
+        dayExerciseDao.updateKgRepsById(
+            id,
+            kgList = setInfoList.map { it.kg },
+            repsList = setInfoList.map { it.reps })
     }
 
     override suspend fun finHistory() {
         historyDao.finToday(todayHistoryId.firstOrNull() ?: -1)
     }
-
-    override suspend fun finHistoryWithUpdate(exerciseList: List<Exercise>) {
-
-        val dayExerciseEntityList = exerciseList.map {
-            DayExerciseEntity(
-                routineDayId = it.dayExerciseId,
-                exerciseId = it.dayExerciseId,
-                kgList = it.setInfoList.map { setInfo -> setInfo.kg },
-                repsList = it.setInfoList.map { setInfo -> setInfo.reps },
-                id = it.dayExerciseId,
-            )
-        }
-        dayExerciseDao.updateDayExercises(dayExerciseEntityList)
-        historyDao.finToday(todayHistoryId.firstOrNull() ?: -1)
-    }
-
 }
 

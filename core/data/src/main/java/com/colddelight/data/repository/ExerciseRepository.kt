@@ -1,6 +1,7 @@
 package com.colddelight.data.repository
 
 import com.colddelight.model.Exercise
+import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.flow.Flow
 
@@ -15,7 +16,7 @@ interface ExerciseRepository {
 
     suspend fun initExercise()
     suspend fun updateHistoryExercise(id: Int, isDone: Boolean)
+    suspend fun updateDayExercise(id: Int, setInfoList: List<SetInfo>)
     suspend fun finHistory()
-    suspend fun finHistoryWithUpdate(exerciseList: List<Exercise>)
 
 }
