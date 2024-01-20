@@ -3,9 +3,12 @@ package com.colddelight.history
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,9 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -48,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.R
+import com.colddelight.designsystem.component.EditText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
@@ -139,6 +146,8 @@ private fun HistoryContent(
     val startMonth = remember { initMonth.minusMonths(100) } // Adjust as needed
     val endMonth = remember { initMonth.plusMonths(100) } // Adjust as needed
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -151,7 +160,6 @@ private fun HistoryContent(
     val coroutineScope = rememberCoroutineScope()
     val visibleMonth = rememberFirstMostVisibleMonth(state, viewportPercent = 90f)
 
-    var isDaySelected by remember { mutableStateOf(false) }
     var selectedDay by remember {
         mutableStateOf(
             DayHistory(
@@ -161,7 +169,9 @@ private fun HistoryContent(
         )
     }
 
-    LazyColumn {
+    LazyColumn(
+        contentPadding = PaddingValues(8.dp),
+        ){
         item {
             Log.e("TAG", "HistoryContent: $historyList")
             SimpleCalendarTitle(
@@ -169,14 +179,14 @@ private fun HistoryContent(
                 currentMonth = visibleMonth.yearMonth,
                 goToPrevious = {
                     coroutineScope.launch {
-                        isDaySelected = false
+                        selectedDate = null
                         state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
                         onMonthChanged(state.firstVisibleMonth.yearMonth.atDay(1))
                     }
                 },
                 goToNext = {
                     coroutineScope.launch {
-                        isDaySelected = false
+                        selectedDate = null
                         state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                         onMonthChanged(state.firstVisibleMonth.yearMonth.atDay(1))
                     }
@@ -186,27 +196,84 @@ private fun HistoryContent(
                 val hasHistory = historyList.any { it.createdTime == calendarDay.date }
                 val matchingHistories = historyList.find { it.createdTime == calendarDay.date }
                 Day(
-                    calendarDay,
-                    hasHistory,
-                    matchingHistories ?: DayHistory(calendarDay.date, emptyList(), 0)
-                ) {
-                    isDaySelected = true
-                    onDaySelected(it.id)
-                    selectedDay = it
-                }
+                    day = calendarDay,
+                    hasHistory = hasHistory,
+                    dayHistory = matchingHistories ?: DayHistory(calendarDay.date, emptyList(), 0),
+                    isSelected = (calendarDay.date == selectedDate),
+                    onClick = {
+                        onDaySelected(it.id)
+                        selectedDay = it
+                        if (selectedDate != it.createdTime)
+                            selectedDate = it.createdTime
+                        else
+                            selectedDate = null
+                    })
             }, monthHeader = {
                 DaysOfWeekTitle(daysOfWeek = daysOfWeek)
             })
         }
-        if (isDaySelected) item {
-            Divider(color = DarkGray, modifier = Modifier.padding(top = 16.dp), thickness = 2.dp)
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = selectedDay.createdTime.toString(), style = HortaTypography.headlineSmall)
-                CategoryIconList(selectedDay.categoryList.map { ExerciseCategory.fromId(it)!! })
-                dayHistoryExerciseList.map {
-                    Text(text = it.name)
-                    it.setInfoList.map { setInfo ->
-                        Text(text = "${setInfo.kg} X ${setInfo.reps}")
+        if (selectedDate != null) {
+            item {
+                Divider(
+                    color = DarkGray,
+                    thickness = 2.dp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Row (modifier = Modifier.padding(horizontal =16.dp, vertical = 12.dp)){
+                    CategoryIconList(selectedDay.categoryList.map { ExerciseCategory.fromId(it)!! })
+
+                }
+
+            }
+            items(dayHistoryExerciseList) { exercise ->
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(3.dp)
+                            .background(Color.White, CircleShape)
+                    )
+                    Text(text = exercise.name, style = NotoTypography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
+                }
+
+                LazyRow (
+                    contentPadding = PaddingValues(16.dp),
+                ){
+                    itemsIndexed(exercise.setInfoList) { index, setInfo ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .background(Main, CircleShape)
+                                    .padding(vertical = 6.dp, horizontal = 14.dp),
+                                Alignment.Center,
+                            ) {
+                                Row {
+                                    Text(
+                                        "${setInfo.kg}kg",
+                                        style = HortaTypography.bodyMedium,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "x  ${setInfo.reps} reps",
+                                style = HortaTypography.labelLarge
+                            )
+                            if (index < exercise.setInfoList.size - 1)
+                                Divider(
+                                    modifier = Modifier
+                                        .padding(horizontal = 18.dp)
+                                        .height(30.dp)
+                                        .width(1.dp)
+                                    ,color = LightGray
+                                )
+                        }
                     }
                 }
             }
@@ -262,23 +329,29 @@ fun Day(
     day: CalendarDay,
     hasHistory: Boolean,
     dayHistory: DayHistory,
+    isSelected: Boolean,
     onClick: (DayHistory) -> Unit,
 ) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .background(
-                if (hasHistory) Main else Color.Transparent, CircleShape
-            )
+            .clip(CircleShape)
+            .background(if (isSelected) Main else Color.Transparent, CircleShape)
             .clickable(enabled = (day.position == DayPosition.MonthDate) && hasHistory, onClick = {
                 onClick(dayHistory)
-            }), contentAlignment = Alignment.Center
+            })
+            .padding(8.dp)
+            .border(
+                1.dp,
+                if ((day.position == DayPosition.MonthDate) && hasHistory) Main else Color.Transparent,
+                CircleShape
+            ), contentAlignment = Alignment.Center
     ) {
         Text(
             text = day.date.dayOfMonth.toString(),
             style = NotoTypography.labelLarge,
             color = if (day.position == DayPosition.MonthDate) {
-                if (hasHistory) BackGray else TextGray
+                if (isSelected) BackGray else TextGray
             } else LightGray
         )
     }

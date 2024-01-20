@@ -1478,7 +1478,7 @@ fun RoutineName(name: String, insertRoutine: (String) -> Unit) {
     Row {
         Text(text = name, style = NotoTypography.headlineMedium)
         IconButton(onClick = { showEditDialog = true }) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "루틴 이름 변경", tint = TextGray)
+            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "루틴 이름 변경", tint = LightGray)
         }
     }
     if (showEditDialog) {

@@ -18,7 +18,7 @@ val notosanskr = FontFamily(
     Font(R.font.notosanskr_bold, FontWeight.Bold, FontStyle.Normal),
     Font(R.font.notosanskr_semibold, FontWeight.SemiBold, FontStyle.Normal),
     Font(R.font.notosanskr_medium, FontWeight.Medium, FontStyle.Normal),
-    )
+)
 
 val hotra = FontFamily(
     Font(R.font.horta, FontWeight.Medium, FontStyle.Normal)
@@ -91,17 +91,17 @@ val NotoTypography = Typography(
         )
     ),
     bodySmall = TextStyle(
-            color = TextGray,
-    fontFamily = notosanskr,
-    fontWeight = FontWeight.Medium,
-    fontSize = 16.sp,
-    platformStyle = PlatformTextStyle(
-        includeFontPadding = false
-    ),
-    lineHeightStyle = LineHeightStyle(
-        alignment = LineHeightStyle.Alignment.Bottom,
-        trim = LineHeightStyle.Trim.None
-    )
+        color = TextGray,
+        fontFamily = notosanskr,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        ),
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Bottom,
+            trim = LineHeightStyle.Trim.None
+        )
     ),
     labelLarge = TextStyle(
         color = TextGray,
@@ -202,6 +202,19 @@ val HortaTypography = Typography(
         fontFamily = hotra,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        ),
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Bottom,
+            trim = LineHeightStyle.Trim.None
+        )
+    ),
+    labelLarge = TextStyle(
+        color = TextGray,
+        fontFamily = hotra,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
         platformStyle = PlatformTextStyle(
             includeFontPadding = false
         ),
