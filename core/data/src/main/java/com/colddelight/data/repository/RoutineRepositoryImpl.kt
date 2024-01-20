@@ -11,6 +11,7 @@ import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.database.model.RoutineDayEntity
+import com.colddelight.database.model.RoutineEntity
 import com.colddelight.datastore.datasource.UserPreferencesDataSource
 import com.colddelight.model.DayExercise
 import com.colddelight.model.Exercise
@@ -155,6 +156,16 @@ class RoutineRepositoryImpl @Inject constructor(
             }
 
         )
+    }
+
+
+    override suspend fun insertRoutine(routine: Routine) {
+        val routineEntity = RoutineEntity(
+            id = routine.id,
+            name = routine.name,
+            cnt = routine.cnt
+        )
+        routineDao.insertRoutine(routineEntity)
     }
 
 

@@ -1,5 +1,6 @@
 package com.colddelight.routine
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -37,6 +38,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -110,6 +112,7 @@ import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 
 @Composable
@@ -137,6 +140,9 @@ fun RoutineScreen(
                     viewModel.insertRoutineDay(newRoutineDayInfo)
                 },
                 exerciseListState = exerciseListState,
+                insertRoutine = {
+                    viewModel.insertRoutine(it)
+                },
                 insertExercise = { exerciseInfo ->
                     viewModel.insertExercise(exerciseInfo)
                 },
@@ -161,6 +167,7 @@ private fun RoutineContentWithState(
     routineInfoUiState: RoutineInfoUiState,
     routineDayInfoUiState: RoutineDayInfoUiState,
     exerciseListState: ExerciseListState,
+    insertRoutine: (Routine) -> Unit,
     insertRoutineDay: (RoutineDayInfo) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
     insertDayExercise: (DayExercise) -> Unit,
@@ -173,6 +180,7 @@ private fun RoutineContentWithState(
             routineInfoUiState.routine,
             routineDayInfoUiState.routineDayInfo,
             exerciseListState.exerciseList,
+            insertRoutine,
             insertRoutineDay,
             insertExercise,
             insertDayExercise,
@@ -200,6 +208,7 @@ private fun RoutineContent(
     routine: Routine,
     routineDayList: List<RoutineDayInfo>,
     exerciseList: List<ExerciseInfo>,
+    insertRoutine: (Routine) -> Unit,
     insertRoutineDay: (RoutineDayInfo) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
     insertDayExercise: (DayExercise) -> Unit,
@@ -210,7 +219,7 @@ private fun RoutineContent(
     var screenWidth by remember { mutableStateOf(0) }
     val density = LocalDensity.current.density
 
-    var currentDayOfWeek by remember { mutableStateOf(1) }
+    var currentDayOfWeek by remember { mutableStateOf(getDayOfWeekNumber()) }
 
 
     LazyColumn(modifier = Modifier
@@ -225,7 +234,7 @@ private fun RoutineContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RoutineList(routine.name)
+                RoutineName(routine.name, insertRoutine ={ insertRoutine(Routine(id = routine.id, name = it, cnt = routine.cnt ))})
                 CountDate(routine.cnt)
             }
         }
@@ -267,6 +276,21 @@ private fun RoutineContent(
                 screenWidth
             )
         }
+    }
+}
+
+fun getDayOfWeekNumber(): Int {
+    val calendar = Calendar.getInstance()
+    val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+    return when (dayOfWeek) {
+        Calendar.MONDAY -> 1
+        Calendar.TUESDAY -> 2
+        Calendar.WEDNESDAY -> 3
+        Calendar.THURSDAY -> 4
+        Calendar.FRIDAY -> 5
+        Calendar.SATURDAY -> 6
+        Calendar.SUNDAY -> 7
+        else -> 0
     }
 }
 
@@ -709,7 +733,11 @@ fun ExerciseListBottomSheet(
                                 )
                                 onDismissSheet(false)
                             }) {
-                            Text(text = "완료", style = NotoTypography.bodyMedium, color = Color.White)
+                            Text(
+                                text = "완료",
+                                style = NotoTypography.bodyMedium,
+                                color = Color.White
+                            )
                         }
                     }
                 }
@@ -729,7 +757,11 @@ fun ExerciseListBottomSheet(
                     }
                 }
 
-                LazyColumn(modifier = Modifier.padding(horizontal = 20.dp)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .heightIn(min = 300.dp)
+                ) {
                     if (selectedChipIndices.isEmpty()) {
                         itemsIndexed(exerciseList) { index, it ->
                             AllExerciseListItem(it,
@@ -739,7 +771,7 @@ fun ExerciseListBottomSheet(
                                     selectedExercise = it
                                     bottomSheetState = ExerciseBottomSheetState.Selected
                                 })
-                            if (index < exerciseList.lastIndex) Divider(
+                            Divider(
                                 color = LightGray, thickness = 1.dp
                             )
                         }
@@ -770,7 +802,7 @@ fun ExerciseListBottomSheet(
                                     selectedExercise = it
                                     bottomSheetState = ExerciseBottomSheetState.Selected
                                 })
-                            if (index < exerciseList.lastIndex) Divider(
+                            Divider(
                                 color = LightGray, thickness = 1.dp
                             )
                         }
@@ -783,7 +815,7 @@ fun ExerciseListBottomSheet(
                                 ) {
                                     Text(
                                         text = "운동을 추가해주세요",
-                                        style = NotoTypography.bodyMedium,
+                                        style = NotoTypography.headlineSmall,
                                         color = LightGray,
                                         modifier = Modifier.align(Alignment.Center)
                                     )
@@ -1142,7 +1174,7 @@ fun ExerciseItem(
         .padding(16.dp)
         .clip(CircleShape)
 
-    LaunchedEffect(showBottomSheet){
+    LaunchedEffect(showBottomSheet) {
         selectedExercise = exercise
     }
 
@@ -1266,7 +1298,10 @@ fun ExerciseCardRow(
     widthDp: Int,
     onCardClicked: (Int) -> Unit,
 ) {
-    LazyRow {
+    val scrollState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LazyRow (state = scrollState){
         items(routineDayList) { routineDayInfo ->
             Box(
                 modifier = Modifier
@@ -1281,6 +1316,9 @@ fun ExerciseCardRow(
                         onCardClicked(it)
                     })
             }
+        }
+        coroutineScope.launch {
+            scrollState.scrollToItem(getDayOfWeekNumber()-1)
         }
     }
 }
@@ -1433,9 +1471,80 @@ fun AddCategoryBtn(
 }
 
 @Composable
-fun RoutineList(name: String) {
-    Text(text = name, style = NotoTypography.headlineMedium)
+fun RoutineName(name: String, insertRoutine: (String) -> Unit) {
+    var showEditDialog by remember {
+        mutableStateOf(false)
+    }
+    Row {
+        Text(text = name, style = NotoTypography.headlineMedium)
+        IconButton(onClick = { showEditDialog = true }) {
+            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "루틴 이름 변경", tint = TextGray)
+        }
+    }
+    if (showEditDialog) {
+        EditRoutineNameDialog(name, { showEditDialog = it }, {insertRoutine(it)})
+    }
 }
+
+@Composable
+fun EditRoutineNameDialog(
+    routineName: String,
+    onDismissDialog: (Boolean) -> Unit,
+    insertRoutine: (String) -> Unit,
+) {
+    var insertName by remember {
+        mutableStateOf(routineName)
+    }
+    var errText by remember {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(insertName) {
+        if (insertName.isNotEmpty())
+            errText = false
+    }
+    AlertDialog(containerColor = DarkGray,
+        onDismissRequest = { onDismissDialog(false) },
+        text = {
+            Column {
+                ExerciseNameOutlineTextField(
+                    false,
+                    originExerciseName = insertName,
+                    insertExerciseName = {
+                        insertName = it
+                    },
+                    containerColor = DarkGray
+                )
+                if (errText)
+                    Text(
+                        text = "루틴 이름을 최소 1글자 이상으로 설정해주세요",
+                        style = NotoTypography.labelMedium,
+                        color = Red,
+                        modifier = Modifier.padding(top = 4.dp, start = 10.dp)
+                    )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick =
+            {
+                if (insertName.isNotEmpty()) {
+                    insertRoutine(
+                        insertName
+                    )
+                    onDismissDialog(false)
+                } else errText = true
+            }) {
+                Text(text = "완료", style = NotoTypography.bodyMedium, color = Main)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismissDialog(false)
+            }) {
+                Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
+            }
+        })
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
