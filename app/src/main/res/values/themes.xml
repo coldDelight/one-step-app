@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.OneStep" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.OneStep.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/one_step_splash</item>
+        <item name="windowSplashScreenBackground">@color/Main</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.OneStep</item>
+    </style>
 </resources>

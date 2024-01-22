@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.colddelight.designsystem.theme.HortaTypography
 import com.colddelight.designsystem.theme.Main
+import com.colddelight.designsystem.theme.TextGray
 
 @Composable
 fun EditTextKg(data: String, focusManager: FocusManager, onChange: (Int) -> Unit) {
@@ -86,6 +88,6 @@ fun EditText(
                 trim = LineHeightStyle.Trim.None
             )
         ),
-        cursorBrush = SolidColor(Main)
+        cursorBrush = SolidColor(color)
     )
 }

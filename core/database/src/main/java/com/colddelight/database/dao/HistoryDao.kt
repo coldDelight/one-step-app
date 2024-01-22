@@ -1,16 +1,13 @@
 package com.colddelight.database.dao
 
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.MapColumn
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.colddelight.database.model.HistoryEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.util.Date
 
 @Dao
 interface HistoryDao {
@@ -48,5 +45,17 @@ interface HistoryDao {
 
     @Query("UPDATE history_exercise SET is_done = 1 WHERE history_id = :historyId")
     suspend fun finHistoryExercises(historyId: Int)
+
+    @Transaction
+    suspend fun deleteHistory(historyId: Int) {
+        deleteHistoryById(historyId)
+        deleteHistoryExerciseByHistoryId(historyId)
+    }
+
+    @Query("DELETE FROM history WHERE id = :historyId AND is_done = 0")
+    suspend fun deleteHistoryById(historyId: Int)
+
+    @Query("DELETE FROM history_exercise WHERE history_id = :historyId")
+    suspend fun deleteHistoryExerciseByHistoryId(historyId: Int)
 
 }

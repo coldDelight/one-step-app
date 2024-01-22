@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,9 +58,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onStartButtonClick: () -> Unit
 ) {
-
     val homeUiState by homeViewModel.homeUiState.collectAsStateWithLifecycle()
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = BackGray
@@ -108,13 +108,17 @@ private fun HomeContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+//        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
             TitleText(text = "Week", modifier = Modifier.padding(top = 8.dp))
             ExerciseWeek(exerciseWeek, today)
         }
-        Column {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
@@ -125,20 +129,19 @@ private fun HomeContent(
             }
 
             HomeButton(state, onStartButtonClick)
-        }
 
-        when (state) {
-            is HomeState.During -> {
-                ToExerciseButton(
-                    onStartButtonClick,
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp)
-                )
-            }
+            when (state) {
+                is HomeState.During -> {
+                    ToExerciseButton(
+                        onStartButtonClick,
+                        Modifier
+                            .fillMaxWidth()
+                    )
+                }
 
-            else -> {
-                Spacer(Modifier)
+                else -> {
+                    Spacer(Modifier)
+                }
             }
         }
 
@@ -162,9 +165,7 @@ fun ExerciseWeek(exerciseWeek: List<ExerciseDay>, today: Int) {
 
 @Composable
 fun WeekItem(exerciseDay: ExerciseDay, today: Int) {
-
     val isToday = today == exerciseDay.dayOfWeekId
-
     val itemColor = when {
         exerciseDay.isExerciseDone -> Main
         exerciseDay.isRestDay -> DarkGray
@@ -202,7 +203,7 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
         onClick = { onStartButtonClick() },
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth()
+            .fillMaxHeight(0.8f)
             .aspectRatio(1f)
             .background(BackGray, shape = CircleShape)
             .border(
@@ -211,14 +212,13 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
                 shape = CircleShape
             )
     ) {
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = state.text, style = NotoTypography.headlineMedium, color = state.textColor)
             if (state is HomeState.During) {
-                Row {
-                    state.categoryList.forEach {
+                LazyRow() {
+                    items(state.categoryList) {
                         CategoryChip(
                             isCanDelete = false,
                             label = ExerciseCategory.toName(it.id),
@@ -228,6 +228,17 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
                         )
                     }
                 }
+//                Row(modifier = Modifier.fillMaxWidth()) {
+//                    state.categoryList.forEach {
+//                        CategoryChip(
+//                            isCanDelete = false,
+//                            label = ExerciseCategory.toName(it.id),
+//                            categoryId = it.id,
+//                            size = 16,
+//                            onDeleteClicked = { }
+//                        )
+//                    }
+//                }
             }
         }
     }
@@ -249,16 +260,16 @@ fun ToExerciseButton(onClick: () -> Unit, modifier: Modifier) {
     )
 }
 
-@Preview
+@Preview(name = "SMALL", device = Devices.PIXEL)
 @Composable
 fun homePreview() {
     HomeContent(
         11,
-        HomeState.Resting(),
-//        HomeState.During(
-//            text = "3분할",
-//            categoryList = listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK)
-//        ),
+//        HomeState.Resting(),
+        HomeState.During(
+            text = "3분할",
+            categoryList = listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK)
+        ),
         listOf(
             ExerciseDay(1, getDayOfWeekEn(1), false, false),
             ExerciseDay(2, getDayOfWeekEn(2), true, true),

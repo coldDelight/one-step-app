@@ -56,7 +56,6 @@ class ExerciseViewModel @Inject constructor(
         val cur = exerciseState.curIndex
         viewModelScope.launch {
 
-            Log.e("TAG", "setDone: 설정하려고하는 dayExerciseId${exerciseState.exerciseList[cur].dayExerciseId}", )
             repository.updateDayExercise(
                 exerciseState.exerciseList[cur].dayExerciseId,
                 exerciseState.exerciseList[cur].setInfoList
