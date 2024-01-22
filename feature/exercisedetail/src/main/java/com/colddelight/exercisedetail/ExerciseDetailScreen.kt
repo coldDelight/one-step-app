@@ -76,6 +76,7 @@ import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
 import com.colddelight.model.Exercise
+import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
 import kotlinx.coroutines.launch
 
@@ -201,6 +202,7 @@ private fun ExerciseDetailContent(
             ) {
                 when (uiState) {
                     is ExerciseDetailUiState.Default -> CurrentSetButtons(
+                        exercise.category != ExerciseCategory.CALISTHENICS,
                         exercise.setInfoList[curSet],
                         true,
                         setAction,
@@ -209,6 +211,7 @@ private fun ExerciseDetailContent(
                     )
 
                     is ExerciseDetailUiState.During -> CurrentSetButtons(
+                        exercise.category != ExerciseCategory.CALISTHENICS,
                         exercise.setInfoList[curSet],
                         false,
                         setAction,
@@ -228,9 +231,20 @@ private fun ExerciseDetailContent(
 
         itemsIndexed(exercise.setInfoList) { index, item ->
             if (curSet > index) {
-                DoneExerciseDetailItem(item.kg, item.reps)
+                DoneExerciseDetailItem(
+                    item.kg,
+                    item.reps,
+                    exercise.category != ExerciseCategory.CALISTHENICS
+                )
             } else {
-                ExerciseDetailItem(item.kg, item.reps, index, focusManager, setAction)
+                ExerciseDetailItem(
+                    item.kg,
+                    item.reps,
+                    index,
+                    exercise.category != ExerciseCategory.CALISTHENICS,
+                    focusManager,
+                    setAction,
+                )
             }
             if (curSet == index || curSet - 1 == index) {
                 Divider(color = Main, thickness = 2.dp)
@@ -444,6 +458,7 @@ fun SetPreview() {
 
 @Composable
 private fun CurrentSetButtons(
+    isWeight: Boolean,
     setInfo: SetInfo,
     showSetButton: Boolean,
     setAction: (SetAction) -> Unit,
@@ -456,16 +471,19 @@ private fun CurrentSetButtons(
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        SingleSetButtons(
-            setInfo.kg,
-            10,
-            true,
-            showSetButton,
-            150,
-            setAction,
-            curIndex,
-            focusManager
-        )
+
+        if (isWeight) {
+            SingleSetButtons(
+                setInfo.kg,
+                10,
+                true,
+                showSetButton,
+                150,
+                setAction,
+                curIndex,
+                focusManager
+            )
+        }
         SingleSetButtons(
             setInfo.reps,
             1,

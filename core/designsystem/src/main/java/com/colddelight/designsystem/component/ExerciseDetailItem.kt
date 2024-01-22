@@ -3,7 +3,6 @@ package com.colddelight.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,35 +29,20 @@ import com.colddelight.designsystem.theme.TextGray
 
 @Composable
 fun ExerciseDetailItem(
-    kg: Int, reps: Int, index: Int,
+    kg: Int, reps: Int, index: Int, isWeight: Boolean,
     focusManager: FocusManager = LocalFocusManager.current,
     setAction: (SetAction) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                NoBackSetButton(IconPack.Delete) {
-                    setAction(SetAction.DeleteSet(index))
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth(0.8f)
-
-            ) {
+    Row(Modifier.fillMaxWidth()) {
+        NoBackSetButton(IconPack.Delete) {
+            setAction(SetAction.DeleteSet(index))
+        }
+        Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly, Alignment.CenterVertically) {
+            if (isWeight) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(0.4f),
+                    horizontalArrangement = Arrangement.Center,
+                    Alignment.CenterVertically
                 ) {
                     SmallSetButton(IconPack.Minus) {
                         setAction(SetAction.UpdateKg(kg - 10, index))
@@ -70,28 +54,28 @@ fun ExerciseDetailItem(
                         setAction(SetAction.UpdateKg(kg + 10, index))
                     }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    SmallSetButton(IconPack.Minus) {
-                        setAction(SetAction.UpdateReps(reps - 1, index))
-                    }
-                    EditText(
-                        reps.toString(), focusManager, HortaTypography.bodyMedium, Modifier
-                            .padding(horizontal = 8.dp)
-                            .width(20.dp),
-                        color = TextGray
-                    ) { newReps ->
-                        setAction(SetAction.UpdateReps(newReps, index))
-                    }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(0.4f),
+                horizontalArrangement = Arrangement.Center,
+                Alignment.CenterVertically
+            ) {
+                SmallSetButton(IconPack.Minus) {
+                    setAction(SetAction.UpdateReps(reps - 1, index))
+                }
+                EditText(
+                    reps.toString(), focusManager, HortaTypography.bodyMedium, Modifier
+                        .padding(horizontal = 8.dp)
+                        .width(20.dp),
+                    color = TextGray
+                ) { newReps ->
+                    setAction(SetAction.UpdateReps(newReps, index))
+                }
 
-                    SmallSetButton(IconPack.Plus) {
-                        setAction(SetAction.UpdateReps(reps + 1, index))
-                    }
+                SmallSetButton(IconPack.Plus) {
+                    setAction(SetAction.UpdateReps(reps + 1, index))
                 }
             }
-
 
         }
     }
@@ -99,40 +83,38 @@ fun ExerciseDetailItem(
 
 @Composable
 fun DoneExerciseDetailItem(
-    kg: Int, reps: Int
+    kg: Int, reps: Int, isWeight: Boolean
 ) {
-    Column(
-        modifier = Modifier
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Box(
-                Modifier
-                    .padding(horizontal = 8.dp)
-                    .background(Main, CircleShape)
-                    .padding(vertical = 6.dp, horizontal = 14.dp),
-                Alignment.Center,
-            ) {
-                Text(
-                    "${kg}kg",
-                    modifier = Modifier
-                        .width(30.dp),
-                    style = HortaTypography.bodyMedium.copy(
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        lineHeightStyle = LineHeightStyle(
-                            alignment = LineHeightStyle.Alignment.Bottom,
-                            trim = LineHeightStyle.Trim.None
-                        )
-                    ),
-                )
+        Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
+            if (isWeight) {
+                Box(
+                    Modifier
+                        .padding(horizontal = 8.dp)
+                        .background(Main, CircleShape)
+                        .padding(vertical = 6.dp, horizontal = 14.dp),
+                    Alignment.Center,
+                ) {
+                    Text(
+                        "${kg}kg",
+                        modifier = Modifier
+                            .width(30.dp),
+                        style = HortaTypography.bodyMedium.copy(
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            lineHeightStyle = LineHeightStyle(
+                                alignment = LineHeightStyle.Alignment.Bottom,
+                                trim = LineHeightStyle.Trim.None
+                            )
+                        ),
+                    )
+                }
+                Spacer(Modifier.padding(end = 32.dp))
             }
-            Spacer(Modifier)
             Text(
                 "$reps", modifier = Modifier
                     .width(30.dp), style = HortaTypography.bodyMedium

@@ -65,7 +65,7 @@ fun NoBackSetButton(icon: ImageVector, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
-            .padding(vertical = 16.dp)
+            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
             .size(20.dp)
     ) {
         Icon(

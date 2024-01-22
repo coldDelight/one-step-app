@@ -234,7 +234,17 @@ private fun RoutineContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RoutineName(routine.name, insertRoutine ={ insertRoutine(Routine(id = routine.id, name = it, cnt = routine.cnt ))})
+                RoutineName(
+                    routine.name,
+                    insertRoutine = {
+                        insertRoutine(
+                            Routine(
+                                id = routine.id,
+                                name = it,
+                                cnt = routine.cnt
+                            )
+                        )
+                    })
                 CountDate(routine.cnt)
             }
         }
@@ -495,13 +505,12 @@ fun AddExerciseToRoutineDayBtn(
     }
 }
 
-//야가 기존 운동 수정하는 거여 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsertDayExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-    insertDayExercise: (DayExercise) -> Unit,  //야여 야
+    insertDayExercise: (DayExercise) -> Unit,
     deleteDayExercise: (Int) -> Unit,
     routineDayInfo: RoutineDayInfo,
     exercise: Exercise,
@@ -556,7 +565,13 @@ fun InsertDayExerciseBottomSheet(
                 }
             }
             itemsIndexed(setInfoList) { index, item ->
-                ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+                Log.e("TAG", "루틴에서 선택한 운동 카테고리: ${exercise.category}")
+                ExerciseDetailItem(
+                    item.kg,
+                    item.reps,
+                    index,
+                    exercise.category != ExerciseCategory.CALISTHENICS
+                ) { setAction ->
                     setInfoList = performSetAction(
                         setInfoList, setAction
                     )
@@ -609,7 +624,6 @@ fun InsertDayExerciseBottomSheet(
     }
 }
 
-//아따 여기에서도 쓴다잉 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListBottomSheet(
@@ -694,7 +708,11 @@ fun ExerciseListBottomSheet(
                         }
                     }
                     itemsIndexed(setInfoList) { index, item ->
-                        ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+
+                        ExerciseDetailItem(
+                            item.kg, item.reps, index,
+                            selectedExercise.category != ExerciseCategory.CALISTHENICS
+                        ) { setAction ->
                             setInfoList = performSetAction(
                                 setInfoList, setAction
                             )
@@ -1301,7 +1319,7 @@ fun ExerciseCardRow(
     val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    LazyRow (state = scrollState){
+    LazyRow(state = scrollState) {
         items(routineDayList) { routineDayInfo ->
             Box(
                 modifier = Modifier
@@ -1318,7 +1336,7 @@ fun ExerciseCardRow(
             }
         }
         coroutineScope.launch {
-            scrollState.scrollToItem(getDayOfWeekNumber()-1)
+            scrollState.scrollToItem(getDayOfWeekNumber() - 1)
         }
     }
 }
@@ -1478,11 +1496,15 @@ fun RoutineName(name: String, insertRoutine: (String) -> Unit) {
     Row {
         Text(text = name, style = NotoTypography.headlineMedium)
         IconButton(onClick = { showEditDialog = true }) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "루틴 이름 변경", tint = LightGray)
+            Icon(
+                imageVector = Icons.Rounded.Edit,
+                contentDescription = "루틴 이름 변경",
+                tint = LightGray
+            )
         }
     }
     if (showEditDialog) {
-        EditRoutineNameDialog(name, { showEditDialog = it }, {insertRoutine(it)})
+        EditRoutineNameDialog(name, { showEditDialog = it }, { insertRoutine(it) })
     }
 }
 
