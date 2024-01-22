@@ -38,6 +38,7 @@ class ExerciseViewModel @Inject constructor(
             repository.initExercise()
             todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
                 val curIndex = exerciseList.filter { it.isDone }.size
+                Log.e("TAG", "결과는 무엇인가${exerciseList}: ")
                 ExerciseUiState.Success(routine, curIndex, exerciseList)
             }.collectLatest {
                 _exerciseUiState.value = it
@@ -56,7 +57,6 @@ class ExerciseViewModel @Inject constructor(
         val cur = exerciseState.curIndex
         viewModelScope.launch {
 
-            Log.e("TAG", "setDone: 설정하려고하는 dayExerciseId${exerciseState.exerciseList[cur].dayExerciseId}", )
             repository.updateDayExercise(
                 exerciseState.exerciseList[cur].dayExerciseId,
                 exerciseState.exerciseList[cur].setInfoList

@@ -130,9 +130,27 @@ private fun ExerciseContent(
 
         item {
             TodayRoutineInfo(getTodayDateWithDayOfWeek(), routineInfo, Modifier)
+        }
+        item {
             TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
-
+        }
+        item {
+            Row(Modifier.padding(bottom = 8.dp)) {
+                Text(
+                    text = "${cur + 1}",
+                    style = NotoTypography.bodyMedium,
+                    color = Main,
+                )
+                Text(
+                    text = " / ${exerciseList.size}",
+                    style = NotoTypography.bodyMedium,
+                )
+            }
+        }
+        item {
             ExerciseProgress(Modifier.fillMaxWidth(), cur, exerciseList.size)
+        }
+        item {
             Box(
                 modifier = Modifier
                     .padding(16.dp)
@@ -145,13 +163,15 @@ private fun ExerciseContent(
                     ExerciseButton(exerciseList[cur], onDetailButtonClick)
                 }
             }
+        }
+        item {
             SubButton(
+                modifier = Modifier.padding(bottom = 16.dp),
                 onClick = {
                     showDialog = true
                 },
-                Modifier.padding(bottom = 16.dp),
-                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) })
-
+                content = { Text("전체 완료", style = NotoTypography.bodyMedium, color = Main) }
+            )
         }
         itemsIndexed(exerciseList) { index, item ->
             if (cur == index) {
@@ -164,9 +184,6 @@ private fun ExerciseContent(
                 }
             }
         }
-    }
-    fun f() {
-
     }
 }
 
@@ -360,7 +377,7 @@ fun DoneExerciseItem(name: String) {
                 ) {
                     Text(
                         text = name,
-                        style = HortaTypography.bodyLarge,
+                        style = NotoTypography.bodyLarge,
                         modifier = Modifier
                             .padding(start = 50.dp)
                     )
@@ -392,7 +409,7 @@ fun TodoExerciseItem(name: String) {
         ) {
             Text(
                 text = name,
-                style = HortaTypography.bodyLarge,
+                style = NotoTypography.bodyLarge,
                 modifier = Modifier
                     .padding(start = 50.dp)
             )
@@ -477,8 +494,18 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("스쿼트", 40, 100, 2, false),
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
+            Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
+            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
+            Exercise.Weight("스쿼트", 40, 100, 2, false),
+            Exercise.Weight("데드 리프트", 40, 100, 2, false),
+            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
+            Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
+            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
+            Exercise.Weight("스쿼트", 40, 100, 2, false),
+            Exercise.Weight("데드 리프트", 40, 100, 2, false),
+            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
-        ), 1, {}
+        ), 0, {}
     )
 
 }

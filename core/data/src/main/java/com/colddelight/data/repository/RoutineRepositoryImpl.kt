@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.math.log
 
 class RoutineRepositoryImpl @Inject constructor(
     private val routineDao: RoutineDao,
@@ -203,6 +204,7 @@ class RoutineRepositoryImpl @Inject constructor(
 
         if (todayHistoryId != null) {
             val historyExerciseEntity = HistoryExerciseEntity(
+                id = id.toInt(),
                 historyId = todayHistoryId,
                 exerciseId = dayExercise.exerciseId,
                 isDone = false,
@@ -212,7 +214,6 @@ class RoutineRepositoryImpl @Inject constructor(
             )
             historyExerciseDao.insertHistoryExercise(historyExerciseEntity)
         }
-        Log.e("TAG", "insertDayExercise: 했숩니다${dayExerciseEntity}")
     }
 
 
@@ -250,7 +251,11 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteRoutineDay(routineDayId: Int) {
-        routineDayDao.deleteRoutineDayById(routineDayId)
+        routineDayDao.deleteRoutineDayAndRelatedData(routineDayId)
+        val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now()).firstOrNull()
+        if (todayHistoryId != null) {
+            historyDao.deleteHistory(todayHistoryId)
+        }
     }
 
     override suspend fun deleteExercise(exerciseId: Int) {

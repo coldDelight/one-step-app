@@ -177,6 +177,19 @@ private fun ExerciseDetailContent(
             TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
         }
         item {
+            Row(Modifier.padding(bottom = 8.dp)) {
+                Text(
+                    text = "${curSet + 1}",
+                    style = NotoTypography.bodyMedium,
+                    color = Main,
+                )
+                Text(
+                    text = " / ${exercise.setInfoList.size}",
+                    style = NotoTypography.bodyMedium,
+                )
+            }
+        }
+        item {
             ExerciseProgress(Modifier.fillMaxWidth(), curSet, exercise.setInfoList.size)
         }
         item {
