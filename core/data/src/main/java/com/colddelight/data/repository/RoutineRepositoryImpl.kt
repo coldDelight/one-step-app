@@ -1,6 +1,5 @@
 package com.colddelight.data.repository
 
-import android.util.Log
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.ExerciseDao
 import com.colddelight.database.dao.HistoryDao
@@ -20,21 +19,15 @@ import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import java.time.LocalDate
 import javax.inject.Inject
-import kotlin.math.log
 
 class RoutineRepositoryImpl @Inject constructor(
     private val routineDao: RoutineDao,
@@ -246,7 +239,6 @@ class RoutineRepositoryImpl @Inject constructor(
             )
         )
         dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(0, 0), listOf(20, 20)))
-        Log.e("TAG", "나 로그찍는다?: ")
         return exerciseDao.getExercise().first()
     }
 

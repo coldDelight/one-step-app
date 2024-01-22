@@ -1,7 +1,5 @@
 package com.colddelight.routine
 
-import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -76,7 +74,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -129,8 +126,6 @@ fun RoutineScreen(
     val exerciseListState by viewModel.exerciseListState.collectAsStateWithLifecycle()
 
 
-    Log.e("RoutineInfo", "RoutineScreen: ${routineInfoUiState}")
-    Log.e("RoutineDayInfo", "RoutineScreen: ${routineDayInfoUiState}")
     Scaffold(
         modifier = Modifier.fillMaxSize(), containerColor = BackGray
     ) { padding ->
@@ -500,13 +495,12 @@ fun AddExerciseToRoutineDayBtn(
     }
 }
 
-//야가 기존 운동 수정하는 거여 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsertDayExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-    insertDayExercise: (DayExercise) -> Unit,  //야여 야
+    insertDayExercise: (DayExercise) -> Unit,
     deleteDayExercise: (Int) -> Unit,
     routineDayInfo: RoutineDayInfo,
     exercise: Exercise,
@@ -561,7 +555,7 @@ fun InsertDayExerciseBottomSheet(
                 }
             }
             itemsIndexed(setInfoList) { index, item ->
-                ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+                ExerciseDetailItem(item.kg, item.reps, index,exercise.category != ExerciseCategory.CALISTHENICS) { setAction ->
                     setInfoList = performSetAction(
                         setInfoList, setAction
                     )
@@ -614,7 +608,6 @@ fun InsertDayExerciseBottomSheet(
     }
 }
 
-//아따 여기에서도 쓴다잉 chan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListBottomSheet(
@@ -699,7 +692,7 @@ fun ExerciseListBottomSheet(
                         }
                     }
                     itemsIndexed(setInfoList) { index, item ->
-                        ExerciseDetailItem(item.kg, item.reps, index) { setAction ->
+                        ExerciseDetailItem(item.kg, item.reps, index,selectedExercise.category != ExerciseCategory.CALISTHENICS) { setAction ->
                             setInfoList = performSetAction(
                                 setInfoList, setAction
                             )
@@ -916,6 +909,7 @@ private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
     return setInfoList
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ExerciseNameOutlineTextField(
     isIconVisible: Boolean,

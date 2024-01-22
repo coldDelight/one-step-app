@@ -1,6 +1,5 @@
 package com.colddelight.data.repository
 
-import android.util.Log
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
