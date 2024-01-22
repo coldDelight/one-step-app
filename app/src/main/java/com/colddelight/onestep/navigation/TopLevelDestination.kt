@@ -12,12 +12,12 @@ import com.colddelight.history.R as HistoryR
 import com.colddelight.home.R as HomeR
 import com.colddelight.routine.R as RoutineR
 
-enum class TopLevelDestination (
+enum class TopLevelDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val iconTextId: Int,
     val titleTextId: Int,
-){
+) {
     ROUTINE(
         selectedIcon = IconPack.Routineselected,
         unselectedIcon = IconPack.Routineunselected,
@@ -36,5 +36,4 @@ enum class TopLevelDestination (
         iconTextId = HistoryR.string.history,
         titleTextId = HistoryR.string.history,
     )
-
 }
