@@ -23,7 +23,6 @@ include(":core:ui")
 include(":core:datastore")
 include(":core:domain")
 include(":core:designsystem")
-include(":core:network")
 
 
 include(":feature:home")
