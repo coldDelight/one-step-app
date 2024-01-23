@@ -1,5 +1,6 @@
 package com.colddelight.routine
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -68,17 +69,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -112,6 +118,7 @@ import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -124,6 +131,9 @@ fun RoutineScreen(
     val routineInfoUiState by viewModel.routineInfoUiState.collectAsStateWithLifecycle()
     val routineDayInfoUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
     val exerciseListState by viewModel.exerciseListState.collectAsStateWithLifecycle()
+
+    Log.e("TAG", "RoutineScreen: $routineDayInfoUiState")
+    Log.e("TAG", "RoutineScreen: $exerciseListState")
 
 
     Scaffold(
@@ -234,13 +244,23 @@ private fun RoutineContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RoutineName(routine.name, insertRoutine ={ insertRoutine(Routine(id = routine.id, name = it, cnt = routine.cnt ))})
+                RoutineName(
+                    routine.name,
+                    insertRoutine = {
+                        insertRoutine(
+                            Routine(
+                                id = routine.id,
+                                name = it,
+                                cnt = routine.cnt
+                            )
+                        )
+                    })
                 CountDate(routine.cnt)
             }
         }
         item {
             ExerciseCardRow(
-                currentDayOfWeek,routineDayList, screenWidth
+                currentDayOfWeek, routineDayList, screenWidth
             ) { selectedDayOfWeek ->
                 // ExerciseCardView가 선택될 때마다 currentDayOfWeek를 업데이트
                 currentDayOfWeek = selectedDayOfWeek
@@ -527,6 +547,7 @@ fun InsertDayExerciseBottomSheet(
                     false,
                     if (categoryIndex == exercise.category.id) Main else LightGray
                 )
+                Log.e("TAG", "InsertDayExerciseBottomSheet: ${exercise}")
             }
         }
 
@@ -555,7 +576,12 @@ fun InsertDayExerciseBottomSheet(
                 }
             }
             itemsIndexed(setInfoList) { index, item ->
-                ExerciseDetailItem(item.kg, item.reps, index,exercise.category != ExerciseCategory.CALISTHENICS) { setAction ->
+                ExerciseDetailItem(
+                    item.kg,
+                    item.reps,
+                    index,
+                    exercise.category != ExerciseCategory.CALISTHENICS
+                ) { setAction ->
                     setInfoList = performSetAction(
                         setInfoList, setAction
                     )
@@ -692,7 +718,12 @@ fun ExerciseListBottomSheet(
                         }
                     }
                     itemsIndexed(setInfoList) { index, item ->
-                        ExerciseDetailItem(item.kg, item.reps, index,selectedExercise.category != ExerciseCategory.CALISTHENICS) { setAction ->
+                        ExerciseDetailItem(
+                            item.kg,
+                            item.reps,
+                            index,
+                            selectedExercise.category != ExerciseCategory.CALISTHENICS
+                        ) { setAction ->
                             setInfoList = performSetAction(
                                 setInfoList, setAction
                             )
@@ -899,8 +930,12 @@ fun upDateNewRepsList(setInfoList: List<SetInfo>, updatedReps: Int, toChange: In
 }
 
 fun deleteSet(setInfoList: List<SetInfo>, toChange: Int): List<SetInfo> {
-    val setInfoList = setInfoList.filterIndexed { index, _ -> index != toChange }
-    return setInfoList
+    if (setInfoList.size == 1) {
+        return setInfoList
+    }
+
+    val updatedSetInfoList = setInfoList.filterIndexed { index, _ -> index != toChange }
+    return updatedSetInfoList
 }
 
 private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
@@ -918,16 +953,20 @@ fun ExerciseNameOutlineTextField(
     containerColor: Color,
 ) {
     var textState by remember { mutableStateOf(originExerciseName) }
-    val focusRequester = remember { FocusRequester() }
-    val keyboard = LocalSoftwareKeyboardController.current
-
+//    val focusRequester = remember { FocusRequester() }
+//    val keyboard = LocalSoftwareKeyboardController.current
+//    val windowInfo = LocalWindowInfo.current
+//    LaunchedEffect(focusRequester) {
+//        awaitFrame()
+//        focusRequester.requestFocus()
+//    }
 
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 8.dp)
 //            .focusRequester(focusRequester)
-            ,
+        ,
         value = textState,
         onValueChange = {
             textState = it
@@ -962,13 +1001,7 @@ fun ExerciseNameOutlineTextField(
             focusedContainerColor = containerColor,
             unfocusedContainerColor = containerColor,
         ),
-
         )
-
-//    LaunchedEffect(focusRequester) {
-//            focusRequester.requestFocus()
-//            keyboard?.show()
-//    }
 }
 
 @Composable
@@ -1157,17 +1190,8 @@ fun ExerciseItem(
         mutableStateOf(false)
     }
     var selectedExercise by remember {
-        mutableStateOf<Exercise>(
-            Exercise.Calisthenics(
-                "",
-                0,
-                0,
-                0,
-                false,
-                emptyList(),
-                ExerciseCategory.CHEST,
-                0,
-            )
+        mutableStateOf<Exercise?>(
+            null
         )
     }
     if (recentId != exercise.dayExerciseId) {
@@ -1283,14 +1307,16 @@ fun ExerciseItem(
     }
 
     if (showBottomSheet) {
-        InsertDayExerciseBottomSheet(
-            onDismissSheet = { showBottomSheet = it },
-            sheetState = sheetState,
-            insertDayExercise = insertDayExercise,
-            routineDayInfo = routineDayInfo,
-            exercise = selectedExercise,
-            deleteDayExercise = deleteDayExercise
-        )
+        selectedExercise?.let {
+            InsertDayExerciseBottomSheet(
+                onDismissSheet = { showBottomSheet = it },
+                sheetState = sheetState,
+                insertDayExercise = insertDayExercise,
+                routineDayInfo = routineDayInfo,
+                exercise = it,
+                deleteDayExercise = deleteDayExercise
+            )
+        }
     }
 
     LaunchedEffect(isDeleteMode) {
@@ -1308,10 +1334,10 @@ fun ExerciseCardRow(
     widthDp: Int,
     onCardClicked: (Int) -> Unit,
 ) {
-    val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val lazyRowState = rememberLazyListState()
 
-    LazyRow (state = LazyListState(firstVisibleItemIndex = selectedDayOfWeek-1)){
+    LazyRow(state = lazyRowState) {
         itemsIndexed(routineDayList) { index, routineDayInfo ->
             Box(
                 modifier = Modifier
@@ -1319,23 +1345,23 @@ fun ExerciseCardRow(
                     .padding(top = 16.dp, bottom = 24.dp)
             ) {
                 ExerciseCardView(
-                    isSelected = (index+1 == selectedDayOfWeek),
+                    isSelected = (index + 1 == selectedDayOfWeek),
                     routineDayInfo = routineDayInfo,
                     widthDp = widthDp,
                     onCardClicked = {
                         // 클릭 시 선택한 dayOfWeek를 콜백으로 전달
                         onCardClicked(it)
+
                     })
+
             }
         }
-//        coroutineScope.launch {
-//            scrollState.scrollToItem(getDayOfWeekNumber()-1)
-//        }
+        coroutineScope.launch {
+            lazyRowState.animateScrollToItem(selectedDayOfWeek - 1)
+
+        }
     }
-//    val todayDayOfWeek = getDayOfWeekNumber()-1
-//
-//    LaunchedEffect(todayDayOfWeek){
-//    }
+
 }
 
 @Composable
@@ -1493,11 +1519,15 @@ fun RoutineName(name: String, insertRoutine: (String) -> Unit) {
     Row {
         Text(text = name, style = NotoTypography.headlineMedium)
         IconButton(onClick = { showEditDialog = true }) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "루틴 이름 변경", tint = LightGray)
+            Icon(
+                imageVector = Icons.Rounded.Edit,
+                contentDescription = "루틴 이름 변경",
+                tint = LightGray
+            )
         }
     }
     if (showEditDialog) {
-        EditRoutineNameDialog(name, { showEditDialog = it }, {insertRoutine(it)})
+        EditRoutineNameDialog(name, { showEditDialog = it }, { insertRoutine(it) })
     }
 }
 
@@ -1516,7 +1546,7 @@ fun EditRoutineNameDialog(
     }
 
     LaunchedEffect(insertName) {
-        if (insertName.isNotEmpty()||insertName.length < 9)
+        if (insertName.isNotEmpty() || insertName.length < 9)
             errText = false
     }
 
@@ -1618,7 +1648,7 @@ fun DropDownRoutineList(routineList: List<String>, modifier: Modifier) {
 
 @Composable
 fun ExerciseCardView(
-    isSelected:Boolean,
+    isSelected: Boolean,
     routineDayInfo: RoutineDayInfo,
     widthDp: Int,
     onCardClicked: (Int) -> Unit, // 클릭 이벤트를 처리할 콜백 함수
@@ -1693,7 +1723,7 @@ fun CategoryList(
     size: Int,
     insertRoutineDay: (RoutineDayInfo) -> Unit,
 ) {
-    Row{
+    Row {
         routineDayInfo.categoryList?.forEach {
             CategoryChip(
                 isCanDelete, ExerciseCategory.toName(it), it, size
