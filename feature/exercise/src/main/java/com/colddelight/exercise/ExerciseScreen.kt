@@ -419,14 +419,6 @@ fun TodoExerciseItem(name: String) {
     }
 }
 
-
-@Composable
-private fun ExerciseLoading() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
 @Composable
 private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: Modifier) {
     Column(
@@ -449,7 +441,6 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
                         painter = painterResource(id = R.drawable.chest),
                         contentDescription = "가슴",
                     )
-
                     ExerciseCategory.SHOULDER -> Image(
                         painter = painterResource(id = R.drawable.shoulder),
                         contentDescription = "어깨",
@@ -495,17 +486,6 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
-            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
-            Exercise.Weight("스쿼트", 40, 100, 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
-            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
-            Exercise.Weight("스쿼트", 40, 100, 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
         ), 0, {}
     )
-
 }

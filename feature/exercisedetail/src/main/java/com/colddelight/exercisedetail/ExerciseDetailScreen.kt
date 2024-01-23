@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.widget.EditText
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

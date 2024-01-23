@@ -20,8 +20,7 @@ import javax.inject.Inject
 class RoutineViewModel @Inject constructor(
     private val repository: RoutineRepository,
     ): ViewModel() {
-    //private val _routineUiState = MutableStateFlow<RoutineUiState>(RoutineUiState.Loading)
-    //val routineUiState: StateFlow<RoutineUiState> = _routineUiState
+
 
     val exerciseListState: StateFlow<ExerciseListState> =
         repository.getAllExerciseList()

@@ -106,33 +106,5 @@ class HistoryRepositoryImpl @Inject constructor(
                 dayExerciseId = 0
             )
         )
-//        historyDao.insertHistory(
-//            HistoryEntity(
-//                LocalDate.of(2024, 1, 3),
-//                listOf(1, 2),
-//                isDone = true,
-//            )
-//        )
-//        historyDao.insertHistory(
-//            HistoryEntity(
-//                LocalDate.of(2024, 1, 9),
-//                listOf(1, 2),
-//                isDone = true,
-//            )
-//        )
-//        historyDao.insertHistory(
-//            HistoryEntity(
-//                LocalDate.of(2023, 12, 6),
-//                listOf(1, 2),
-//                isDone = true,
-//            )
-//        )
-//        historyDao.insertHistory(
-//            HistoryEntity(
-//                LocalDate.of(2024, 2, 1),
-//                listOf(1, 2),
-//                isDone = true,
-//            )
-//        )
     }
 }

@@ -21,7 +21,6 @@ import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -211,38 +210,6 @@ class RoutineRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override suspend fun addRoutine(): List<ExerciseEntity> {
-        //routineDayDao.deleteRoutineDayAndRelatedData(9)
-
-        //1. Exercise Add
-        exerciseDao.insertExercise(ExerciseEntity("벤치프레스", ExerciseCategory.CHEST))
-        exerciseDao.insertExercise(ExerciseEntity("덤벨 컬", ExerciseCategory.ARM))
-        exerciseDao.insertExercise(ExerciseEntity("턱걸이", ExerciseCategory.CALISTHENICS))
-
-        //2. RoutineDay Add
-        routineDayDao.insertRoutineDay(RoutineDayEntity(1, 2, listOf(1, 2)))
-
-        //3. DayExercise Add
-        dayExerciseDao.insertDayExercise(
-            DayExerciseEntity(
-                1,
-                0,
-                listOf(20, 40),
-                listOf(12, 12)
-            )
-        )
-        dayExerciseDao.insertDayExercise(
-            DayExerciseEntity(
-                1,
-                1,
-                listOf(40, 60),
-                listOf(10, 10)
-            )
-        )
-        dayExerciseDao.insertDayExercise(DayExerciseEntity(1, 1, listOf(0, 0), listOf(20, 20)))
-        return exerciseDao.getExercise().first()
-    }
 
     override suspend fun deleteRoutineDay(routineDayId: Int) {
         routineDayDao.deleteRoutineDayAndRelatedData(routineDayId)

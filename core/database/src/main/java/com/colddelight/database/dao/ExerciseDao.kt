@@ -19,7 +19,6 @@ interface ExerciseDao {
     suspend fun insertExercise(exercise: ExerciseEntity)
 
 
-    // exercise ID를 사용하는 day_exercise, history_exercise 미리 삭제
     @Transaction
     suspend fun deleteExerciseAndRelatedData(exerciseId: Int) {
         deleteDayExercisesByExerciseId(exerciseId)

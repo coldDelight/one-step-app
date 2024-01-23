@@ -13,7 +13,7 @@ data class RoutineEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 ) {
     companion object {
-        const val DEFAULT_ROUTINE_ID = 1
+        private const val DEFAULT_ROUTINE_ID = 1
         val DEFAULT_Routine =
             RoutineEntity(id = DEFAULT_ROUTINE_ID, name = "내 루틴", createdTime = LocalDate.now(), cnt = 0)
     }

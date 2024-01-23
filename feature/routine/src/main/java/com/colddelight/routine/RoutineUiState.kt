@@ -30,5 +30,5 @@ enum class ExerciseDialogState {
 }
 
 enum class ExerciseBottomSheetState{
-    List, Selected, Existed
+    List, Selected
 }

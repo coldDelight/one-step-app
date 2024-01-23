@@ -32,7 +32,7 @@ import java.util.concurrent.Executors
     ],
     version = 7
 )
-@TypeConverters( DateConverter::class, IntListConverter::class)
+@TypeConverters(DateConverter::class, IntListConverter::class)
 abstract class StepDatabase : RoomDatabase() {
     companion object {
         fun getInstance(context: Context): StepDatabase = Room
