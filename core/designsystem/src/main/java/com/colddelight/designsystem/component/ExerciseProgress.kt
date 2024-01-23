@@ -16,9 +16,12 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 
 @Composable
-fun ExerciseProgress(modifier: Modifier, current: Int, exerciseCnt: Int) {
-
-
+fun ExerciseProgress(
+    modifier: Modifier,
+    current: Int,
+    exerciseCnt: Int,
+    isExercise: Boolean = false
+) {
     LazyRow(
         state = LazyListState(firstVisibleItemIndex = current),
         modifier = modifier, horizontalArrangement = Arrangement.spacedBy(
@@ -30,8 +33,13 @@ fun ExerciseProgress(modifier: Modifier, current: Int, exerciseCnt: Int) {
     ) {
         items(exerciseCnt) { index ->
             val circleColor = if (index <= current) Main else LightGray
-            if ((index + 1) % 5 == 0) {
-                BigCircleDot(color = circleColor)
+
+            if (isExercise) {
+                if ((index + 1) % 5 == 0) {
+                    BigCircleDot(color = circleColor)
+                } else {
+                    CircleDot(color = circleColor)
+                }
             } else {
                 CircleDot(color = circleColor)
 
