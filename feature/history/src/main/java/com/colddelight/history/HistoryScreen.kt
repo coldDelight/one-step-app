@@ -156,7 +156,7 @@ private fun HistoryContent(
         firstDayOfWeek = firstDayOfWeek
     )
 
-    val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)
+    val daysOfWeek = listOf("월","화","수","목","금","토","일")
     val coroutineScope = rememberCoroutineScope()
     val visibleMonth = rememberFirstMostVisibleMonth(state, viewportPercent = 90f)
 
@@ -358,15 +358,15 @@ fun Day(
 }
 
 @Composable
-fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
+fun DaysOfWeekTitle(daysOfWeek: List<String>) {
     Row(modifier = Modifier.fillMaxWidth()) {
         for (dayOfWeek in daysOfWeek) {
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 style = NotoTypography.bodySmall,
-                text = dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
-                color = if (dayOfWeek == DayOfWeek.SUNDAY || dayOfWeek == DayOfWeek.SATURDAY) Red else TextGray
+                text = dayOfWeek,
+                color = if (dayOfWeek == "일") Red else TextGray
             )
         }
     }
