@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.onestep.android.application)
     alias(libs.plugins.onestep.android.hilt)
     alias(libs.plugins.onestep.android.application.compose)
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 android {
@@ -59,5 +60,7 @@ dependencies {
 
 
     implementation(libs.androidx.core.splashscreen)
+    implementation ("com.google.android.gms:play-services-oss-licenses:17.0.0")
+
 
 }

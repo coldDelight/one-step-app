@@ -1,7 +1,9 @@
 package com.colddelight.designsystem.component
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +39,7 @@ fun StepTopAppBar(
     @StringRes titleRes: Int,
     navigationType: TopAppBarNavigationType = TopAppBarNavigationType.Home,
     onNavigationClick: () -> Unit = {},
+    onAppLogoClick:() -> Unit,
     onActionClick: () -> Unit = {},
     ){
     Column (){
@@ -52,7 +56,16 @@ fun StepTopAppBar(
                         Icon(
                             painter = painterResource(id = R.drawable.onestep_logo),
                             contentDescription = null,
-                            modifier = Modifier.height(20.dp).padding(start = 12.dp),
+                            modifier = Modifier
+                                .height(20.dp)
+                                .padding(start = 12.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            onAppLogoClick()
+                                            Log.e("TAG", "StepTopAppBar: sksnffutdj", )
+                                        })
+                                },
                             tint = Main
                         )
                     TopAppBarNavigationType.Back -> IconButton(onClick = { onNavigationClick() }) {
@@ -86,7 +99,7 @@ enum class TopAppBarNavigationType { Home, Back, Empty }
 @Preview("Top App Bar")
 @Composable
 private fun StepAppBarPreview() {
-    StepTopAppBar(
-        titleRes = android.R.string.untitled,
-    )
+//    StepTopAppBar(
+//        titleRes = android.R.string.untitled,
+//    )
 }
