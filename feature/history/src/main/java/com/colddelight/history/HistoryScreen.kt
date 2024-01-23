@@ -1,6 +1,5 @@
 package com.colddelight.history
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -50,11 +48,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.R
-import com.colddelight.designsystem.component.EditText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
@@ -73,17 +69,13 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
 fun HistoryScreen(
@@ -91,8 +83,6 @@ fun HistoryScreen(
 ) {
     val historyUiState by historyViewModel.historyUiState.collectAsStateWithLifecycle()
     val dayHistoryExerciseList by historyViewModel.dayHistoryExerciseList.collectAsStateWithLifecycle()
-
-    Log.e("TAG", "HistoryScreen: ${historyUiState}")
 
     Scaffold(
         modifier = Modifier.fillMaxSize(), containerColor = BackGray
@@ -108,7 +98,6 @@ fun HistoryScreen(
                 onMonthChanged = { historyViewModel.upDateMonth(it) },
                 onDaySelected = {
                     historyViewModel.getDayHistoryExercise(it)
-                    Log.e("TAG", "HistoryScreen:${dayHistoryExerciseList} ")
                 },
             )
         }
@@ -141,11 +130,11 @@ private fun HistoryContent(
     onMonthChanged: (LocalDate) -> Unit,
     onDaySelected: (Int) -> Unit,
 ) {
-    var initMonth = YearMonth.now()
-    var currentMonth = remember { initMonth }
-    val startMonth = remember { initMonth.minusMonths(100) } // Adjust as needed
-    val endMonth = remember { initMonth.plusMonths(100) } // Adjust as needed
-    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
+    val initMonth = YearMonth.now()
+    val currentMonth = remember { initMonth }
+    val startMonth = remember { initMonth.minusMonths(100) }
+    val endMonth = remember { initMonth.plusMonths(100) }
+    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
 
@@ -173,7 +162,6 @@ private fun HistoryContent(
         contentPadding = PaddingValues(8.dp),
         ){
         item {
-            Log.e("TAG", "HistoryContent: $historyList")
             SimpleCalendarTitle(
                 modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
                 currentMonth = visibleMonth.yearMonth,
@@ -291,7 +279,6 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
                         painter = painterResource(id = R.drawable.chest),
                         contentDescription = "가슴",
                     )
-
                     ExerciseCategory.SHOULDER -> Image(
                         painter = painterResource(id = R.drawable.shoulder),
                         contentDescription = "어깨",
@@ -311,7 +298,6 @@ fun CategoryIconList(categoryList: List<ExerciseCategory>) {
                         painter = painterResource(id = R.drawable.leg),
                         contentDescription = "하체",
                     )
-
                     ExerciseCategory.CALISTHENICS -> Image(
                         painter = painterResource(id = R.drawable.calisthenics),
                         contentDescription = "맨몸",
