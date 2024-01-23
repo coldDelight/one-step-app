@@ -57,8 +57,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
+    implementation(libs.androidx.core.splashscreen)
 
 }
