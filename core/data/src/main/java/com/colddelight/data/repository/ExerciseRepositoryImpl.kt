@@ -3,6 +3,7 @@ package com.colddelight.data.repository
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
+import com.colddelight.database.dao.RoutineDao
 import com.colddelight.database.dao.RoutineDayDao
 import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryEntity
@@ -24,6 +25,7 @@ class ExerciseRepositoryImpl @Inject constructor(
     private val historyDao: HistoryDao,
     private val historyExerciseDao: HistoryExerciseDao,
     private val routineDayDao: RoutineDayDao,
+    private val routineDao: RoutineDao,
     private val dayExerciseDao: DayExerciseDao,
     private val userDataSource: UserPreferencesDataSource
 ) : ExerciseRepository {
@@ -179,6 +181,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 
     override suspend fun finHistory() {
         historyDao.finToday(todayHistoryId.firstOrNull() ?: -1)
+        routineDao.updateCountById(1)
     }
 }
 

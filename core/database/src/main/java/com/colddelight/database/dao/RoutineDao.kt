@@ -20,7 +20,8 @@ interface RoutineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRoutine(routine: RoutineEntity)
 
-    //삭제하려고 하는 Routine id를 쓰고있는 routine_day삭제 -> day_exercise도 같이 삭제 해야함
+    @Query("UPDATE routine SET cnt = cnt + 1 WHERE id = :routineId")
+    suspend fun updateCountById(routineId: Int)
     @Transaction
     suspend fun deleteRoutineAndRelatedData(routineId: Int) {
         deleteDayExercisesByRoutineId(routineId)

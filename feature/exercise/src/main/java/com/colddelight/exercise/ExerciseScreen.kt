@@ -117,9 +117,9 @@ private fun ExerciseContent(
         FinishDialog(
             onDismiss = { showDialog = false },
             onConfirm = onConfirm,
-            count = 11,
-            exerciseCnt = 5,
-            setCnt = 15
+            count = routineInfo.cnt + 1,
+            exerciseCnt = exerciseList.size,
+            setCnt = exerciseList.sumOf { it.setInfoList.size }
         )
     }
     LazyColumn(
