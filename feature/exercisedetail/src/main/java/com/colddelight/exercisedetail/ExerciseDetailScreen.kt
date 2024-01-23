@@ -177,9 +177,12 @@ private fun ExerciseDetailContent(
             TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
         }
         item {
+            val curCnt =
+                if (curSet + 1 >= exercise.setInfoList.size) exercise.setInfoList.size else curSet + 1
+
             Row(Modifier.padding(bottom = 8.dp)) {
                 Text(
-                    text = "${curSet + 1}",
+                    text = curCnt.toString(),
                     style = NotoTypography.bodyMedium,
                     color = Main,
                 )
