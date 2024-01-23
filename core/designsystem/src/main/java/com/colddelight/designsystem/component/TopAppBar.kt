@@ -64,22 +64,6 @@ fun StepTopAppBar(
                     else -> {}
                 }
             },
-            actions = {
-                when(navigationType){
-                    TopAppBarNavigationType.Home ->
-                        IconButton(
-                            onClick = { onActionClick()
-                            })
-                        {
-                        Icon(
-                            imageVector = IconPack.Hamburger,
-                            contentDescription = null,
-                        )
-                    }
-                    else ->{}
-                }
-
-            },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = BackGray,
                 titleContentColor = Main,
