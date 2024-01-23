@@ -123,6 +123,7 @@ class RoutineRepositoryImpl @Inject constructor(
             name = exercise.name,
             reps = dayExerciseEntity.repsList.maxOrNull() ?: 0,
             set = dayExerciseEntity.repsList.size,
+            category = exercise.category,
             setInfoList = dayExerciseEntity.kgList.mapIndexed { index, kg ->
                 SetInfo(
                     kg,
@@ -142,6 +143,7 @@ class RoutineRepositoryImpl @Inject constructor(
             name = exercise.name,
             min = dayExerciseEntity.kgList.minOrNull() ?: 0,
             max = dayExerciseEntity.kgList.maxOrNull() ?: 0,
+            category = exercise.category,
             setInfoList = dayExerciseEntity.kgList.mapIndexed { index, kg ->
                 SetInfo(
                     kg,
