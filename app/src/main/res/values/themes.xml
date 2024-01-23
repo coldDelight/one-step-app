@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.OneStep" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.OneStep" parent="Theme.AppCompat.Light.NoActionBar" />
 
     <style name="Theme.OneStep.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/one_step_splash</item>

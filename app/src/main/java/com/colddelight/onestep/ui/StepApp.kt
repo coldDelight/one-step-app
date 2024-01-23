@@ -48,6 +48,7 @@ fun StepApp(
     appState: StepAppState = rememberStepAppState(
         shouldShowBottomBar = true
     ),
+    onAppLogoClick: () -> Unit
 ) {
     val currentDestination: String = appState.currentDestination?.route ?: HomeRoute.route
 
@@ -61,6 +62,7 @@ fun StepApp(
             StepTopBar(
                 currentDestination = currentDestination,
                 modifier = Modifier.testTag("StepTopBar"),
+                onAppLogoClick = {onAppLogoClick()},
                 onNavigationClick = appState::popBackStack
             )
         },
@@ -117,6 +119,7 @@ fun BackOnPressed() {
 private fun StepTopBar(
     currentDestination: String,
     modifier: Modifier = Modifier,
+    onAppLogoClick: () -> Unit,
     onNavigationClick: () -> Unit,
 ) {
     StepTopAppBar(
@@ -133,6 +136,7 @@ private fun StepTopBar(
             HistoryRoute.route, RoutineRoute.route -> TopAppBarNavigationType.Empty
             else -> TopAppBarNavigationType.Back
         },
+        onAppLogoClick = {onAppLogoClick()},
         onNavigationClick = onNavigationClick
     )
 }
