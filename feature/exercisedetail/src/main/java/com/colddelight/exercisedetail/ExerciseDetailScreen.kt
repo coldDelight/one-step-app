@@ -191,7 +191,7 @@ private fun ExerciseDetailContent(
             }
         }
         item {
-            ExerciseProgress(Modifier.fillMaxWidth(), curSet, exercise.setInfoList.size)
+            ExerciseProgress(Modifier.fillMaxWidth(), curSet, exercise.setInfoList.size, true)
         }
         item {
             Box(

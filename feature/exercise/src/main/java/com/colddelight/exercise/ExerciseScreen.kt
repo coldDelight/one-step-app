@@ -148,7 +148,7 @@ private fun ExerciseContent(
             }
         }
         item {
-            ExerciseProgress(Modifier.fillMaxWidth(), cur, exerciseList.size)
+            ExerciseProgress(Modifier.fillMaxWidth(), cur, exerciseList.size, true)
         }
         item {
             Box(

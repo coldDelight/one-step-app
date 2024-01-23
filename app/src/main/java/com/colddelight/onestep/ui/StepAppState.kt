@@ -1,6 +1,5 @@
 package com.colddelight.onestep.ui
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -24,11 +23,7 @@ import com.colddelight.onestep.navigation.TopLevelDestination.HISTORY
 import com.colddelight.onestep.navigation.TopLevelDestination.ROUTINE
 import com.colddelight.routine.navigation.RoutineRoute
 import com.colddelight.routine.navigation.navigateToRoutine
-
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 @Composable
 fun rememberStepAppState(
@@ -100,7 +95,6 @@ class StepAppState(
 
     fun popBackStack() {
         navController.popBackStack()
-        Log.e(javaClass.simpleName, "popBackStack: hi 여기까지 옴")
     }
 
 //    fun navigateHomeToExercise() {
