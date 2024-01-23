@@ -11,8 +11,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.colddelight.data.util.LoginHelper
-import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.history.navigation.HistoryRoute
 import com.colddelight.history.navigation.navigateToHistory
 import com.colddelight.home.navigation.HomeRoute
@@ -27,24 +25,17 @@ import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun rememberStepAppState(
-    networkMonitor: NetworkMonitor,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberNavController(),
-    loginHelper: LoginHelper,
     shouldShowBottomBar: Boolean,
 ): StepAppState {
     return remember(
         navController,
         coroutineScope,
-        networkMonitor,
-        loginHelper,
         shouldShowBottomBar
     ) {
         StepAppState(
             navController,
-            coroutineScope,
-            networkMonitor,
-            loginHelper,
             shouldShowBottomBar
         )
     }
@@ -52,10 +43,7 @@ fun rememberStepAppState(
 @Stable
 class StepAppState(
     val navController: NavHostController,
-    val coroutineScope: CoroutineScope,
-    networkMonitor: NetworkMonitor,
-    loginHelper: LoginHelper,
-    var shouldShowBottomBar: Boolean,
+    private var shouldShowBottomBar: Boolean,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
@@ -96,12 +84,4 @@ class StepAppState(
         navController.popBackStack()
     }
 
-//    fun navigateHomeToExercise() {
-//        navController.navigateHomeToExercise()
-//        shouldShowBottomBar = false
-//    }
-
-//    fun navigateToExerciseDetail(){
-//        navController.navigateToExerciseDetail
-//    }
 }

@@ -18,8 +18,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import com.colddelight.data.util.LoginHelper
-import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.component.StepNavigationBar
 import com.colddelight.designsystem.component.StepNavigationBarItem
 import com.colddelight.designsystem.component.StepTopAppBar
@@ -39,11 +37,7 @@ import com.colddelight.routine.navigation.RoutineRoute
 
 @Composable
 fun StepApp(
-    networkMonitor: NetworkMonitor,
-    loginHelper: LoginHelper,
     appState: StepAppState = rememberStepAppState(
-        networkMonitor = networkMonitor,
-        loginHelper = loginHelper,
         shouldShowBottomBar = true
     ),
 ) {
