@@ -42,7 +42,6 @@ dependencies {
 
     implementation(project(":feature:routine"))
     implementation(project(":feature:history"))
-    implementation(project(":feature:login"))
 
     implementation(project(":core:ui"))
     implementation(project(":core:designsystem"))
