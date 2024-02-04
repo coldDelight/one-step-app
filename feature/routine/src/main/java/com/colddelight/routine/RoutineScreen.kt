@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,7 +33,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.Add
@@ -67,11 +71,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -104,6 +117,7 @@ import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -847,6 +861,7 @@ fun ExerciseListBottomSheet(
                         insertCategory = it
                     })
                     ExerciseNameOutlineTextField(
+                        initKeyboardOpen = false,
                         isIconVisible = true,
                         originExerciseName = "",
                         insertExerciseName = {
@@ -925,52 +940,120 @@ private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
 
 @Composable
 fun ExerciseNameOutlineTextField(
+    initKeyboardOpen:Boolean,
     isIconVisible: Boolean,
     originExerciseName: String,
     insertExerciseName: (String) -> Unit,
     containerColor: Color,
+    focusManager: FocusManager = LocalFocusManager.current,
 ) {
     var textState by remember { mutableStateOf(originExerciseName) }
+    val focusRequester = remember { FocusRequester() }
+//    val keyboard = LocalSoftwareKeyboardController.current
+//    val windowInfo = LocalWindowInfo.current
+    if(initKeyboardOpen){
+        LaunchedEffect(focusRequester) {
+            awaitFrame()
+            focusRequester.requestFocus()
+        }
+    }
 
-    OutlinedTextField(
-        modifier = Modifier
+    Row(
+        Modifier
+            .padding(start = 16.dp)
             .fillMaxWidth()
-            .padding(start = 8.dp),
-        value = textState,
-        onValueChange = {
-            textState = it
-            if (!isIconVisible) insertExerciseName(it)
-        },
-        placeholder = {
-            Text(
-                text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
-            )
-        },
-        singleLine = true,
-        textStyle = NotoTypography.bodyMedium,
-        trailingIcon = {
-            if (textState != "" && isIconVisible) Icon(imageVector = Icons.Rounded.Add,
-                tint = TextGray,
-                contentDescription = "추가",
-                modifier = Modifier
-                    .border(
-                        1.dp, Main, CircleShape
+            .border(1.dp, LightGray, RoundedCornerShape(10.dp))
+            .background(containerColor)
+        ,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row( Modifier.fillMaxWidth().padding(16.dp)){
+            Box(
+                Modifier.weight(0.9f).padding(end = if(textState != "" && isIconVisible) 16.dp else 0.dp)
+            ) {
+                BasicTextField(
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    value = textState,
+                    onValueChange = {
+                        textState = it
+                        if (!isIconVisible) insertExerciseName(it)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    ),
+                    singleLine = true,
+                    textStyle = NotoTypography.bodyMedium,
+                    cursorBrush = SolidColor(Color.White)
+                )
+                if (textState.isEmpty()) {
+                    Text(
+                        text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
                     )
-                    .clickable {
-                        insertExerciseName(textState)
-                        textState = ""
-                    })
+                }
+            }
+            if (textState != "" && isIconVisible)
+                Icon(imageVector = Icons.Rounded.Add,
+                    tint = TextGray,
+                    contentDescription = "추가",
+                    modifier = Modifier
+                        .weight(0.1f)
+                        .border(
+                            1.dp, Main, CircleShape
+                        )
+                        .clickable {
+                            insertExerciseName(textState)
+                            textState = ""
+                        }
+                )
+        }
+    }
 
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = TextGray,
-            unfocusedTextColor = TextGray,
-            focusedBorderColor = Main,
-            unfocusedBorderColor = LightGray,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-        ),
-        )
+//    OutlinedTextField(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(start = 8.dp),
+//        value = textState,
+//        onValueChange = {
+//            textState = it
+//            if (!isIconVisible) insertExerciseName(it)
+//        },
+//        placeholder = {
+//            Text(
+//                text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
+//            )
+//        },
+//        singleLine = true,
+//        textStyle = NotoTypography.bodyMedium,
+//        trailingIcon = {
+//            if (textState != "" && isIconVisible) Icon(imageVector = Icons.Rounded.Add,
+//                tint = TextGray,
+//                contentDescription = "추가",
+//                modifier = Modifier
+//                    .border(
+//                        1.dp, Main, CircleShape
+//                    )
+//                    .clickable {
+//                        insertExerciseName(textState)
+//                        textState = ""
+//                    })
+//
+//        },
+//        colors = OutlinedTextFieldDefaults.colors(
+//            focusedTextColor = TextGray,
+//            unfocusedTextColor = TextGray,
+//            focusedBorderColor = Main,
+//            unfocusedBorderColor = LightGray,
+//            focusedContainerColor = containerColor,
+//            unfocusedContainerColor = containerColor,
+//        ),
+//        )
 }
 
 @Composable
@@ -1078,6 +1161,7 @@ fun EditExerciseDialog(
                     }
                 )
                 ExerciseNameOutlineTextField(
+                    initKeyboardOpen = false,
                     false,
                     originExerciseName = insertName,
                     insertExerciseName = {
@@ -1522,6 +1606,7 @@ fun EditRoutineNameDialog(
         text = {
             Column {
                 ExerciseNameOutlineTextField(
+                    true,
                     false,
                     originExerciseName = insertName,
                     insertExerciseName = {
