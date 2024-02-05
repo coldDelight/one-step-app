@@ -1,6 +1,7 @@
 package com.colddelight.routine
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +38,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.Add
@@ -74,6 +77,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
@@ -81,9 +85,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -938,20 +944,30 @@ private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
     return setInfoList
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseNameOutlineTextField(
-    initKeyboardOpen:Boolean,
+    initKeyboardOpen: Boolean,
     isIconVisible: Boolean,
     originExerciseName: String,
     insertExerciseName: (String) -> Unit,
     containerColor: Color,
     focusManager: FocusManager = LocalFocusManager.current,
 ) {
-    var textState by remember { mutableStateOf(originExerciseName) }
+//    var textState by remember { mutableStateOf(originExerciseName) }
+    var colorState by remember { mutableStateOf(LightGray) }
     val focusRequester = remember { FocusRequester() }
 //    val keyboard = LocalSoftwareKeyboardController.current
 //    val windowInfo = LocalWindowInfo.current
-    if(initKeyboardOpen){
+    var textState by remember {
+        mutableStateOf(
+            TextFieldValue(originExerciseName,selection = TextRange(originExerciseName.length))
+        )
+    }
+
+    val textFieldState = TextFieldState()
+
+    if (initKeyboardOpen) {
         LaunchedEffect(focusRequester) {
             awaitFrame()
             focusRequester.requestFocus()
@@ -962,22 +978,29 @@ fun ExerciseNameOutlineTextField(
         Modifier
             .padding(start = 16.dp)
             .fillMaxWidth()
-            .border(1.dp, LightGray, RoundedCornerShape(10.dp))
-            .background(containerColor)
-        ,
+            .border(1.dp, colorState, RoundedCornerShape(10.dp))
+            .background(containerColor),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row( Modifier.fillMaxWidth().padding(16.dp)){
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
             Box(
-                Modifier.weight(0.9f).padding(end = if(textState != "" && isIconVisible) 16.dp else 0.dp)
+                Modifier
+                    .weight(0.9f)
+                    .padding(end = if (textState.text != "" && isIconVisible) 16.dp else 0.dp)
             ) {
                 BasicTextField(
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { colorState = if (it.hasFocus) Main else LightGray },
                     value = textState,
                     onValueChange = {
                         textState = it
-                        if (!isIconVisible) insertExerciseName(it)
+                        if (!isIconVisible) insertExerciseName(it.text)
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
@@ -990,15 +1013,17 @@ fun ExerciseNameOutlineTextField(
                     ),
                     singleLine = true,
                     textStyle = NotoTypography.bodyMedium,
-                    cursorBrush = SolidColor(Color.White)
+                    cursorBrush = SolidColor(Color.White),
+
+
                 )
-                if (textState.isEmpty()) {
+                if (textState.text.isEmpty()) {
                     Text(
                         text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
                     )
                 }
             }
-            if (textState != "" && isIconVisible)
+            if (textState.text != "" && isIconVisible)
                 Icon(imageVector = Icons.Rounded.Add,
                     tint = TextGray,
                     contentDescription = "추가",
@@ -1008,8 +1033,8 @@ fun ExerciseNameOutlineTextField(
                             1.dp, Main, CircleShape
                         )
                         .clickable {
-                            insertExerciseName(textState)
-                            textState = ""
+                            insertExerciseName(textState.text)
+                            textState = TextFieldValue("")
                         }
                 )
         }
