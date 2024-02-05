@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -52,6 +55,7 @@ import com.colddelight.designsystem.component.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
+import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.Exercise
@@ -117,9 +121,7 @@ private fun ExerciseContent(
         FinishDialog(
             onDismiss = { showDialog = false },
             onConfirm = onConfirm,
-            count = routineInfo.cnt + 1,
-            exerciseCnt = exerciseList.size,
-            setCnt = exerciseList.sumOf { it.setInfoList.size }
+            exerciseList = exerciseList
         )
     }
     LazyColumn(
@@ -191,11 +193,9 @@ private fun ExerciseContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinishDialog(
-    count: Int,
-    exerciseCnt: Int,
-    setCnt: Int,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    exerciseList: List<Exercise>
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -203,48 +203,77 @@ fun FinishDialog(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.5F)
-                .fillMaxHeight(0.3F)
+                .fillMaxWidth()
+                .fillMaxHeight(0.5F),
+
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(DarkGray, RoundedCornerShape(10.dp)),
-                Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxSize().background(DarkGray),
+                Arrangement.SpaceAround,
                 Alignment.CenterHorizontally
             ) {
-
                 Text(
                     text = "운동결과", style = NotoTypography.headlineSmall,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Count :", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$count".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 회", style = NotoTypography.bodyMedium)
+                LazyColumn(
+                    Modifier.fillMaxHeight(0.8f)
+                ) {
+                    items(exerciseList) { exercise ->
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(3.dp)
+                                    .background(Color.White, CircleShape)
+                            )
+                            Text(
+                                text = exercise.name,
+                                style = NotoTypography.bodyMedium,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
 
-                }
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Exercise :", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$exerciseCnt".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 세트", style = NotoTypography.bodyMedium)
-                }
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Set : ", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$setCnt".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 개", style = NotoTypography.bodyMedium)
-
+                        LazyRow(
+                            contentPadding = PaddingValues(16.dp),
+                        ) {
+                            itemsIndexed(exercise.setInfoList) { index, setInfo ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .padding(horizontal = 8.dp)
+                                            .background(Main, CircleShape)
+                                            .padding(vertical = 6.dp, horizontal = 14.dp),
+                                        Alignment.Center,
+                                    ) {
+                                        Row {
+                                            Text(
+                                                "${setInfo.kg}kg",
+                                                style = HortaTypography.bodyMedium,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = "x  ${setInfo.reps} reps",
+                                        style = HortaTypography.labelLarge
+                                    )
+                                    if (index < exercise.setInfoList.size - 1)
+                                        Divider(
+                                            modifier = Modifier
+                                                .padding(horizontal = 18.dp)
+                                                .height(30.dp)
+                                                .width(1.dp), color = LightGray
+                                        )
+                                }
+                            }
+                        }
+                    }
                 }
                 MainButton(
                     modifier = Modifier
@@ -260,8 +289,8 @@ fun FinishDialog(
                             style = NotoTypography.bodyMedium,
                             color = Color.White
                         )
-                    })
-
+                    }
+                )
             }
 
         }
