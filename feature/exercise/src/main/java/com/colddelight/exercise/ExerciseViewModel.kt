@@ -102,7 +102,7 @@ class ExerciseViewModel @Inject constructor(
     }
 
     private fun upDateKgList(exercise: Exercise, updatedKg: Int, toChange: Int) {
-        if (updatedKg > 0) {
+        if (updatedKg >= 0) {
             val kgList = exercise.setInfoList.mapIndexed { index, setInfo ->
                 if (index >= toChange) updatedKg
                 else setInfo.kg
@@ -114,7 +114,7 @@ class ExerciseViewModel @Inject constructor(
     }
 
     private fun upDateRepsList(exercise: Exercise, updatedReps: Int, toChange: Int) {
-        if (updatedReps > 0) {
+        if (updatedReps >= 0) {
             val repsList = exercise.setInfoList.mapIndexed { index, setInfo ->
                 if (index >= toChange) updatedReps
                 else setInfo.reps
