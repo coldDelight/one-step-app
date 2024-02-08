@@ -2,7 +2,23 @@
 <resources>
     <style name="Theme.OpensourceLicense" parent="Theme.AppCompat.Light">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/Main</item>
+        <item name="colorPrimary">@color/green</item>
         <!-- Secondary brand color. -->
+
+        <item name="android:background" >@color/background</item>
+        <item name="android:textColor" >@color/text</item>
+        <item name="android:textColorPrimary" >@color/green</item>
+        <item name="android:statusBarColor" >@color/background</item>
+
+
+        <item name="android:windowAnimationStyle">@style/OpenSourceItemAnimation</item>
+
+    </style>
+
+    <style name="OpenSourceItemAnimation">
+        <item name="android:activityOpenEnterAnimation">@anim/anim_slide_right_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/anim_slide_right_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/anim_slide_left_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/anim_slide_left_exit</item>
     </style>
 </resources>

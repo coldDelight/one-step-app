@@ -38,20 +38,21 @@ import com.colddelight.designsystem.theme.NotoTypography
 fun StepTopAppBar(
     @StringRes titleRes: Int,
     navigationType: TopAppBarNavigationType = TopAppBarNavigationType.Home,
-    onNavigationClick: () -> Unit = {},
-    onAppLogoClick:() -> Unit,
-    onActionClick: () -> Unit = {},
-    ){
-    Column (){
+    onNavigationClick: () -> Unit,
+    onAppLogoClick: () -> Unit,
+    onDrawerClick: () -> Unit,
+) {
+    Column() {
         CenterAlignedTopAppBar(
             title = {
                 Text(
                     text = stringResource(id = titleRes),
                     style = NotoTypography.bodyMedium,
                     color = Main
-                ) },
+                )
+            },
             navigationIcon = {
-                when(navigationType){
+                when (navigationType) {
                     TopAppBarNavigationType.Home ->
                         Icon(
                             painter = painterResource(id = R.drawable.onestep_logo),
@@ -63,32 +64,50 @@ fun StepTopAppBar(
                                     detectTapGestures(
                                         onLongPress = {
                                             onAppLogoClick()
-                                            Log.e("TAG", "StepTopAppBar: sksnffutdj", )
+                                            Log.e("TAG", "StepTopAppBar: sksnffutdj")
                                         })
                                 },
                             tint = Main
                         )
+
                     TopAppBarNavigationType.Back -> IconButton(onClick = { onNavigationClick() }) {
                         Icon(
                             imageVector = IconPack.Topback,
                             contentDescription = null,
                         )
                     }
+
                     else -> {}
                 }
             },
+
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = BackGray,
                 titleContentColor = Main,
                 actionIconContentColor = TextGray,
                 navigationIconContentColor = TextGray
-            ))
-        when(navigationType){
+            ),
+            actions = {
+                when (navigationType) {
+                    TopAppBarNavigationType.Home -> {
+                        IconButton(onClick = { onDrawerClick() }) {
+                            Icon(imageVector = IconPack.Hamburger, contentDescription = null)
+                        }
+                    }
+                    else ->{}
+                }
+            }
+
+        )
+
+        when (navigationType) {
             TopAppBarNavigationType.Home -> {}
-            else -> Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .size(1.dp)
-                .background(LightGray))
+            else -> Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(1.dp)
+                    .background(LightGray)
+            )
 
         }
     }
