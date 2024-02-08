@@ -1,6 +1,7 @@
 package com.colddelight.onestep.ui
 
 import android.app.Activity
+import android.util.LayoutDirection
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -8,22 +9,33 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.colddelight.designsystem.component.StepNavigationBar
@@ -42,6 +54,7 @@ import com.colddelight.onestep.navigation.TopLevelDestination.HOME
 import com.colddelight.onestep.navigation.TopLevelDestination.HISTORY
 import com.colddelight.onestep.navigation.TopLevelDestination.ROUTINE
 import com.colddelight.routine.navigation.RoutineRoute
+import kotlinx.coroutines.launch
 
 @Composable
 fun StepApp(
@@ -53,49 +66,77 @@ fun StepApp(
     val currentDestination: String = appState.currentDestination?.route ?: HomeRoute.route
 
     val destination = appState.currentTopLevelDestination
-
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
     BackOnPressed()
-    Scaffold(
-        containerColor = BackGray,
 
-        topBar = {
-            StepTopBar(
-                currentDestination = currentDestination,
-                modifier = Modifier.testTag("StepTopBar"),
-                onAppLogoClick = {onAppLogoClick()},
-                onNavigationClick = appState::popBackStack
-            )
-        },
-        bottomBar = {
-            when (destination) {
-                HOME, HISTORY, ROUTINE ->
-                    StepBottomBar(
-                        destinations = appState.topLevelDestinations,
-                        onNavigateToDestination = appState::navigateToTopLevelDestination,
-                        currentDestination = appState.currentDestination,
-                        modifier = Modifier.testTag("StepBottomBar"),
-                    )
-
-                else -> {}
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(){
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    label = { Text(text = "Drawer Item") },
+                    selected = false,
+                    onClick = { /*TODO*/ }
+                )
+                // ...other drawer items
             }
-        }
-    ) { padding ->
 
-        Row(
-            Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal,
+        }
+    ) {
+        Scaffold(
+            containerColor = BackGray,
+            topBar = {
+                StepTopBar(
+                    currentDestination = currentDestination,
+                    modifier = Modifier.testTag("StepTopBar"),
+                    onAppLogoClick = { onAppLogoClick() },
+                    onNavigationClick = appState::popBackStack,
+                    onDrawerClick = {
+                        scope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                when (destination) {
+                    HOME, HISTORY, ROUTINE ->
+                        StepBottomBar(
+                            destinations = appState.topLevelDestinations,
+                            onNavigateToDestination = appState::navigateToTopLevelDestination,
+                            currentDestination = appState.currentDestination,
+                            modifier = Modifier.testTag("StepBottomBar"),
+                        )
+
+                    else -> {}
+                }
+            }
+
+        ) { padding ->
+
+            Row(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal,
+                        ),
                     ),
-                ),
-        ) {
-            Column(Modifier.fillMaxSize()) {
-                StepNavHost(appState = appState)
+            ) {
+                Column(Modifier.fillMaxSize()) {
+                    StepNavHost(appState = appState)
+                }
             }
         }
+
     }
+
 }
 
 @Composable
@@ -121,6 +162,7 @@ private fun StepTopBar(
     modifier: Modifier = Modifier,
     onAppLogoClick: () -> Unit,
     onNavigationClick: () -> Unit,
+    onDrawerClick: () -> Unit,
 ) {
     StepTopAppBar(
         titleRes = when (currentDestination) {
@@ -136,8 +178,9 @@ private fun StepTopBar(
             HistoryRoute.route, RoutineRoute.route -> TopAppBarNavigationType.Empty
             else -> TopAppBarNavigationType.Back
         },
-        onAppLogoClick = {onAppLogoClick()},
-        onNavigationClick = onNavigationClick
+        onAppLogoClick = { onAppLogoClick() },
+        onNavigationClick = onNavigationClick,
+        onDrawerClick = onDrawerClick
     )
 }
 
