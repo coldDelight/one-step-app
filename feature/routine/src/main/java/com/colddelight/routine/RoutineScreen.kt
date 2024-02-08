@@ -668,6 +668,7 @@ fun ExerciseListBottomSheet(
         val density = LocalDensity.current
         val itemSizePx = with(density) { 100.dp.toPx() }
         val coroutineScope = rememberCoroutineScope()
+        var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
 
 
         when (bottomSheetState) {
@@ -851,31 +852,33 @@ fun ExerciseListBottomSheet(
                             }
                         }
                     }
+
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 45.dp),
+
+                            ) {
+                            AddCategoryTextBox(onCategorySelected = {
+                                insertCategory = it
+                            })
+                            ExerciseNameOutlineTextField(
+                                initKeyboardOpen = false,
+                                isIconVisible = true,
+                                originExerciseName = "",
+                                insertExerciseName = {
+                                    insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
+                                },
+                                containerColor = BackGray
+                            )
+                        }
+                    }
                 }
 
-                var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 105.dp),
 
-                    ) {
-                    AddCategoryTextBox(onCategorySelected = {
-                        insertCategory = it
-                    })
-                    ExerciseNameOutlineTextField(
-                        initKeyboardOpen = false,
-                        isIconVisible = true,
-                        originExerciseName = "",
-                        insertExerciseName = {
-                            insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
-                        },
-                        containerColor = BackGray
-                    )
-                }
             }
         }
     }
@@ -944,7 +947,6 @@ private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
     return setInfoList
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseNameOutlineTextField(
     initKeyboardOpen: Boolean,
@@ -954,18 +956,13 @@ fun ExerciseNameOutlineTextField(
     containerColor: Color,
     focusManager: FocusManager = LocalFocusManager.current,
 ) {
-//    var textState by remember { mutableStateOf(originExerciseName) }
     var colorState by remember { mutableStateOf(LightGray) }
     val focusRequester = remember { FocusRequester() }
-//    val keyboard = LocalSoftwareKeyboardController.current
-//    val windowInfo = LocalWindowInfo.current
     var textState by remember {
         mutableStateOf(
-            TextFieldValue(originExerciseName,selection = TextRange(originExerciseName.length))
+            TextFieldValue(originExerciseName, selection = TextRange(originExerciseName.length))
         )
     }
-
-    val textFieldState = TextFieldState()
 
     if (initKeyboardOpen) {
         LaunchedEffect(focusRequester) {
@@ -986,7 +983,8 @@ fun ExerciseNameOutlineTextField(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp)) {
+                .padding(16.dp)
+        ) {
             Box(
                 Modifier
                     .weight(0.9f)
@@ -1016,7 +1014,7 @@ fun ExerciseNameOutlineTextField(
                     cursorBrush = SolidColor(Color.White),
 
 
-                )
+                    )
                 if (textState.text.isEmpty()) {
                     Text(
                         text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
@@ -1171,39 +1169,60 @@ fun EditExerciseDialog(
     var insertCategory by remember { mutableStateOf(exerciseInfo.category) }
     var insertName by remember { mutableStateOf(exerciseInfo.name) }
 
+    var errText by remember { mutableStateOf(false) }
+
+    LaunchedEffect(insertName) {
+        if (insertName.isNotEmpty())
+            errText = false
+    }
+
     AlertDialog(containerColor = DarkGray,
         onDismissRequest = { onDismissDialog(ExerciseDialogState.None) },
         text = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
 
-                ) {
-                AddCategoryTextBox(
-                    onCategorySelected = {
-                        insertCategory = it
-                    }
-                )
-                ExerciseNameOutlineTextField(
-                    initKeyboardOpen = false,
-                    false,
-                    originExerciseName = insertName,
-                    insertExerciseName = {
-                        insertName = it
-                    },
-                    containerColor = DarkGray
-                )
+                    ) {
+                    AddCategoryTextBox(
+                        onCategorySelected = {
+                            insertCategory = it
+                        }
+                    )
+                    ExerciseNameOutlineTextField(
+                        initKeyboardOpen = false,
+                        false,
+                        originExerciseName = insertName,
+                        insertExerciseName = {
+                            insertName = it
+                        },
+                        containerColor = DarkGray
+                    )
+
+                }
+                if (errText)
+                    Text(
+                        text = "운동 이름을 1글자 이상으로 설정해주세요",
+                        style = NotoTypography.labelMedium,
+                        color = Red,
+                        modifier = Modifier.padding(top = 4.dp, start = 10.dp)
+                    )
             }
         },
         confirmButton = {
             TextButton(onClick = {
-                insertExercise(
-                    ExerciseInfo(
-                        id = exerciseInfo.id, name = insertName, category = insertCategory
+                if (insertName.isNotEmpty()) {
+                    insertExercise(
+                        ExerciseInfo(
+                            id = exerciseInfo.id, name = insertName, category = insertCategory
+                        )
                     )
-                )
-                onDismissDialog(ExerciseDialogState.None)
+                    onDismissDialog(ExerciseDialogState.None)
+                } else {
+                    errText = true
+                }
             }) {
                 Text(text = "완료", style = NotoTypography.bodyMedium, color = Main)
             }
