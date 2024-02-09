@@ -39,7 +39,6 @@ fun StepTopAppBar(
     @StringRes titleRes: Int,
     navigationType: TopAppBarNavigationType = TopAppBarNavigationType.Home,
     onNavigationClick: () -> Unit,
-    onAppLogoClick: () -> Unit,
     onDrawerClick: () -> Unit,
 ) {
     Column() {
@@ -60,13 +59,7 @@ fun StepTopAppBar(
                             modifier = Modifier
                                 .height(20.dp)
                                 .padding(start = 12.dp)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            onAppLogoClick()
-                                            Log.e("TAG", "StepTopAppBar: sksnffutdj")
-                                        })
-                                },
+                             ,
                             tint = Main
                         )
 

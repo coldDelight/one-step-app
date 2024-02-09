@@ -22,7 +22,9 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             OneStepTheme {
-                StepApp( onAppLogoClick = { onAppLogoClick() })
+                StepApp(
+                    context = this,
+                    onAppLogoClick = { onAppLogoClick() })
             }
         }
     }
