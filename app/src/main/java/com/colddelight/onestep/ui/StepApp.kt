@@ -95,7 +95,7 @@ fun StepApp(
                 ModalDrawerSheet(
                     drawerContainerColor = BackGray,
                     drawerContentColor = BackGray,
-                    modifier = Modifier.requiredWidth(300.dp)
+                    modifier = Modifier.fillMaxWidth(0.5f)
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
