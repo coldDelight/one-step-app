@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -13,24 +12,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -39,13 +35,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.colddelight.designsystem.component.StepNavigationBar
@@ -67,6 +61,12 @@ import com.colddelight.onestep.navigation.TopLevelDestination.HOME
 import com.colddelight.onestep.navigation.TopLevelDestination.ROUTINE
 import com.colddelight.routine.navigation.RoutineRoute
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+
+
 
 
 @SuppressLint("QueryPermissionsNeeded")
@@ -84,12 +84,10 @@ fun StepApp(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val containerColor = NavigationDrawerItemDefaults.colors(
-        unselectedContainerColor = BackGray
-    )
 
     BackOnPressed()
 
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         ModalNavigationDrawer(
             gesturesEnabled = drawerState.isOpen,
             drawerState = drawerState,
@@ -99,124 +97,163 @@ fun StepApp(
                     drawerContentColor = BackGray,
                     modifier = Modifier.requiredWidth(300.dp)
                 ) {
-                    Column (
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(top = 100.dp),
-                    ){
-                        NavigationDrawerItem(
-                            label = { Text(text = "앱 버전", style = NotoTypography.bodyMedium) },
-                            selected = false,
-                            onClick = { /*TODO*/ },
-                            colors = containerColor,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        HorizontalDivider(color = LightGray)
-                        NavigationDrawerItem(
-                            label = { Text(text = "오픈소스 라이센스",style = NotoTypography.bodyMedium) },
-                            selected = false,
-                            onClick = { onAppLogoClick() },
-                            colors = containerColor
-                        )
-                        HorizontalDivider(color = LightGray)
-                        NavigationDrawerItem(
-                            label = { Text(text = "앱 평가하기",style = NotoTypography.bodyMedium) },
-                            selected = false,
+                            .padding(top = 100.dp)
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        DrawerItem(
                             onClick = {
                                 val packageName = "com.colddelight.onestep"
                                 val playStoreUri = Uri.parse("market://details?id=$packageName")
                                 val playStoreIntent = Intent(Intent.ACTION_VIEW, playStoreUri)
-                                playStoreIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK )
+                                playStoreIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 try {
-                                    val webPlayStoreUri = Uri.parse("https://www.naver.com")
-                                    val webPlayStoreIntent = Intent(Intent.ACTION_VIEW, webPlayStoreUri)
-                                    context.startActivity(webPlayStoreIntent)
-                                    //context.startActivity(playStoreIntent)
+                                    context.startActivity(playStoreIntent)
                                 } catch (e: android.content.ActivityNotFoundException) {
                                     val webPlayStoreUri = Uri.parse("https://www.naver.com")
-                                    val webPlayStoreIntent = Intent(Intent.ACTION_VIEW, webPlayStoreUri)
+                                    val webPlayStoreIntent =
+                                        Intent(Intent.ACTION_VIEW, webPlayStoreUri)
                                     context.startActivity(webPlayStoreIntent)
-                                } catch (e: Exception){
-                                    Toast.makeText(context, "플레이스토어 실행에 실패하였습니다.", Toast.LENGTH_LONG).show()
-                                } },
-                            colors = containerColor
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        "플레이스토어 실행에 실패하였습니다.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }, label = "앱 평가하기"
                         )
                         HorizontalDivider(color = LightGray)
-                        NavigationDrawerItem(
-                            label = { Text(text = "앱 문의하기",style = NotoTypography.bodyMedium) },
-                            selected = false,
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_SENDTO)
-                                    .apply {
-                                        type = "text/plain"
-                                        data = Uri.parse("mailto:")
 
-                                        putExtra(Intent.EXTRA_EMAIL, arrayOf("siki7878@gmail.com","siki7878@naver.com"))
-                                        putExtra(Intent.EXTRA_SUBJECT, "[OneStep] 앱 관련 문의 드립니다.")
-                                        putExtra(Intent.EXTRA_TEXT, "문의내용: ")
-                                    }
-                                try {
-                                    context.startActivity(Intent.createChooser(intent, "메일 전송하기"))
-                                }catch (e: Exception){
-                                    Toast.makeText(context, "메일을 전송할 수 없습니다.", Toast.LENGTH_LONG).show()
+                        DrawerItem(
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_SENDTO).setDataAndType(
+                                    Uri.parse("mailto:"),
+                                    "text/plain"
+                                ).apply {
+                                    putExtra(
+                                        Intent.EXTRA_EMAIL,
+                                        arrayOf("hno05039@naver.com", "siki7878@gmail.com")
+                                    )
+                                    putExtra(Intent.EXTRA_SUBJECT, "[OneStep] 앱 관련 문의")
+                                    putExtra(Intent.EXTRA_TEXT, "문의내용: ")
                                 }
 
-                            },
-                            colors = containerColor
+                                try {
+                                    context.startActivity(Intent.createChooser(intent, "메일 전송하기"))
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "메일을 전송할 수 없습니다.", Toast.LENGTH_LONG)
+                                        .show()
+                                }
+
+                            }, label = "앱 문의하기"
                         )
+
+                        HorizontalDivider(color = LightGray)
+
+                        DrawerItem(
+                            onClick = {
+                                onAppLogoClick()
+                            }, label = "오픈소스 라이센스"
+                        )
+
+                        HorizontalDivider(color = LightGray)
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp),
+                            Arrangement.Center,
+                            Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "앱 버전: v1.0",
+                                style = NotoTypography.bodyMedium,
+                            )
+                        }
+
+
+                        HorizontalDivider(color = LightGray)
                     }
                 }
             }
         ) {
-            Scaffold(
-                containerColor = BackGray,
-                topBar = {
-                    StepTopBar(
-                        currentDestination = currentDestination,
-                        modifier = Modifier.testTag("StepTopBar"),
-                        onNavigationClick = appState::popBackStack,
-                        onDrawerClick = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+
+                Scaffold(
+                    containerColor = BackGray,
+                    topBar = {
+                        StepTopBar(
+                            currentDestination = currentDestination,
+                            modifier = Modifier.testTag("StepTopBar"),
+                            onNavigationClick = appState::popBackStack,
+                            onDrawerClick = {
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
+                                    }
                                 }
                             }
+                        )
+                    },
+                    bottomBar = {
+                        when (destination) {
+                            HOME, HISTORY, ROUTINE ->
+                                StepBottomBar(
+                                    destinations = appState.topLevelDestinations,
+                                    onNavigateToDestination = appState::navigateToTopLevelDestination,
+                                    currentDestination = appState.currentDestination,
+                                    modifier = Modifier.testTag("StepBottomBar"),
+                                )
+
+                            else -> {}
                         }
-                    )
-                },
-                bottomBar = {
-                    when (destination) {
-                        HOME, HISTORY, ROUTINE ->
-                            StepBottomBar(
-                                destinations = appState.topLevelDestinations,
-                                onNavigateToDestination = appState::navigateToTopLevelDestination,
-                                currentDestination = appState.currentDestination,
-                                modifier = Modifier.testTag("StepBottomBar"),
-                            )
-
-                        else -> {}
                     }
-                }
+                ) { padding ->
 
-            ) { padding ->
-
-                Row(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal,
+                    Row(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal,
+                                ),
                             ),
-                        ),
-                ) {
-                    Column(Modifier.fillMaxSize()) {
-                        StepNavHost(appState = appState)
+                    ) {
+                        Column(Modifier.fillMaxSize()) {
+                            StepNavHost(appState = appState)
+                        }
                     }
                 }
-            }
 
+            }
         }
+    }
+}
+
+@Composable
+fun DrawerItem(label: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        color = BackGray
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            Arrangement.Center,
+            Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                style = NotoTypography.bodyMedium,
+            )
+        }
+    }
 }
 
 @Composable
