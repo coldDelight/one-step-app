@@ -257,20 +257,20 @@ private fun ExerciseDetailContent(
                 )
             }
         }
-        item {
-            ClickableText(
-                text = AnnotatedString("+ 세트 추가"),
-                style = NotoTypography.headlineSmall.copy(color = DarkGray),
-                onClick = {
-                    setAction(SetAction.AddSet)
-                    coroutineScope.launch {
-                        lazyColumnState.animateScrollBy(
-                            value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
-                            animationSpec = tween(durationMillis = 2000)
-                        )
-                    }
-                })
-        }
+//        item {
+//            ClickableText(
+//                text = AnnotatedString("+ 세트 추가"),
+//                style = NotoTypography.headlineSmall.copy(color = DarkGray),
+//                onClick = {
+//                    setAction(SetAction.AddSet)
+//                    coroutineScope.launch {
+//                        lazyColumnState.animateScrollBy(
+//                            value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
+//                            animationSpec = tween(durationMillis = 2000)
+//                        )
+//                    }
+//                })
+//        }
 
     }
 }
