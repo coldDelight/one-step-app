@@ -34,9 +34,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeekEn
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
-import com.colddelight.designsystem.component.DateWithCnt
+import com.colddelight.designsystem.component.ui.DateWithCnt
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.TitleText
+import com.colddelight.designsystem.component.ui.TitleText
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Day
 import com.colddelight.designsystem.theme.BackGray

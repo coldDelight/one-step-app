@@ -1,4 +1,4 @@
-package com.colddelight.designsystem.component
+package com.colddelight.designsystem.component.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box

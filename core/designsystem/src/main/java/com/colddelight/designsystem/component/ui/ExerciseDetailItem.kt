@@ -1,4 +1,4 @@
-package com.colddelight.designsystem.component
+package com.colddelight.designsystem.component.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.colddelight.designsystem.component.EditText
+import com.colddelight.designsystem.component.EditTextKg
+import com.colddelight.designsystem.component.NoBackSetButton
+import com.colddelight.designsystem.component.SmallSetButton
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Delete
 import com.colddelight.designsystem.icons.iconpack.Minus
