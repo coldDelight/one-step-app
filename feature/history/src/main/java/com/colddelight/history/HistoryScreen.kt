@@ -1,6 +1,5 @@
 package com.colddelight.history
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,14 +42,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.colddelight.designsystem.R
+import com.colddelight.designsystem.component.ui.CategoryIconList
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
@@ -209,7 +207,6 @@ private fun HistoryContent(
                 )
                 Row (modifier = Modifier.padding(horizontal =16.dp, vertical = 12.dp)){
                     CategoryIconList(selectedDay.categoryList.map { ExerciseCategory.fromId(it)!! })
-
                 }
 
             }
@@ -269,45 +266,7 @@ private fun HistoryContent(
     }
 }
 
-@Composable
-fun CategoryIconList(categoryList: List<ExerciseCategory>) {
-    LazyRow {
-        items(categoryList) { item ->
-            Box(modifier = Modifier.padding(4.dp)) {
-                when (item) {
-                    ExerciseCategory.CHEST -> Image(
-                        painter = painterResource(id = R.drawable.chest),
-                        contentDescription = "가슴",
-                    )
-                    ExerciseCategory.SHOULDER -> Image(
-                        painter = painterResource(id = R.drawable.shoulder),
-                        contentDescription = "어깨",
-                    )
 
-                    ExerciseCategory.BACK -> Image(
-                        painter = painterResource(id = R.drawable.back),
-                        contentDescription = "등",
-                    )
-
-                    ExerciseCategory.ARM -> Image(
-                        painter = painterResource(id = R.drawable.arm),
-                        contentDescription = "팔",
-                    )
-
-                    ExerciseCategory.LEG -> Image(
-                        painter = painterResource(id = R.drawable.leg),
-                        contentDescription = "하체",
-                    )
-                    ExerciseCategory.CALISTHENICS -> Image(
-                        painter = painterResource(id = R.drawable.calisthenics),
-                        contentDescription = "맨몸",
-                    )
-                }
-
-            }
-        }
-    }
-}
 
 
 @Composable

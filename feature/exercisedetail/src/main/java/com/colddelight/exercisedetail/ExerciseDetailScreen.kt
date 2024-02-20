@@ -4,12 +4,10 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -48,19 +45,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
-import com.colddelight.designsystem.component.DoneExerciseDetailItem
+import com.colddelight.designsystem.component.ui.CategoryIconList
+import com.colddelight.designsystem.component.ui.DoneExerciseDetailItem
 import com.colddelight.designsystem.component.EditText
-import com.colddelight.designsystem.component.ExerciseDetailItem
-import com.colddelight.designsystem.component.ExerciseProgress
+import com.colddelight.designsystem.component.ui.ExerciseDetailItem
+import com.colddelight.designsystem.component.ui.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.SetAction
-import com.colddelight.designsystem.component.TitleText
+import com.colddelight.designsystem.component.ui.SetAction
+import com.colddelight.designsystem.component.ui.TitleText
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
@@ -70,14 +67,12 @@ import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.exercise.CategoryIconList
 import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
-import kotlinx.coroutines.launch
 
 @Composable
 fun ExerciseDetailScreen(

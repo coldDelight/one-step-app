@@ -1,4 +1,4 @@
-package com.colddelight.designsystem.component
+package com.colddelight.designsystem.component.navi
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon

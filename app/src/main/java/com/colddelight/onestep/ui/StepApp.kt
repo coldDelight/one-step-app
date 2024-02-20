@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.DrawerValue
@@ -42,10 +41,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import com.colddelight.designsystem.component.StepNavigationBar
-import com.colddelight.designsystem.component.StepNavigationBarItem
-import com.colddelight.designsystem.component.StepTopAppBar
-import com.colddelight.designsystem.component.TopAppBarNavigationType
+import com.colddelight.designsystem.component.navi.StepNavigationBar
+import com.colddelight.designsystem.component.navi.StepNavigationBarItem
+import com.colddelight.designsystem.component.navi.StepTopAppBar
+import com.colddelight.designsystem.component.navi.TopAppBarNavigationType
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.NotoTypography
