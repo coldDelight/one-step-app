@@ -245,7 +245,7 @@ fun ToExerciseButton(onClick: () -> Unit, modifier: Modifier) {
 
 @Preview(name = "SMALL", device = Devices.PIXEL)
 @Composable
-fun homePreview() {
+fun HomePreview() {
     HomeContent(
         11,
 //        HomeState.Resting(),

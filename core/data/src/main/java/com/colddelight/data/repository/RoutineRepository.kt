@@ -19,7 +19,7 @@ interface RoutineRepository {
 
     suspend fun insertExercise(exercise: ExerciseInfo)
 
-    suspend fun insertDayExercise(exercise: DayExercise)
+    suspend fun insertDayExercise(dayExercise: DayExercise)
 
 
     suspend fun deleteRoutineDay(routineDayId: Int)

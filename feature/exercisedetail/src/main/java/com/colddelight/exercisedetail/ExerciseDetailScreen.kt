@@ -140,11 +140,6 @@ private fun ExerciseDetailContent(
     onDoneButtonClick: () -> Unit,
 ) {
     val lazyColumnState = rememberLazyListState()
-    val density = LocalDensity.current
-    val itemSizePx = with(density) { 100.dp.toPx() }
-    val coroutineScope = rememberCoroutineScope()
-
-
     val focusManager = LocalFocusManager.current
 
     fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
@@ -435,10 +430,6 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
     }
 }
 
-
-//@Preview(name = "SMALL", device = Devices.PIXEL)
-////@Preview(name = "BIG", device = Devices.PIXEL_4_XL)
-////@Preview(name = "FOLDABLE", device = Devices.FOLDABLE)
 @Preview
 @Composable
 fun SetPreview() {

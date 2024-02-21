@@ -19,6 +19,7 @@ import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
@@ -39,6 +40,7 @@ class RoutineRepositoryImpl @Inject constructor(
 
     ) : RoutineRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getRoutine(): Flow<Routine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
@@ -54,6 +56,7 @@ class RoutineRepositoryImpl @Inject constructor(
             }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getRoutineWeekInfo(): Flow<List<RoutineDayInfo>> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->
@@ -164,12 +167,12 @@ class RoutineRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun insertRoutineDay(routinDay: RoutineDayInfo) {
+    override suspend fun insertRoutineDay(routineDay: RoutineDayInfo) {
         val routineDayEntity = RoutineDayEntity(
-            routineId = routinDay.routineId,
-            categoryList = routinDay.categoryList,
-            dayOfWeek = routinDay.dayOfWeek,
-            id = routinDay.routineDayId
+            routineId = routineDay.routineId,
+            categoryList = routineDay.categoryList,
+            dayOfWeek = routineDay.dayOfWeek,
+            id = routineDay.routineDayId
         )
         routineDayDao.insertRoutineDay(routineDayEntity)
     }

@@ -1,6 +1,6 @@
 package com.colddelight.routine
 
-import com.colddelight.designsystem.component.SetAction
+import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.model.SetInfo
 import java.util.Calendar
 
