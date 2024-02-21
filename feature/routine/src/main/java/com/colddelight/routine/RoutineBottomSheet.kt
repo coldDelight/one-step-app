@@ -35,11 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import com.colddelight.designsystem.component.ExerciseDetailItem
 import com.colddelight.designsystem.component.FilterChip
 import com.colddelight.designsystem.component.MainButton
 import com.colddelight.designsystem.component.RedButton
-import com.colddelight.designsystem.component.SetAction
+import com.colddelight.designsystem.component.ui.ExerciseDetailItem
+import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Topback
 import com.colddelight.designsystem.theme.BackGray
