@@ -7,7 +7,9 @@ import com.colddelight.data.repository.HistoryRepositoryImpl
 import com.colddelight.data.repository.HomeRepository
 import com.colddelight.data.repository.HomeRepositoryImpl
 import com.colddelight.data.repository.RoutineRepository
+import com.colddelight.data.repository.RoutineRepository2
 import com.colddelight.data.repository.RoutineRepositoryImpl
+import com.colddelight.data.repository.RoutineRepositoryImpl2
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
 import com.colddelight.datastore.datasource.TokenPreferencesDataSourceImpl
 import dagger.Binds
@@ -36,10 +38,14 @@ interface DataModule {
 
 
     @Binds
+    fun bindsRoutineRepository2(
+        routineRepository: RoutineRepositoryImpl2
+    ): RoutineRepository2
+
+    @Binds
     fun bindsRoutineRepository(
         routineRepository: RoutineRepositoryImpl
     ): RoutineRepository
-
     @Binds
     fun bindsHistoryRepository(
         historyRepository: HistoryRepositoryImpl

@@ -1,10 +1,8 @@
 package com.colddelight.routine
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +31,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -50,9 +47,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -78,7 +73,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -90,15 +84,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeek
 import com.colddelight.designsystem.component.CategoryChip
-import com.colddelight.designsystem.component.ui.ExerciseDetailItem
 import com.colddelight.designsystem.component.ui.ExerciseProgress
-import com.colddelight.designsystem.component.FilterChip
-import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.RedButton
-import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Close
-import com.colddelight.designsystem.icons.iconpack.Topback
 import com.colddelight.designsystem.icons.iconpack.Trash
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
@@ -114,11 +102,9 @@ import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDayInfo
-import com.colddelight.model.SetInfo
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 
 @Composable
@@ -144,7 +130,7 @@ fun RoutineScreen(
                 },
                 exerciseListState = exerciseListState,
                 insertRoutine = {
-                    viewModel.insertRoutine(it)
+                    viewModel.upsertRoutine(it)
                 },
                 insertExercise = { exerciseInfo ->
                     viewModel.insertExercise(exerciseInfo)
