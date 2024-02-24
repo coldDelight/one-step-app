@@ -15,7 +15,7 @@ interface RoutineDao {
     fun getRoutine(id: Int): Flow<RoutineEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoutine(routine: RoutineEntity)
+    suspend fun upsertRoutine(routine: RoutineEntity)
 
     @Query("UPDATE routine SET cnt = cnt + 1 WHERE id = :routineId")
     suspend fun updateCountById(routineId: Int)

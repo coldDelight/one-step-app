@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository
 import com.colddelight.designsystem.component.ui.SetAction
+import com.colddelight.domain.usecase.routine.GetRoutineUseCase
+import com.colddelight.domain.usecase.routine.UpsertRoutineUseCase
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,12 +13,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
+    private val getRoutineUseCase: GetRoutineUseCase,
     private val repository: ExerciseRepository,
+    private val upsertRoutineUseCase: UpsertRoutineUseCase,
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
@@ -47,6 +52,8 @@ class ExerciseViewModel @Inject constructor(
     fun finExercise() {
         viewModelScope.launch {
             repository.finHistory()
+            val routine = getRoutineUseCase().first()
+            upsertRoutineUseCase(routine.copy(cnt = routine.cnt + 1))
         }
     }
 

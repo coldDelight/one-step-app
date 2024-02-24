@@ -44,7 +44,7 @@ abstract class StepDatabase : RoomDatabase() {
                         runBlocking {
                             getInstance(context).routineDao()
                                 //루틴 초기값
-                                .insertRoutine(RoutineEntity.DEFAULT_Routine)
+                                .upsertRoutine(RoutineEntity.DEFAULT_Routine)
                         }
                     }
                 }
