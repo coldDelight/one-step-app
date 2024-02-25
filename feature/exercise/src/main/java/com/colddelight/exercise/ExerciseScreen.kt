@@ -176,11 +176,11 @@ private fun ExerciseContent(
             if (cur == index) {
                 CurExerciseItem(item)
             } else {
-                if (item.isDone) {
-                    DoneExerciseItem(item.name)
-                } else {
-                    TodoExerciseItem(item.name)
-                }
+//                if (item.isDone) {
+//                    DoneExerciseItem(item.name)
+//                } else {
+//                    TodoExerciseItem(item.name)
+//                }
             }
         }
     }
@@ -459,20 +459,20 @@ private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: 
 
 
 
-@Preview
-@Composable
-private fun ExerciseContentPreview() {
-    val routineInfo =
-        TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
-    ExerciseContent(
-        {},
-        routineInfo,
-        listOf(
-            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
-            Exercise.Weight("스쿼트", 40, 100, 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
-        ), 0, {}
-    )
-}
+//@Preview
+//@Composable
+//private fun ExerciseContentPreview() {
+//    val routineInfo =
+//        TodayRoutine("3분할", cnt = 5, listOf(ExerciseCategory.CHEST, ExerciseCategory.BACK))
+//    ExerciseContent(
+//        {},
+//        routineInfo,
+//        listOf(
+//            Exercise.Weight("벤치 프레스", 20, 40, 1, ),
+//            Exercise.Weight("스쿼트", 40, 100, 2, ),
+//            Exercise.Weight("데드 리프트", 40, 100, 2, ),
+//            Exercise.Weight("숄더 프레스", 40, 100, 2, ),
+//            Exercise.Calisthenics("턱걸이", 12, 3, 3, ),
+//        ), 0, {}
+//    )
+//}

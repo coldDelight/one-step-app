@@ -2,8 +2,8 @@ package com.colddelight.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.colddelight.data.repository.ExerciseRepository
-import com.colddelight.data.repository.HomeRepository
+import com.colddelight.data.repository.ExerciseRepository2
+import com.colddelight.domain.usecase.routineday.GetExerciseDayListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,12 +15,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    repository: ExerciseRepository,
-    homeRepository: HomeRepository,
+    repository: ExerciseRepository2,
+    getExerciseDayListUseCase: GetExerciseDayListUseCase
 ) : ViewModel() {
 
     private val todayRoutineInfo = repository.getTodayRoutineInfo()
-    private val exerciseWeek = homeRepository.getExerciseWeek()
+    private val exerciseWeek = getExerciseDayListUseCase()
 
 
     val homeUiState: StateFlow<HomeUiState> = todayRoutineInfo

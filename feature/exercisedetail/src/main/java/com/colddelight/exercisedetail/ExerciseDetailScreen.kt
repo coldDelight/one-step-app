@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +42,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -430,19 +428,19 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
     }
 }
 
-@Preview
-@Composable
-fun SetPreview() {
-    ExerciseDetailContent(curSet = 0,
-        exercise = Exercise.Weight(
-            "벤치 프레스", 888, 888, 1, true,
-            setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
-        ),
-        uiState = ExerciseDetailUiState.Default(0),
-        setAction = {},
-        updateUiState = {},
-        onDoneButtonClick = {})
-}
+//@Preview
+//@Composable
+//fun SetPreview() {
+//    ExerciseDetailContent(curSet = 0,
+//        exercise = Exercise.Weight(
+//            "벤치 프레스", 888, 888, 1, true,
+//            setInfoList = listOf(SetInfo(20, 12), SetInfo(40, 12), SetInfo(60, 12))
+//        ),
+//        uiState = ExerciseDetailUiState.Default(0),
+//        setAction = {},
+//        updateUiState = {},
+//        onDoneButtonClick = {})
+//}
 
 @Composable
 private fun CurrentSetButtons(

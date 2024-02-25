@@ -31,3 +31,4 @@ interface DayExerciseDao {
     suspend fun updateKgRepsById(id: Int, kgList: List<Int>, repsList: List<Int>)
 
 }
+

@@ -96,12 +96,12 @@ import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.model.DayExercise
+import com.colddelight.model.DayExerciseWithExercise
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
-import com.colddelight.model.RoutineDayInfo
+import com.colddelight.model.RoutineDay
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,7 +112,7 @@ fun RoutineScreen(
     viewModel: RoutineViewModel = hiltViewModel(),
 ) {
     val routineInfoUiState by viewModel.routineInfoUiState.collectAsStateWithLifecycle()
-    val routineDayInfoUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
+    val routineDayUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
     val exerciseListState by viewModel.exerciseListState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -124,16 +124,16 @@ fun RoutineScreen(
                 .fillMaxSize()
         ) {
             RoutineContentWithState(routineInfoUiState = routineInfoUiState,
-                routineDayInfoUiState = routineDayInfoUiState,
-                insertRoutineDay = { newRoutineDayInfo ->
-                    viewModel.insertRoutineDay(newRoutineDayInfo)
+                routineDayUiState = routineDayUiState,
+                upsertRoutineDay = { newroutineDay ->
+                    viewModel.upsertRoutineDay(newroutineDay)
                 },
                 exerciseListState = exerciseListState,
-                insertRoutine = {
+                upsertRoutine = {
                     viewModel.upsertRoutine(it)
                 },
                 insertExercise = { exerciseInfo ->
-                    viewModel.insertExercise(exerciseInfo)
+                    viewModel.upsertExercise(exerciseInfo)
                 },
                 deleteRoutineDay = {
                     viewModel.deleteRoutineDay(it)
@@ -154,23 +154,23 @@ fun RoutineScreen(
 @Composable
 private fun RoutineContentWithState(
     routineInfoUiState: RoutineInfoUiState,
-    routineDayInfoUiState: RoutineDayInfoUiState,
+    routineDayUiState: RoutineDayInfoUiState,
     exerciseListState: ExerciseListState,
-    insertRoutine: (Routine) -> Unit,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    upsertRoutine: (Routine) -> Unit,
+    upsertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
 ) {
     when {
-        routineInfoUiState is RoutineInfoUiState.Success && routineDayInfoUiState is RoutineDayInfoUiState.Success && exerciseListState is ExerciseListState.NotNone -> RoutineContent(
+        routineInfoUiState is RoutineInfoUiState.Success && routineDayUiState is RoutineDayInfoUiState.Success && exerciseListState is ExerciseListState.NotNone -> RoutineContent(
             routineInfoUiState.routine,
-            routineDayInfoUiState.routineDayInfo,
+            routineDayUiState.routineDayInfo,
             exerciseListState.exerciseList,
-            insertRoutine,
-            insertRoutineDay,
+            upsertRoutine,
+            upsertRoutineDay,
             insertExercise,
             insertDayExercise,
             deleteRoutineDay,
@@ -179,8 +179,8 @@ private fun RoutineContentWithState(
         )
         routineInfoUiState is RoutineInfoUiState.Loading -> RoutineLoading()
         routineInfoUiState is RoutineInfoUiState.Error -> RoutineLoading()
-        routineDayInfoUiState is RoutineDayInfoUiState.Loading -> RoutineLoading()
-        routineDayInfoUiState is RoutineDayInfoUiState.Error -> RoutineLoading()
+        routineDayUiState is RoutineDayInfoUiState.Loading -> RoutineLoading()
+        routineDayUiState is RoutineDayInfoUiState.Error -> RoutineLoading()
     }
 }
 
@@ -194,12 +194,12 @@ private fun RoutineLoading() {
 @Composable
 private fun RoutineContent(
     routine: Routine,
-    routineDayList: List<RoutineDayInfo>,
+    routineDayList: List<RoutineDay>,
     exerciseList: List<ExerciseInfo>,
     insertRoutine: (Routine) -> Unit,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
@@ -248,7 +248,7 @@ private fun RoutineContent(
             LazyRow {
                 item {
                     AddCategoryBtn(
-                        routineDayInfo = routineDayList[currentDayOfWeek - 1],
+                        routineDay = routineDayList[currentDayOfWeek - 1],
                         insertRoutineDay = insertRoutineDay
                     )
                     CategoryList(
@@ -280,7 +280,7 @@ private fun RoutineContent(
 
 @Composable
 fun DayOfWeekAndDot(
-    routineDayInfo: RoutineDayInfo, deleteRoutineDay: (Int) -> Unit,
+    routineDay: RoutineDay, deleteRoutineDay: (Int) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -293,10 +293,10 @@ fun DayOfWeekAndDot(
         ) {
             Text(
                 modifier = modifier,
-                text = getDayOfWeek(routineDayInfo.dayOfWeek),
+                text = getDayOfWeek(routineDay.dayOfWeek),
                 style = NotoTypography.headlineSmall
             )
-            routineDayInfo.exerciseList.let {
+            routineDay.exerciseList.let {
                 if (it.size > 7) {
                     ExerciseProgress(modifier = modifier, 7, 7)
                     Text(text = "7+", style = NotoTypography.bodyMedium)
@@ -306,7 +306,7 @@ fun DayOfWeekAndDot(
                 }
             }
         }
-        RoutineDayDeleteBtn(routineDayInfo.routineDayId, deleteRoutineDay)
+        RoutineDayDeleteBtn(routineDay.id, deleteRoutineDay)
     }
 }
 
@@ -339,12 +339,12 @@ fun RoutineDayDeleteBtn(
 
 @Composable
 fun ExerciseGridList(
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     exerciseList: List<Exercise>,
     allExerciseList: List<ExerciseInfo>,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    upsertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
     screenWidth: Int,
@@ -361,7 +361,7 @@ fun ExerciseGridList(
             if (exerciseList.isNotEmpty()) {
                 item {
                     ExerciseItem(
-                        routineDayInfo = routineDayInfo,
+                        routineDay = routineDay,
                         exercise = exerciseList[0],
                         insertDayExercise = insertDayExercise,
                         deleteDayExercise = deleteDayExercise
@@ -379,7 +379,7 @@ fun ExerciseGridList(
                     val itemsList = exerciseList.subList(1, exerciseList.size)
                     items(itemsList) {
                         ExerciseItem(
-                            routineDayInfo = routineDayInfo,
+                            routineDay = routineDay,
                             exercise = it,
                             insertDayExercise = insertDayExercise,
                             deleteDayExercise = deleteDayExercise
@@ -389,10 +389,10 @@ fun ExerciseGridList(
             }
             item {
                 AddExerciseToRoutineDayBtn(
-                    routineDayInfo,
+                    routineDay,
                     allExerciseList,
                     insertExercise,
-                    insertRoutineDay,
+                    upsertRoutineDay,
                     insertDayExercise,
                     deleteExercise,
                 )
@@ -404,11 +404,11 @@ fun ExerciseGridList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExerciseToRoutineDayBtn(
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
+    upsertRoutineDay: (RoutineDay) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     deleteExercise: (Int) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -424,12 +424,11 @@ fun AddExerciseToRoutineDayBtn(
         .background(BackGray, CircleShape)
         .clip(CircleShape)
         .clickable {
-            if (routineDayInfo.routineDayId == 0) {
-                insertRoutineDay(
-                    RoutineDayInfo(
-                        routineDayId = 0,
-                        dayOfWeek = routineDayInfo.dayOfWeek,
-                        routineId = routineDayInfo.routineId
+            if (routineDay.id == 0) {
+                upsertRoutineDay(
+                    RoutineDay(
+                        dayOfWeek = routineDay.dayOfWeek,
+                        routineId = routineDay.routineId
                     )
                 )
             }
@@ -443,7 +442,7 @@ fun AddExerciseToRoutineDayBtn(
 
     if (showBottomSheet) {
         ExerciseListBottomSheet(
-            routineDayInfo = routineDayInfo,
+            routineDay = routineDay,
             onDismissSheet = {
                 showBottomSheet = it
             },
@@ -759,8 +758,8 @@ fun SimpleDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseItem(
-    routineDayInfo: RoutineDayInfo,
-    insertDayExercise: (DayExercise) -> Unit,
+    routineDay: RoutineDay,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     exercise: Exercise,
     deleteDayExercise: (Int) -> Unit,
 ) {
@@ -895,7 +894,7 @@ fun ExerciseItem(
                 onDismissSheet = { showBottomSheet = it },
                 sheetState = sheetState,
                 insertDayExercise = insertDayExercise,
-                routineDayInfo = routineDayInfo,
+                routineDay = routineDay,
                 exercise = it,
                 deleteDayExercise = deleteDayExercise
             )
@@ -913,7 +912,7 @@ fun ExerciseItem(
 @Composable
 fun ExerciseCardRow(
     selectedDayOfWeek: Int,
-    routineDayList: List<RoutineDayInfo>,
+    routineDayList: List<RoutineDay>,
     widthDp: Int,
     onCardClicked: (Int) -> Unit,
 ) {
@@ -921,7 +920,7 @@ fun ExerciseCardRow(
     val lazyRowState = rememberLazyListState()
 
     LazyRow(state = lazyRowState) {
-        itemsIndexed(routineDayList) { index, routineDayInfo ->
+        itemsIndexed(routineDayList) { index, routineDay ->
             Box(
                 modifier = Modifier
                     .width(IntrinsicSize.Max)
@@ -929,7 +928,7 @@ fun ExerciseCardRow(
             ) {
                 ExerciseCardView(
                     isSelected = (index + 1 == selectedDayOfWeek),
-                    routineDayInfo = routineDayInfo,
+                    routineDay = routineDay,
                     widthDp = widthDp,
                     onCardClicked = {
                         onCardClicked(it)
@@ -1027,8 +1026,8 @@ fun AddCategoryTextBox(
 
 @Composable
 fun AddCategoryBtn(
-    routineDayInfo: RoutineDayInfo,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    routineDay: RoutineDay,
+    insertRoutineDay: (RoutineDay) -> Unit,
 ) {
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
     var selectedCategory: Int by remember { mutableStateOf(-1) }
@@ -1057,7 +1056,7 @@ fun AddCategoryBtn(
         onDismissRequest = {
             isDropDownMenuExpanded = false
         }) {
-        val list = (1..6).toList() - routineDayInfo.categoryList.toSet()
+        val list = (1..6).toList() - routineDay.categoryList.toSet()
 
         list.forEachIndexed { index, it ->
             DropdownMenuItem(modifier = Modifier.wrapContentSize(), text = {
@@ -1084,10 +1083,10 @@ fun AddCategoryBtn(
     }
 
     DisposableEffect(selectedCategory) {
-        if (selectedCategory != -1 && !routineDayInfo.categoryList.contains(selectedCategory)) {
-            val newCategoryList = routineDayInfo.categoryList + selectedCategory
-            val newRoutineDayInfo = routineDayInfo.copy(categoryList = newCategoryList)
-            insertRoutineDay(newRoutineDayInfo)
+        if (selectedCategory != -1 && !routineDay.categoryList.contains(selectedCategory)) {
+            val newCategoryList = routineDay.categoryList + selectedCategory
+            val newroutineDay = routineDay.copy(categoryList = newCategoryList)
+            insertRoutineDay(newroutineDay)
         }
         onDispose { }
     }
@@ -1178,7 +1177,7 @@ fun EditRoutineNameDialog(
 @Composable
 fun ExerciseCardView(
     isSelected: Boolean,
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     widthDp: Int,
     onCardClicked: (Int) -> Unit,
 ) {
@@ -1196,13 +1195,13 @@ fun ExerciseCardView(
 
             ) {
             Text(
-                text = getDayOfWeek(routineDayInfo.dayOfWeek),
+                text = getDayOfWeek(routineDay.dayOfWeek),
                 style = NotoTypography.bodyMedium,
                 modifier = Modifier.padding(start = 10.dp)
             )
             LazyRow {
                 item {
-                    CategoryList(false, routineDayInfo, 8, {})
+                    CategoryList(false, routineDay, 8, {})
                 }
             }
 
@@ -1217,15 +1216,15 @@ fun ExerciseCardView(
                     RoundedCornerShape(10.dp)
                 )
                 .clickable {
-                    onCardClicked(routineDayInfo.dayOfWeek)
+                    onCardClicked(routineDay.dayOfWeek)
                 }
                 .padding(16.dp),
         ) {
-            if (routineDayInfo.exerciseList.isNotEmpty()) {
+            if (routineDay.exerciseList.isNotEmpty()) {
                 LazyColumn(
-                    Modifier.heightIn(max = (routineDayInfo.exerciseList.size * 30).dp)
+                    Modifier.heightIn(max = (routineDay.exerciseList.size * 30).dp)
                 ) {
-                    items(routineDayInfo.exerciseList) {
+                    items(routineDay.exerciseList) {
                         ExerciseList(exercise = it)
                     }
                 }
@@ -1248,19 +1247,19 @@ fun ExerciseCardView(
 @Composable
 fun CategoryList(
     isCanDelete: Boolean,
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     size: Int,
-    insertRoutineDay: (RoutineDayInfo) -> Unit,
+    insertRoutineDay: (RoutineDay) -> Unit,
 ) {
     Row {
-        routineDayInfo.categoryList?.forEach {
+        routineDay.categoryList?.forEach {
             CategoryChip(
                 isCanDelete, ExerciseCategory.toName(it), it, size
             ) { selectedCategory ->
-                if (routineDayInfo.categoryList.contains(selectedCategory)) {
-                    val newCategoryList = routineDayInfo.categoryList - selectedCategory
-                    val newRoutineDayInfo = routineDayInfo.copy(categoryList = newCategoryList)
-                    insertRoutineDay(newRoutineDayInfo)
+                if (routineDay.categoryList.contains(selectedCategory)) {
+                    val newCategoryList = routineDay.categoryList - selectedCategory
+                    val newroutineDay = routineDay.copy(categoryList = newCategoryList)
+                    insertRoutineDay(newroutineDay)
                 }
             }
         }

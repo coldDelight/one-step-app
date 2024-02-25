@@ -1,6 +1,5 @@
 package com.colddelight.history
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.HistoryRepository
@@ -28,8 +27,8 @@ class HistoryViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
     private val selectedDate: StateFlow<LocalDate> get() = _selectedDate
 
-    private val _dayHistoryExerciseList = MutableStateFlow(emptyList<Exercise>())
-    val dayHistoryExerciseList: StateFlow<List<Exercise>> get() = _dayHistoryExerciseList
+    private val _dayHistoryExerciseList2 = MutableStateFlow(emptyList<Exercise>())
+    val dayHistoryExerciseList: StateFlow<List<Exercise>> get() = _dayHistoryExerciseList2
 
 
     val historyUiState: StateFlow<HistoryUiState> =
@@ -52,7 +51,7 @@ class HistoryViewModel @Inject constructor(
     fun getDayHistoryExercise(historyId: Int){
         viewModelScope.launch {
             val exercises = repository.getHistoryForSelectedDay(historyId).first()
-            _dayHistoryExerciseList.value = exercises
+            _dayHistoryExerciseList2.value = exercises
         }
     }
 

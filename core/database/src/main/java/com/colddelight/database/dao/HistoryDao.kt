@@ -11,11 +11,8 @@ import java.time.LocalDate
 
 @Dao
 interface HistoryDao {
-
-
-    //
     @Query("SELECT history.id FROM history WHERE created_time = :today")
-    fun getHistoryForToday(today: LocalDate): Flow<Int>
+    fun getHistoryForToday(today: LocalDate=LocalDate.now()): Flow<Int>
 
     @Query("SELECT created_time FROM history WHERE created_time >= :startDate AND is_done = 1")
     fun getHistoryForThisWeek(startDate: LocalDate): Flow<List<LocalDate>>

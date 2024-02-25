@@ -2,7 +2,7 @@ package com.colddelight.routine
 
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
-import com.colddelight.model.RoutineDayInfo
+import com.colddelight.model.RoutineDay
 
 sealed interface RoutineInfoUiState {
     data object Loading : RoutineInfoUiState
@@ -17,7 +17,7 @@ sealed interface RoutineDayInfoUiState {
 
     data class Error(val msg: String) : RoutineDayInfoUiState
 
-    data class Success(val routineDayInfo: List<RoutineDayInfo>) : RoutineDayInfoUiState
+    data class Success(val routineDayInfo: List<RoutineDay>) : RoutineDayInfoUiState
 }
 
 sealed interface ExerciseListState {

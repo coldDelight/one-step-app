@@ -1,5 +1,6 @@
 package com.colddelight.routine
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -48,11 +49,11 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.model.DayExercise
+import com.colddelight.model.DayExerciseWithExercise
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
-import com.colddelight.model.RoutineDayInfo
+import com.colddelight.model.RoutineDay
 import com.colddelight.model.SetInfo
 import kotlinx.coroutines.launch
 
@@ -61,9 +62,9 @@ import kotlinx.coroutines.launch
 fun InsertDayExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
     deleteDayExercise: (Int) -> Unit,
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     exercise: Exercise,
 ) {
     val categoryList = (1..6).toList()
@@ -156,8 +157,8 @@ fun InsertDayExerciseBottomSheet(
                     }, content = { Text("삭제", style = NotoTypography.bodyMedium) })
                     MainButton(modifier = Modifier.fillMaxWidth(), onClick = {
                         insertDayExercise(
-                            DayExercise(
-                                routineDayId = routineDayInfo.routineDayId,
+                            DayExerciseWithExercise(
+                                routineDayId = routineDay.id,
                                 exerciseId = exercise.exerciseId,
                                 kgList = setInfoList.map { it.kg },
                                 repsList = setInfoList.map { it.reps },
@@ -177,13 +178,13 @@ fun InsertDayExerciseBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListBottomSheet(
-    routineDayInfo: RoutineDayInfo,
+    routineDay: RoutineDay,
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
     deleteExercise: (Int) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
+    insertDayExercise: (DayExerciseWithExercise) -> Unit,
 ) {
     val categoryList = (1..6).toList()
     var selectedChipIndices by remember { mutableStateOf(emptyList<ExerciseCategory>()) }
@@ -290,8 +291,8 @@ fun ExerciseListBottomSheet(
                             .padding(vertical = 45.dp),
                             onClick = {
                                 insertDayExercise(
-                                    DayExercise(
-                                        routineDayId = routineDayInfo.routineDayId,
+                                    DayExerciseWithExercise(
+                                        routineDayId = routineDay.id,
                                         exerciseId = selectedExercise.id,
                                         kgList = setInfoList.map { it.kg },
                                         repsList = setInfoList.map { it.reps },
