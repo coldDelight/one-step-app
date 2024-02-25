@@ -29,7 +29,7 @@ interface RoutineDayDao {
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoutineDay(routineDay: RoutineDayEntity)
+    suspend fun upsertRoutineDay(routineDay: RoutineDayEntity)
 
     @Transaction
     suspend fun deleteRoutineDayAndRelatedData(routineDayId: Int) {

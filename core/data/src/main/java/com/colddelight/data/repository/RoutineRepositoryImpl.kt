@@ -23,7 +23,6 @@ class RoutineRepositoryImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun upsertRoutine(routine: Routine) {
         routineDao.upsertRoutine(routine.asEntity())
     }

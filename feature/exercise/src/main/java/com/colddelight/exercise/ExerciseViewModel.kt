@@ -2,7 +2,7 @@ package com.colddelight.exercise
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.colddelight.data.repository.ExerciseRepository
+import com.colddelight.data.repository.ExerciseRepository2
 import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.domain.usecase.routine.GetRoutineUseCase
 import com.colddelight.domain.usecase.routine.UpsertRoutineUseCase
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ExerciseViewModel @Inject constructor(
     private val getRoutineUseCase: GetRoutineUseCase,
-    private val repository: ExerciseRepository,
+    private val repository: ExerciseRepository2,
     private val upsertRoutineUseCase: UpsertRoutineUseCase,
 ) : ViewModel() {
 
@@ -41,7 +41,8 @@ class ExerciseViewModel @Inject constructor(
         viewModelScope.launch {
             repository.initExercise()
             todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
-                val curIndex = exerciseList.filter { it.isDone }.size
+//                val curIndex = exerciseList.filter { it.isDone }.size
+                val curIndex = exerciseList.size
                 ExerciseUiState.Success(routine, curIndex, exerciseList)
             }.collectLatest {
                 _exerciseUiState.value = it
@@ -63,7 +64,7 @@ class ExerciseViewModel @Inject constructor(
         viewModelScope.launch {
 
             repository.updateDayExercise(
-                exerciseState.exerciseList[cur].dayExerciseId,
+                exerciseState.exerciseList[cur].exerciseId,
                 exerciseState.exerciseList[cur].setInfoList
             )
             repository.updateHistoryExercise(exerciseState.exerciseList[cur].exerciseId, true)

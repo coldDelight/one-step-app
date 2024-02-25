@@ -16,22 +16,4 @@ interface RoutineDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertRoutine(routine: RoutineEntity)
-
-    @Query("UPDATE routine SET cnt = cnt + 1 WHERE id = :routineId")
-    suspend fun updateCountById(routineId: Int)
-    @Transaction
-    suspend fun deleteRoutineAndRelatedData(routineId: Int) {
-        deleteDayExercisesByRoutineId(routineId)
-        deleteRoutineDaysByRoutineId(routineId)
-        deleteRoutineById(routineId)
-    }
-
-    @Query("DELETE FROM routine WHERE id = :routineId")
-    suspend fun deleteRoutineById(routineId: Int)
-
-    @Query("DELETE FROM routine_day WHERE routine_id = :routineId")
-    suspend fun deleteRoutineDaysByRoutineId(routineId: Int)
-
-    @Query("DELETE FROM day_exercise WHERE routine_day_id IN (SELECT id FROM routine_day WHERE routine_id = :routineId)")
-    suspend fun deleteDayExercisesByRoutineId(routineId: Int)
 }

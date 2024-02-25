@@ -16,7 +16,7 @@ interface ExerciseDao {
     fun getExercise(): Flow<List<ExerciseEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertExercise(exercise: ExerciseEntity)
+    suspend fun upsertExercise(exercise: ExerciseEntity)
 
 
     @Transaction
