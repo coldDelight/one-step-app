@@ -8,10 +8,6 @@ import com.colddelight.data.repository.HomeRepository
 import com.colddelight.data.repository.HomeRepositoryImpl
 import com.colddelight.data.repository.RoutineRepository
 import com.colddelight.data.repository.RoutineRepositoryImpl
-import com.colddelight.data.util.ConnectivityManagerNetworkMonitor
-import com.colddelight.data.util.LoginHelper
-import com.colddelight.data.util.LoginHelperImpl
-import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.datastore.datasource.TokenPreferencesDataSource
 import com.colddelight.datastore.datasource.TokenPreferencesDataSourceImpl
 import dagger.Binds
@@ -50,13 +46,4 @@ interface DataModule {
     ): HistoryRepository
 
 
-    @Binds
-    fun bindsNetworkMonitor(
-        networkMonitor: ConnectivityManagerNetworkMonitor
-    ): NetworkMonitor
-
-    @Binds
-    fun bindsLoginHelper(
-        loginHelper: LoginHelperImpl
-    ): LoginHelper
 }

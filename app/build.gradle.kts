@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.onestep.android.application)
     alias(libs.plugins.onestep.android.hilt)
     alias(libs.plugins.onestep.android.application.compose)
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 android {
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.colddelight.onestep"
-        versionCode = 1
+        versionCode = 4
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -20,7 +21,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+//            isMinifyEnabled = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -42,7 +45,6 @@ dependencies {
 
     implementation(project(":feature:routine"))
     implementation(project(":feature:history"))
-    implementation(project(":feature:login"))
 
     implementation(project(":core:ui"))
     implementation(project(":core:designsystem"))
@@ -57,11 +59,10 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
 
-    implementation(libs.hilt.ext.work)
-    implementation(libs.androidx.work.ktx)
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
+    implementation(libs.androidx.core.splashscreen)
+    implementation ("com.google.android.gms:play-services-oss-licenses:17.0.0")
+
 
 }

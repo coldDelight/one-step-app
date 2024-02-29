@@ -1,6 +1,5 @@
 package com.colddelight.routine
 
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,7 +32,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.Add
@@ -47,19 +48,13 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -69,23 +64,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -93,12 +90,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeek
 import com.colddelight.designsystem.component.CategoryChip
-import com.colddelight.designsystem.component.ExerciseDetailItem
-import com.colddelight.designsystem.component.ExerciseProgress
+import com.colddelight.designsystem.component.ui.ExerciseDetailItem
+import com.colddelight.designsystem.component.ui.ExerciseProgress
 import com.colddelight.designsystem.component.FilterChip
 import com.colddelight.designsystem.component.MainButton
 import com.colddelight.designsystem.component.RedButton
-import com.colddelight.designsystem.component.SetAction
+import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Close
 import com.colddelight.designsystem.icons.iconpack.Topback
@@ -131,10 +128,6 @@ fun RoutineScreen(
     val routineInfoUiState by viewModel.routineInfoUiState.collectAsStateWithLifecycle()
     val routineDayInfoUiState by viewModel.routineDayInfoUiState.collectAsStateWithLifecycle()
     val exerciseListState by viewModel.exerciseListState.collectAsStateWithLifecycle()
-
-    Log.e("TAG", "RoutineScreen: $routineDayInfoUiState")
-    Log.e("TAG", "RoutineScreen: $exerciseListState")
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(), containerColor = BackGray
@@ -198,7 +191,6 @@ private fun RoutineContentWithState(
             deleteExercise,
             deleteDayExercise,
         )
-
         routineInfoUiState is RoutineInfoUiState.Loading -> RoutineLoading()
         routineInfoUiState is RoutineInfoUiState.Error -> RoutineLoading()
         routineDayInfoUiState is RoutineDayInfoUiState.Loading -> RoutineLoading()
@@ -262,7 +254,6 @@ private fun RoutineContent(
             ExerciseCardRow(
                 currentDayOfWeek, routineDayList, screenWidth
             ) { selectedDayOfWeek ->
-                // ExerciseCardView가 선택될 때마다 currentDayOfWeek를 업데이트
                 currentDayOfWeek = selectedDayOfWeek
             }
         }
@@ -299,20 +290,7 @@ private fun RoutineContent(
     }
 }
 
-fun getDayOfWeekNumber(): Int {
-    val calendar = Calendar.getInstance()
-    val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-    return when (dayOfWeek) {
-        Calendar.MONDAY -> 1
-        Calendar.TUESDAY -> 2
-        Calendar.WEDNESDAY -> 3
-        Calendar.THURSDAY -> 4
-        Calendar.FRIDAY -> 5
-        Calendar.SATURDAY -> 6
-        Calendar.SUNDAY -> 7
-        else -> 0
-    }
-}
+
 
 @Composable
 fun DayOfWeekAndDot(
@@ -332,7 +310,7 @@ fun DayOfWeekAndDot(
                 text = getDayOfWeek(routineDayInfo.dayOfWeek),
                 style = NotoTypography.headlineSmall
             )
-            routineDayInfo.exerciseList?.let {
+            routineDayInfo.exerciseList.let {
                 if (it.size > 7) {
                     ExerciseProgress(modifier = modifier, 7, 7)
                     Text(text = "7+", style = NotoTypography.bodyMedium)
@@ -357,42 +335,20 @@ fun RoutineDayDeleteBtn(
         Icon(imageVector = IconPack.Trash, contentDescription = "루틴데이삭제", tint = LightGray)
     }
     if (openAlertDialog) {
-        RoutineDayDeleteDialog(onDismissRequest = {
-            openAlertDialog = it
-        }, onConfirmation = {
-            if (it) deleteRoutineDay(routineDayId)
-        })
+
+        SimpleDialog(
+            infoText = "해당 요일의 모든 데이터를 삭제하시겠습니까?",
+            onDismissRequest = {
+                openAlertDialog = it
+            },
+            onConfirmation = {
+                if (it) deleteRoutineDay(routineDayId)
+            }
+        )
+
     }
 }
 
-@Composable
-fun RoutineDayDeleteDialog(
-    onDismissRequest: (Boolean) -> Unit,
-    onConfirmation: (Boolean) -> Unit,
-) {
-    AlertDialog(containerColor = BackGray, text = {
-        Text(
-            text = "해당 요일의 모든 데이터를 삭제하시겠습니까?",
-            style = NotoTypography.bodyMedium,
-            color = TextGray
-        )
-    }, onDismissRequest = {
-        onDismissRequest(true)
-    }, confirmButton = {
-        TextButton(onClick = {
-            onConfirmation(true)
-            onDismissRequest(false)
-        }) {
-            Text(text = "삭제", style = NotoTypography.bodyMedium, color = Red)
-        }
-    }, dismissButton = {
-        TextButton(onClick = {
-            onDismissRequest(false)
-        }) {
-            Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
-        }
-    })
-}
 
 
 @Composable
@@ -413,8 +369,8 @@ fun ExerciseGridList(
             columns = StaggeredGridCells.Fixed(2),
             modifier = Modifier
                 .heightIn(max = height.dp)
-                .wrapContentHeight(),        // wrapContent 설정
-            userScrollEnabled = false        // 스크롤 막기
+                .wrapContentHeight(),
+            userScrollEnabled = false
         ) {
             if (exerciseList.isNotEmpty()) {
                 item {
@@ -515,493 +471,97 @@ fun AddExerciseToRoutineDayBtn(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InsertDayExerciseBottomSheet(
-    onDismissSheet: (Boolean) -> Unit,
-    sheetState: SheetState,
-    insertDayExercise: (DayExercise) -> Unit,
-    deleteDayExercise: (Int) -> Unit,
-    routineDayInfo: RoutineDayInfo,
-    exercise: Exercise,
-) {
-    val categoryList = (1..6).toList()
-    var setInfoList by remember { mutableStateOf(exercise.setInfoList) }
 
-    val lazyColumnState = rememberLazyListState()
-    val density = LocalDensity.current
-    val itemSizePx = with(density) { 100.dp.toPx() }
-    val coroutineScope = rememberCoroutineScope()
-
-
-    ModalBottomSheet(
-        onDismissRequest = { onDismissSheet(false) },
-        sheetState = sheetState,
-        containerColor = BackGray,
-    ) {
-        LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
-            items(categoryList) { categoryIndex ->
-                FilterChip(
-                    ExerciseCategory.toName(categoryIndex),
-                    {},
-                    false,
-                    if (categoryIndex == exercise.category.id) Main else LightGray
-                )
-                Log.e("TAG", "InsertDayExerciseBottomSheet: ${exercise}")
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .padding(top = 16.dp),
-            state = lazyColumnState
-        ) {
-
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Main, RoundedCornerShape(10.dp))
-                    ) {
-                        Text(
-                            text = exercise.name,
-                            style = NotoTypography.bodyMedium,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                }
-            }
-            itemsIndexed(setInfoList) { index, item ->
-                ExerciseDetailItem(
-                    item.kg,
-                    item.reps,
-                    index,
-                    exercise.category != ExerciseCategory.CALISTHENICS
-                ) { setAction ->
-                    setInfoList = performSetAction(
-                        setInfoList, setAction
-                    )
-                }
-                Divider(
-                    color = DarkGray, thickness = 2.dp
-                )
-
-            }
-            item {
-                ClickableText(modifier = Modifier.padding(top = 8.dp),
-                    text = AnnotatedString("+ 세트 추가"),
-                    style = NotoTypography.headlineSmall.copy(color = DarkGray),
-                    onClick = {
-                        setInfoList = performSetAction(setInfoList, SetAction.AddSet)
-                        coroutineScope.launch {
-                            lazyColumnState.animateScrollBy(
-                                value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
-                                animationSpec = tween(durationMillis = 2000)
-                            )
-                        }
-                    })
-            }
-            item {
-                Row(
-                    Modifier.padding(vertical = 45.dp),
-
-                    ) {
-                    RedButton(modifier = Modifier.padding(end = 8.dp), onClick = {
-                        deleteDayExercise(exercise.dayExerciseId)
-                        onDismissSheet(false)
-                    }, content = { Text("삭제", style = NotoTypography.bodyMedium) })
-                    MainButton(modifier = Modifier.fillMaxWidth(), onClick = {
-                        insertDayExercise(
-                            DayExercise(
-                                routineDayId = routineDayInfo.routineDayId,
-                                exerciseId = exercise.exerciseId,
-                                kgList = setInfoList.map { it.kg },
-                                repsList = setInfoList.map { it.reps },
-                                id = exercise.dayExerciseId
-                            )
-                        )
-                        onDismissSheet(false)
-                    }) {
-                        Text(text = "완료", style = NotoTypography.bodyMedium, color = Color.White)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ExerciseListBottomSheet(
-    routineDayInfo: RoutineDayInfo,
-    onDismissSheet: (Boolean) -> Unit,
-    sheetState: SheetState,
-    exerciseList: List<ExerciseInfo>,
-    insertExercise: (ExerciseInfo) -> Unit,
-    deleteExercise: (Int) -> Unit,
-    insertDayExercise: (DayExercise) -> Unit,
-) {
-
-    ModalBottomSheet(
-        onDismissRequest = { onDismissSheet(false) },
-        sheetState = sheetState,
-        containerColor = BackGray,
-    ) {
-        val categoryList = (1..6).toList()
-        var selectedChipIndices by remember { mutableStateOf(emptyList<ExerciseCategory>()) }
-        var bottomSheetState by remember { mutableStateOf(ExerciseBottomSheetState.List) }
-        var selectedExercise by remember {
-            mutableStateOf(
-                ExerciseInfo(
-                    -1, "", ExerciseCategory.CHEST
-                )
-            )
-        }
-        var setInfoList by remember {
-            mutableStateOf(List(5) { SetInfo(20, 12) })
-        }
-
-        val lazyColumnState = rememberLazyListState()
-        val density = LocalDensity.current
-        val itemSizePx = with(density) { 100.dp.toPx() }
-        val coroutineScope = rememberCoroutineScope()
-
-
-        when (bottomSheetState) {
-            ExerciseBottomSheetState.Selected -> {
-                LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
-                    items(categoryList) { categoryIndex ->
-                        FilterChip(
-                            ExerciseCategory.toName(categoryIndex),
-                            {},
-                            false,
-                            if (categoryIndex == selectedExercise.category.id) Main else LightGray
-                        )
-                    }
-                }
-
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .padding(top = 16.dp),
-                    state = lazyColumnState
-                ) {
-
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            IconButton(onClick = {
-                                bottomSheetState = ExerciseBottomSheetState.List
-                            }) {
-                                Icon(
-                                    imageVector = IconPack.Topback,
-                                    contentDescription = "운동 선택",
-                                    tint = TextGray
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .border(1.dp, Main, RoundedCornerShape(10.dp))
-                            ) {
-                                Text(
-                                    text = selectedExercise.name,
-                                    style = NotoTypography.bodyMedium,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        }
-                    }
-                    itemsIndexed(setInfoList) { index, item ->
-                        ExerciseDetailItem(
-                            item.kg,
-                            item.reps,
-                            index,
-                            selectedExercise.category != ExerciseCategory.CALISTHENICS
-                        ) { setAction ->
-                            setInfoList = performSetAction(
-                                setInfoList, setAction
-                            )
-                        }
-                        Divider(
-                            color = DarkGray, thickness = 2.dp
-                        )
-
-                    }
-                    item {
-                        ClickableText(text = AnnotatedString("+ 세트 추가"),
-                            style = NotoTypography.headlineSmall.copy(color = DarkGray),
-                            onClick = {
-                                setInfoList = performSetAction(setInfoList, SetAction.AddSet)
-                                coroutineScope.launch {
-                                    lazyColumnState.animateScrollBy(
-                                        value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
-                                        animationSpec = tween(durationMillis = 2000)
-                                    )
-                                }
-                            })
-                    }
-                    item {
-                        MainButton(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 45.dp),
-                            onClick = {
-                                insertDayExercise(
-                                    DayExercise(
-                                        routineDayId = routineDayInfo.routineDayId,
-                                        exerciseId = selectedExercise.id,
-                                        kgList = setInfoList.map { it.kg },
-                                        repsList = setInfoList.map { it.reps },
-                                        id = 0
-                                    )
-                                )
-                                onDismissSheet(false)
-                            }) {
-                            Text(
-                                text = "완료",
-                                style = NotoTypography.bodyMedium,
-                                color = Color.White
-                            )
-                        }
-                    }
-                }
-
-            }
-
-            else -> {
-                LazyRow(modifier = Modifier.padding(horizontal = 10.dp)) {
-                    items(categoryList) { categoryIndex ->
-                        FilterChip(ExerciseCategory.toName(categoryIndex), { isSelected ->
-                            selectedChipIndices = if (isSelected) {
-                                selectedChipIndices + ExerciseCategory.fromId(categoryIndex)!!
-                            } else {
-                                selectedChipIndices - ExerciseCategory.fromId(categoryIndex)!!
-                            }
-                        }, true, LightGray)
-                    }
-                }
-
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .heightIn(min = 300.dp)
-                ) {
-                    if (selectedChipIndices.isEmpty()) {
-                        itemsIndexed(exerciseList) { index, it ->
-                            AllExerciseListItem(it,
-                                insertExercise = insertExercise,
-                                deleteExercise = deleteExercise,
-                                isItemSelected = {
-                                    selectedExercise = it
-                                    bottomSheetState = ExerciseBottomSheetState.Selected
-                                })
-                            Divider(
-                                color = LightGray, thickness = 1.dp
-                            )
-                        }
-                        if (exerciseList.isEmpty()) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1.5f)
-                                ) {
-                                    Text(
-                                        text = "운동을 추가해주세요",
-                                        style = NotoTypography.headlineSmall,
-                                        color = LightGray,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        val filteredList =
-                            exerciseList.filter { it.category in selectedChipIndices }
-                        itemsIndexed(filteredList) { index, it ->
-                            AllExerciseListItem(it,
-                                insertExercise = insertExercise,
-                                deleteExercise = deleteExercise,
-                                isItemSelected = {
-                                    selectedExercise = it
-                                    bottomSheetState = ExerciseBottomSheetState.Selected
-                                })
-                            Divider(
-                                color = LightGray, thickness = 1.dp
-                            )
-                        }
-                        if (filteredList.isEmpty()) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1.5f)
-                                ) {
-                                    Text(
-                                        text = "운동을 추가해주세요",
-                                        style = NotoTypography.headlineSmall,
-                                        color = LightGray,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                var insertCategory by remember { mutableStateOf(ExerciseCategory.CHEST) }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 105.dp),
-
-                    ) {
-                    AddCategoryTextBox(onCategorySelected = {
-                        insertCategory = it
-                    })
-                    ExerciseNameOutlineTextField(
-                        isIconVisible = true,
-                        originExerciseName = "",
-                        insertExerciseName = {
-                            insertExercise(ExerciseInfo(id = 0, name = it, insertCategory))
-                        },
-                        containerColor = BackGray
-                    )
-                }
-            }
-        }
-    }
-}
-
-fun performSetAction(setInfoList: List<SetInfo>, action: SetAction): List<SetInfo> {
-    when (action) {
-        is SetAction.UpdateKg -> return upDateNewKgList(
-            setInfoList,
-            action.updatedKg,
-            action.toChange
-        )
-
-        is SetAction.UpdateReps -> return upDateNewRepsList(
-            setInfoList,
-            action.updatedReps,
-            action.toChange
-        )
-
-        is SetAction.DeleteSet -> return deleteSet(setInfoList, action.toChange)
-
-        is SetAction.AddSet -> return addSet(setInfoList)
-    }
-}
-
-fun upDateNewKgList(setInfoList: List<SetInfo>, updatedKg: Int, toChange: Int): List<SetInfo> {
-    if (updatedKg > 0) {
-        return setInfoList.mapIndexed { index, setInfo ->
-            if (index >= toChange) {
-                setInfo.copy(kg = updatedKg)
-            } else {
-                setInfo
-            }
-        }
-    } else {
-        return setInfoList
-    }
-}
-
-fun upDateNewRepsList(setInfoList: List<SetInfo>, updatedReps: Int, toChange: Int): List<SetInfo> {
-    return if (updatedReps > 0) {
-        setInfoList.mapIndexed { index, setInfo ->
-            if (index >= toChange) {
-                setInfo.copy(reps = updatedReps)
-            } else {
-                setInfo
-            }
-        }
-    } else {
-        setInfoList
-    }
-}
-
-fun deleteSet(setInfoList: List<SetInfo>, toChange: Int): List<SetInfo> {
-    if (setInfoList.size == 1) {
-        return setInfoList
-    }
-
-    val updatedSetInfoList = setInfoList.filterIndexed { index, _ -> index != toChange }
-    return updatedSetInfoList
-}
-
-private fun addSet(setInfoList: List<SetInfo>): List<SetInfo> {
-    val setInfoList = setInfoList.toMutableList()
-    setInfoList.add(SetInfo(20, 12))
-    return setInfoList
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ExerciseNameOutlineTextField(
+    initKeyboardOpen: Boolean,
     isIconVisible: Boolean,
     originExerciseName: String,
     insertExerciseName: (String) -> Unit,
     containerColor: Color,
+    focusManager: FocusManager = LocalFocusManager.current,
 ) {
-    var textState by remember { mutableStateOf(originExerciseName) }
-//    val focusRequester = remember { FocusRequester() }
-//    val keyboard = LocalSoftwareKeyboardController.current
-//    val windowInfo = LocalWindowInfo.current
-//    LaunchedEffect(focusRequester) {
-//        awaitFrame()
-//        focusRequester.requestFocus()
-//    }
-
-    OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp)
-//            .focusRequester(focusRequester)
-        ,
-        value = textState,
-        onValueChange = {
-            textState = it
-            if (!isIconVisible) insertExerciseName(it)
-        },
-        placeholder = {
-            Text(
-                text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
-            )
-        },
-        singleLine = true,
-        textStyle = NotoTypography.bodyMedium,
-        trailingIcon = {
-            if (textState != "" && isIconVisible) Icon(imageVector = Icons.Rounded.Add,
-                tint = TextGray,
-                contentDescription = "추가",
-                modifier = Modifier
-                    .border(
-                        1.dp, Main, CircleShape
-                    )
-                    .clickable {
-                        insertExerciseName(textState)
-                        textState = ""
-                    })
-
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = TextGray,
-            unfocusedTextColor = TextGray,
-            focusedBorderColor = Main,
-            unfocusedBorderColor = LightGray,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-        ),
+    var colorState by remember { mutableStateOf(LightGray) }
+    val focusRequester = remember { FocusRequester() }
+    var textState by remember {
+        mutableStateOf(
+            TextFieldValue(originExerciseName, selection = TextRange(originExerciseName.length))
         )
+    }
+
+    if (initKeyboardOpen) {
+        LaunchedEffect(focusRequester) {
+            awaitFrame()
+            focusRequester.requestFocus()
+        }
+    }
+
+    Row(
+        Modifier
+            .padding(start = 16.dp)
+            .fillMaxWidth()
+            .border(1.dp, colorState, RoundedCornerShape(10.dp))
+            .background(containerColor),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Box(
+                Modifier
+                    .weight(0.9f)
+                    .padding(end = if (textState.text != "" && isIconVisible) 16.dp else 0.dp)
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { colorState = if (it.hasFocus) Main else LightGray },
+                    value = textState,
+                    onValueChange = {
+                        textState = it
+                        if (!isIconVisible) insertExerciseName(it.text)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    ),
+                    singleLine = true,
+                    textStyle = NotoTypography.bodyMedium,
+                    cursorBrush = SolidColor(Color.White),
+
+
+                    )
+                if (textState.text.isEmpty()) {
+                    Text(
+                        text = "새 운동 추가", style = NotoTypography.bodyMedium, color = DarkGray
+                    )
+                }
+            }
+            if (textState.text != "" && isIconVisible)
+                Icon(imageVector = Icons.Rounded.Add,
+                    tint = TextGray,
+                    contentDescription = "추가",
+                    modifier = Modifier
+                        .weight(0.1f)
+                        .border(
+                            1.dp, Main, CircleShape
+                        )
+                        .clickable {
+                            insertExerciseName(textState.text)
+                            textState = TextFieldValue("")
+                        }
+                )
+        }
+    }
 }
 
 @Composable
@@ -1094,38 +654,60 @@ fun EditExerciseDialog(
     var insertCategory by remember { mutableStateOf(exerciseInfo.category) }
     var insertName by remember { mutableStateOf(exerciseInfo.name) }
 
+    var errText by remember { mutableStateOf(false) }
+
+    LaunchedEffect(insertName) {
+        if (insertName.isNotEmpty())
+            errText = false
+    }
+
     AlertDialog(containerColor = DarkGray,
         onDismissRequest = { onDismissDialog(ExerciseDialogState.None) },
         text = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
 
-                ) {
-                AddCategoryTextBox(
-                    onCategorySelected = {
-                        insertCategory = it
-                    }
-                )
-                ExerciseNameOutlineTextField(
-                    false,
-                    originExerciseName = insertName,
-                    insertExerciseName = {
-                        insertName = it
-                    },
-                    containerColor = DarkGray
-                )
+                    ) {
+                    AddCategoryTextBox(
+                        onCategorySelected = {
+                            insertCategory = it
+                        }
+                    )
+                    ExerciseNameOutlineTextField(
+                        initKeyboardOpen = false,
+                        false,
+                        originExerciseName = insertName,
+                        insertExerciseName = {
+                            insertName = it
+                        },
+                        containerColor = DarkGray
+                    )
+
+                }
+                if (errText)
+                    Text(
+                        text = "운동 이름을 1글자 이상으로 설정해주세요",
+                        style = NotoTypography.labelMedium,
+                        color = Red,
+                        modifier = Modifier.padding(top = 4.dp, start = 10.dp)
+                    )
             }
         },
         confirmButton = {
             TextButton(onClick = {
-                insertExercise(
-                    ExerciseInfo(
-                        id = exerciseInfo.id, name = insertName, category = insertCategory
+                if (insertName.isNotEmpty()) {
+                    insertExercise(
+                        ExerciseInfo(
+                            id = exerciseInfo.id, name = insertName, category = insertCategory
+                        )
                     )
-                )
-                onDismissDialog(ExerciseDialogState.None)
+                    onDismissDialog(ExerciseDialogState.None)
+                } else {
+                    errText = true
+                }
             }) {
                 Text(text = "완료", style = NotoTypography.bodyMedium, color = Main)
             }
@@ -1146,32 +728,47 @@ fun DeleteExerciseDialog(
     onDismissDialog: (ExerciseDialogState) -> Unit,
     deleteExercise: (Int) -> Unit,
 ) {
+    SimpleDialog(
+        infoText = "운동을 삭제하면 관련 데이터가 전부 삭제됩니다.",
+        onDismissRequest = {
+            onDismissDialog(ExerciseDialogState.None)
+        },
+        onConfirmation = {
+            deleteExercise(exerciseInfo.id)
+            onDismissDialog(ExerciseDialogState.None)
+        }
+    )
+}
+
+@Composable
+fun SimpleDialog(
+    infoText: String,
+    onDismissRequest: (Boolean) -> Unit,
+    onConfirmation: (Boolean) -> Unit,
+){
     AlertDialog(containerColor = BackGray, text = {
         Text(
-            text = "운동을 삭제하면 관련 데이터가 전부 삭제됩니다.",
+            text = infoText,
             style = NotoTypography.bodyMedium,
             color = TextGray
         )
     }, onDismissRequest = {
-        onDismissDialog(ExerciseDialogState.None)
+        onDismissRequest(false)
     }, confirmButton = {
         TextButton(onClick = {
-            deleteExercise(exerciseInfo.id)
-            onDismissDialog(ExerciseDialogState.None)
+            onConfirmation(true)
+            onDismissRequest(false)
         }) {
             Text(text = "삭제", style = NotoTypography.bodyMedium, color = Red)
         }
     }, dismissButton = {
         TextButton(onClick = {
-            onDismissDialog(ExerciseDialogState.None)
+            onDismissRequest(false)
         }) {
             Text("취소", style = NotoTypography.bodyMedium, color = TextGray)
         }
     })
-
-
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1349,7 +946,6 @@ fun ExerciseCardRow(
                     routineDayInfo = routineDayInfo,
                     widthDp = widthDp,
                     onCardClicked = {
-                        // 클릭 시 선택한 dayOfWeek를 콜백으로 전달
                         onCardClicked(it)
 
                     })
@@ -1426,8 +1022,8 @@ fun AddCategoryTextBox(
                 )
             }, onClick = {
                 onCategorySelected(ExerciseCategory.fromId(it)!!)
-                selectedCategory = it // 선택된 카테고리를 저장
-                isDropDownMenuExpanded = false // 드롭다운 닫기
+                selectedCategory = it
+                isDropDownMenuExpanded = false
             })
             if (index < list.size - 1) {
                 Divider(
@@ -1449,7 +1045,7 @@ fun AddCategoryBtn(
     insertRoutineDay: (RoutineDayInfo) -> Unit,
 ) {
     var isDropDownMenuExpanded by remember { mutableStateOf(false) }
-    var selectedCategory: Int by remember { mutableStateOf(-1) } // 추가
+    var selectedCategory: Int by remember { mutableStateOf(-1) }
 
     Box(modifier = Modifier
         .padding(end = 8.dp)
@@ -1486,8 +1082,8 @@ fun AddCategoryBtn(
                     modifier = Modifier.fillMaxWidth()
                 )
             }, onClick = {
-                selectedCategory = it // 선택된 카테고리를 저장
-                isDropDownMenuExpanded = false // 드롭다운 닫기
+                selectedCategory = it
+                isDropDownMenuExpanded = false
             })
             if (index < list.size - 1) {
                 Divider(
@@ -1531,7 +1127,6 @@ fun RoutineName(name: String, insertRoutine: (String) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EditRoutineNameDialog(
     routineName: String,
@@ -1555,6 +1150,7 @@ fun EditRoutineNameDialog(
         text = {
             Column {
                 ExerciseNameOutlineTextField(
+                    true,
                     false,
                     originExerciseName = insertName,
                     insertExerciseName = {
@@ -1593,65 +1189,12 @@ fun EditRoutineNameDialog(
         })
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropDownRoutineList(routineList: List<String>, modifier: Modifier) {
-
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(routineList[0]) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded, onExpandedChange = { expanded = it }, modifier = modifier
-    ) {
-        TextField(
-            // The `menuAnchor` modifier must be passed to the text field for correctness.
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth(0.4f),
-            readOnly = true,
-            textStyle = NotoTypography.headlineSmall,
-            value = selectedOptionText,
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = TextGray,
-                unfocusedTextColor = TextGray,
-                disabledContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTrailingIconColor = TextGray,
-                unfocusedTrailingIconColor = TextGray,
-                focusedIndicatorColor = TextGray,
-                unfocusedIndicatorColor = TextGray,
-            ),
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            routineList.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-                        selectedOptionText = selectionOption
-                        expanded = false
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                )
-            }
-        }
-    }
-}
-
-
 @Composable
 fun ExerciseCardView(
     isSelected: Boolean,
     routineDayInfo: RoutineDayInfo,
     widthDp: Int,
-    onCardClicked: (Int) -> Unit, // 클릭 이벤트를 처리할 콜백 함수
+    onCardClicked: (Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -1688,7 +1231,7 @@ fun ExerciseCardView(
                     RoundedCornerShape(10.dp)
                 )
                 .clickable {
-                    onCardClicked(routineDayInfo.dayOfWeek) // 클릭 시 콜백 호출
+                    onCardClicked(routineDayInfo.dayOfWeek)
                 }
                 .padding(16.dp),
         ) {
@@ -1773,4 +1316,3 @@ fun ExerciseText(
         )
     }
 }
-

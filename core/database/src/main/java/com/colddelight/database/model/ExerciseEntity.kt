@@ -12,10 +12,3 @@ data class ExerciseEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
 
-
-
-//fun ExerciseEntity.asNetworkExercise() = NetworkExercise(
-//    room_id = id,
-//    name = name,
-//    category = category
-//)

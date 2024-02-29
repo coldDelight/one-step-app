@@ -9,5 +9,4 @@ android {
 
 dependencies {
 
-//    implementation(project(":feature:exercisedetail"))
 }

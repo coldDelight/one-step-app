@@ -13,6 +13,7 @@ import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
 import com.colddelight.model.TodayRoutine
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -34,6 +35,7 @@ class ExerciseRepositoryImpl @Inject constructor(
 
 
     private val dayOfWeek = LocalDate.now().dayOfWeek.value
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getTodayExerciseList(): Flow<List<Exercise>> {
         return todayHistoryId.flatMapLatest {
             historyExerciseDao.getTodayHistoryExercises(it)
@@ -95,6 +97,7 @@ class ExerciseRepositoryImpl @Inject constructor(
         )
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
         return userDataSource.currentRoutineId
             .flatMapLatest { routineId ->

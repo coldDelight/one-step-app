@@ -1,11 +1,11 @@
 package com.colddelight.exercise
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,17 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -36,22 +36,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getTodayDateWithDayOfWeek
-import com.colddelight.designsystem.R
-import com.colddelight.designsystem.component.DateWithCnt
-import com.colddelight.designsystem.component.ExerciseProgress
+import com.colddelight.designsystem.component.ui.CategoryIconList
+import com.colddelight.designsystem.component.ui.DateWithCnt
+import com.colddelight.designsystem.component.ui.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
 import com.colddelight.designsystem.component.SubButton
-import com.colddelight.designsystem.component.TitleText
+import com.colddelight.designsystem.component.ui.TitleText
 import com.colddelight.designsystem.theme.BackGray
 import com.colddelight.designsystem.theme.DarkGray
 import com.colddelight.designsystem.theme.HortaTypography
+import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.Exercise
@@ -117,9 +117,7 @@ private fun ExerciseContent(
         FinishDialog(
             onDismiss = { showDialog = false },
             onConfirm = onConfirm,
-            count = routineInfo.cnt + 1,
-            exerciseCnt = exerciseList.size,
-            setCnt = exerciseList.sumOf { it.setInfoList.size }
+            exerciseList = exerciseList
         )
     }
     LazyColumn(
@@ -135,9 +133,10 @@ private fun ExerciseContent(
             TitleText(text = "Routine", modifier = Modifier.padding(top = 8.dp))
         }
         item {
+            val curCnt = if (cur + 1 >= exerciseList.size) exerciseList.size else cur + 1
             Row(Modifier.padding(bottom = 8.dp)) {
                 Text(
-                    text = "${cur + 1}",
+                    text = curCnt.toString(),
                     style = NotoTypography.bodyMedium,
                     color = Main,
                 )
@@ -190,11 +189,9 @@ private fun ExerciseContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinishDialog(
-    count: Int,
-    exerciseCnt: Int,
-    setCnt: Int,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    exerciseList: List<Exercise>
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -202,48 +199,77 @@ fun FinishDialog(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.5F)
-                .fillMaxHeight(0.3F)
+                .fillMaxWidth()
+                .fillMaxHeight(0.5F),
+
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(DarkGray, RoundedCornerShape(10.dp)),
-                Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxSize().background(DarkGray),
+                Arrangement.SpaceAround,
                 Alignment.CenterHorizontally
             ) {
-
                 Text(
                     text = "운동결과", style = NotoTypography.headlineSmall,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Count :", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$count".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 회", style = NotoTypography.bodyMedium)
+                LazyColumn(
+                    Modifier.fillMaxHeight(0.8f)
+                ) {
+                    items(exerciseList) { exercise ->
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(3.dp)
+                                    .background(Color.White, CircleShape)
+                            )
+                            Text(
+                                text = exercise.name,
+                                style = NotoTypography.bodyMedium,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
 
-                }
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Exercise :", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$exerciseCnt".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 세트", style = NotoTypography.bodyMedium)
-                }
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(text = "Set : ", style = HortaTypography.bodyMedium)
-                    Text(
-                        text = "$setCnt".padStart(4, ' '),
-                        style = NotoTypography.headlineSmall,
-                        color = Main
-                    )
-                    Text(text = " 개", style = NotoTypography.bodyMedium)
-
+                        LazyRow(
+                            contentPadding = PaddingValues(16.dp),
+                        ) {
+                            itemsIndexed(exercise.setInfoList) { index, setInfo ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .padding(horizontal = 8.dp)
+                                            .background(Main, CircleShape)
+                                            .padding(vertical = 6.dp, horizontal = 14.dp),
+                                        Alignment.Center,
+                                    ) {
+                                        Row {
+                                            Text(
+                                                "${setInfo.kg}kg",
+                                                style = HortaTypography.bodyMedium,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = "x  ${setInfo.reps} reps",
+                                        style = HortaTypography.labelLarge
+                                    )
+                                    if (index < exercise.setInfoList.size - 1)
+                                        Divider(
+                                            modifier = Modifier
+                                                .padding(horizontal = 18.dp)
+                                                .height(30.dp)
+                                                .width(1.dp), color = LightGray
+                                        )
+                                }
+                            }
+                        }
+                    }
                 }
                 MainButton(
                     modifier = Modifier
@@ -259,8 +285,8 @@ fun FinishDialog(
                             style = NotoTypography.bodyMedium,
                             color = Color.White
                         )
-                    })
-
+                    }
+                )
             }
 
         }
@@ -419,14 +445,6 @@ fun TodoExerciseItem(name: String) {
     }
 }
 
-
-@Composable
-private fun ExerciseLoading() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
 @Composable
 private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: Modifier) {
     Column(
@@ -439,47 +457,7 @@ private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: 
 }
 
 
-@Composable
-fun CategoryIconList(categoryList: List<ExerciseCategory>) {
-    LazyRow {
-        items(categoryList) { item ->
-            Box(modifier = Modifier.padding(4.dp)) {
-                when (item) {
-                    ExerciseCategory.CHEST -> Image(
-                        painter = painterResource(id = R.drawable.chest),
-                        contentDescription = "가슴",
-                    )
 
-                    ExerciseCategory.SHOULDER -> Image(
-                        painter = painterResource(id = R.drawable.shoulder),
-                        contentDescription = "어깨",
-                    )
-
-                    ExerciseCategory.BACK -> Image(
-                        painter = painterResource(id = R.drawable.back),
-                        contentDescription = "등",
-                    )
-
-                    ExerciseCategory.ARM -> Image(
-                        painter = painterResource(id = R.drawable.arm),
-                        contentDescription = "팔",
-                    )
-
-                    ExerciseCategory.LEG -> Image(
-                        painter = painterResource(id = R.drawable.leg),
-                        contentDescription = "하체",
-                    )
-
-                    ExerciseCategory.CALISTHENICS -> Image(
-                        painter = painterResource(id = R.drawable.calisthenics),
-                        contentDescription = "맨몸",
-                    )
-                }
-
-            }
-        }
-    }
-}
 
 @Preview
 @Composable
@@ -495,17 +473,6 @@ private fun ExerciseContentPreview() {
             Exercise.Weight("데드 리프트", 40, 100, 2, false),
             Exercise.Weight("숄더 프레스", 40, 100, 2, false),
             Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
-            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
-            Exercise.Weight("스쿼트", 40, 100, 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, 3, false),
-            Exercise.Weight("벤치 프레스", 20, 40, 1, true),
-            Exercise.Weight("스쿼트", 40, 100, 2, false),
-            Exercise.Weight("데드 리프트", 40, 100, 2, false),
-            Exercise.Weight("숄더 프레스", 40, 100, 2, false),
-            Exercise.Calisthenics("턱걸이", 12, 3, 3, false)
         ), 0, {}
     )
-
 }

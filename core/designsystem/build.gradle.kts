@@ -10,6 +10,7 @@ android {
 
 dependencies {
     debugApi(libs.androidx.compose.ui.tooling)
+    implementation(project(":core:model"))
 
     implementation(libs.androidx.core.ktx)
 }
