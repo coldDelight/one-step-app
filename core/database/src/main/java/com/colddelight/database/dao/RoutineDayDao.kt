@@ -20,13 +20,7 @@ interface RoutineDayDao {
     fun getAllWorkDay(routineId: Int): Flow<List<RoutineDayEntity>>
 
     @Query("SELECT * FROM routine_day WHERE day_of_week=(:dayOfWeek)")
-    fun geTodayRoutineDay(dayOfWeek: Int): Flow<RoutineDayEntity>
-    @Query("SELECT * FROM routine JOIN routine_day ON (:dayOfWeek)=routine_day.day_of_week WHERE routine_day.routine_id = (:routineId)")
-    fun getTodayRoutineInfo(
-        routineId: Int,
-        dayOfWeek: Int
-    ): Flow<Map<RoutineEntity, @MapColumn("category_list")String>>
-
+    fun getTodayRoutineDay(dayOfWeek: Int): Flow<RoutineDayEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertRoutineDay(routineDay: RoutineDayEntity)

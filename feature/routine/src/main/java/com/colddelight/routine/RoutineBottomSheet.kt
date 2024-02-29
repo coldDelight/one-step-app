@@ -1,6 +1,5 @@
 package com.colddelight.routine
 
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -49,7 +48,8 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.model.DayExerciseWithExercise
+import com.colddelight.model.DayExercise
+import com.colddelight.model.DayExerciseUI
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 fun InsertDayExerciseBottomSheet(
     onDismissSheet: (Boolean) -> Unit,
     sheetState: SheetState,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteDayExercise: (Int) -> Unit,
     routineDay: RoutineDay,
     exercise: Exercise,
@@ -157,7 +157,7 @@ fun InsertDayExerciseBottomSheet(
                     }, content = { Text("삭제", style = NotoTypography.bodyMedium) })
                     MainButton(modifier = Modifier.fillMaxWidth(), onClick = {
                         insertDayExercise(
-                            DayExerciseWithExercise(
+                            DayExercise(
                                 routineDayId = routineDay.id,
                                 exerciseId = exercise.exerciseId,
                                 kgList = setInfoList.map { it.kg },
@@ -184,7 +184,7 @@ fun ExerciseListBottomSheet(
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
     deleteExercise: (Int) -> Unit,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
 ) {
     val categoryList = (1..6).toList()
     var selectedChipIndices by remember { mutableStateOf(emptyList<ExerciseCategory>()) }
@@ -291,7 +291,7 @@ fun ExerciseListBottomSheet(
                             .padding(vertical = 45.dp),
                             onClick = {
                                 insertDayExercise(
-                                    DayExerciseWithExercise(
+                                    DayExercise(
                                         routineDayId = routineDay.id,
                                         exerciseId = selectedExercise.id,
                                         kgList = setInfoList.map { it.kg },

@@ -1,10 +1,12 @@
 package com.colddelight.exercise
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.colddelight.data.repository.ExerciseRepository2
 import com.colddelight.designsystem.component.ui.SetAction
 import com.colddelight.domain.usecase.routine.GetRoutineUseCase
+import com.colddelight.domain.usecase.routine.GetTodayRoutineUseCase
 import com.colddelight.domain.usecase.routine.UpsertRoutineUseCase
 import com.colddelight.model.Exercise
 import com.colddelight.model.SetInfo
@@ -22,9 +24,11 @@ class ExerciseViewModel @Inject constructor(
     private val getRoutineUseCase: GetRoutineUseCase,
     private val repository: ExerciseRepository2,
     private val upsertRoutineUseCase: UpsertRoutineUseCase,
+    getTodayRoutineUseCase: GetTodayRoutineUseCase
+
 ) : ViewModel() {
 
-    private val todayRoutineInfo = repository.getTodayRoutineInfo()
+    private val todayRoutineInfo = getTodayRoutineUseCase()
     private val todayExerciseList = repository.getTodayExerciseList()
 
     private val _exerciseDetailUiState =
@@ -38,16 +42,21 @@ class ExerciseViewModel @Inject constructor(
 
 
     init {
-        viewModelScope.launch {
-            repository.initExercise()
-            todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
-//                val curIndex = exerciseList.filter { it.isDone }.size
-                val curIndex = exerciseList.size
-                ExerciseUiState.Success(routine, curIndex, exerciseList)
-            }.collectLatest {
-                _exerciseUiState.value = it
+        try {
+            viewModelScope.launch {
+                repository.initExercise()
+                todayRoutineInfo.combine(todayExerciseList) { routine, exerciseList ->
+                    val curIndex = exerciseList.filter { it.isDone }.size
+//                    val curIndex = exerciseList.size
+                    ExerciseUiState.Success(routine, curIndex, exerciseList)
+                }.collectLatest {
+                    _exerciseUiState.value = it
+                }
             }
+        } catch (e: Exception) {
+            Log.e("TAG", "ddddddddddddd$e: ")
         }
+
     }
 
     fun finExercise() {
@@ -64,10 +73,13 @@ class ExerciseViewModel @Inject constructor(
         viewModelScope.launch {
 
             repository.updateDayExercise(
-                exerciseState.exerciseList[cur].exerciseId,
-                exerciseState.exerciseList[cur].setInfoList
+                exerciseState.exerciseList[cur].exercise.exerciseId,
+                exerciseState.exerciseList[cur].exercise.setInfoList
             )
-            repository.updateHistoryExercise(exerciseState.exerciseList[cur].exerciseId, true)
+            repository.updateHistoryExercise(
+                exerciseState.exerciseList[cur].exercise.exerciseId,
+                true
+            )
 
         }
     }
@@ -75,7 +87,7 @@ class ExerciseViewModel @Inject constructor(
     fun updateDetailUiState(newState: ExerciseDetailUiState) {
         val curExercise = (exerciseUiState.value as ExerciseUiState.Success)
         val cur = curExercise.curIndex
-        val maxIndex = curExercise.exerciseList[cur].setInfoList.size
+        val maxIndex = curExercise.exerciseList[cur].exercise.setInfoList.size
 
         if (newState.curSet == maxIndex) {
             viewModelScope.launch {
@@ -92,16 +104,16 @@ class ExerciseViewModel @Inject constructor(
                 val exercise = current.exerciseList[current.curIndex]
                 when (action) {
                     is SetAction.UpdateKg ->
-                        upDateKgList(exercise, action.updatedKg, action.toChange)
+                        upDateKgList(exercise.exercise, action.updatedKg, action.toChange)
 
                     is SetAction.UpdateReps ->
-                        upDateRepsList(exercise, action.updatedReps, action.toChange)
+                        upDateRepsList(exercise.exercise, action.updatedReps, action.toChange)
 
                     is SetAction.DeleteSet ->
-                        deleteSet(exercise, action.toChange)
+                        deleteSet(exercise.exercise, action.toChange)
 
                     is SetAction.AddSet ->
-                        addSet(exercise)
+                        addSet(exercise.exercise)
                 }
             }
 

@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 class RoutineRepositoryImpl @Inject constructor(
@@ -23,6 +24,14 @@ class RoutineRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override fun getTodayRoutine(): Flow<Routine> {
+        val dayOfWeek = LocalDate.now().dayOfWeek.value
+        return userDataSource.currentRoutineId.flatMapLatest { routineId ->
+                routineDao.getTodayRoutine(routineId, dayOfWeek).map { routine -> routine.asDomain() }
+            }
+    }
+
     override suspend fun upsertRoutine(routine: Routine) {
         routineDao.upsertRoutine(routine.asEntity())
     }

@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,8 +54,8 @@ import com.colddelight.designsystem.theme.LightGray
 import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.model.Exercise
-import com.colddelight.model.TodayRoutine
-import com.colddelight.model.ExerciseCategory
+import com.colddelight.model.HistoryExerciseUI
+import com.colddelight.model.Routine
 
 @Composable
 fun ExerciseScreen(
@@ -106,8 +105,8 @@ private fun ExerciseContentWithState(
 @Composable
 private fun ExerciseContent(
     onDetailButtonClick: () -> Unit,
-    routineInfo: TodayRoutine,
-    exerciseList: List<Exercise>,
+    routineInfo: Routine,
+    exerciseList: List<HistoryExerciseUI>,
     cur: Int,
     onConfirm: () -> Unit,
 ) {
@@ -159,7 +158,7 @@ private fun ExerciseContent(
                 if (cur == exerciseList.size) {
                     ExerciseDoneButton { showDialog = true }
                 } else {
-                    ExerciseButton(exerciseList[cur], onDetailButtonClick)
+                    ExerciseButton(exerciseList[cur].exercise, onDetailButtonClick)
                 }
             }
         }
@@ -174,13 +173,13 @@ private fun ExerciseContent(
         }
         itemsIndexed(exerciseList) { index, item ->
             if (cur == index) {
-                CurExerciseItem(item)
+                CurExerciseItem(item.exercise)
             } else {
-//                if (item.isDone) {
-//                    DoneExerciseItem(item.name)
-//                } else {
-//                    TodoExerciseItem(item.name)
-//                }
+                if (item.isDone) {
+                    DoneExerciseItem(item.exercise.name)
+                } else {
+                    TodoExerciseItem(item.exercise.name)
+                }
             }
         }
     }
@@ -191,7 +190,7 @@ private fun ExerciseContent(
 fun FinishDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    exerciseList: List<Exercise>
+    exerciseList: List<HistoryExerciseUI>
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -202,9 +201,11 @@ fun FinishDialog(
                 .fillMaxWidth()
                 .fillMaxHeight(0.5F),
 
-        ) {
+            ) {
             Column(
-                modifier = Modifier.fillMaxSize().background(DarkGray),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(DarkGray),
                 Arrangement.SpaceAround,
                 Alignment.CenterHorizontally
             ) {
@@ -227,7 +228,7 @@ fun FinishDialog(
                                     .background(Color.White, CircleShape)
                             )
                             Text(
-                                text = exercise.name,
+                                text = exercise.exercise.name,
                                 style = NotoTypography.bodyMedium,
                                 modifier = Modifier.padding(start = 8.dp)
                             )
@@ -236,7 +237,7 @@ fun FinishDialog(
                         LazyRow(
                             contentPadding = PaddingValues(16.dp),
                         ) {
-                            itemsIndexed(exercise.setInfoList) { index, setInfo ->
+                            itemsIndexed(exercise.exercise.setInfoList) { index, setInfo ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -259,7 +260,7 @@ fun FinishDialog(
                                         text = "x  ${setInfo.reps} reps",
                                         style = HortaTypography.labelLarge
                                     )
-                                    if (index < exercise.setInfoList.size - 1)
+                                    if (index < exercise.exercise.setInfoList.size - 1)
                                         Divider(
                                             modifier = Modifier
                                                 .padding(horizontal = 18.dp)
@@ -446,7 +447,7 @@ fun TodoExerciseItem(name: String) {
 }
 
 @Composable
-private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: Modifier) {
+private fun TodayRoutineInfo(date: String, routineInfo: Routine, modifier: Modifier) {
     Column(
         modifier = modifier
     ) {
@@ -455,8 +456,6 @@ private fun TodayRoutineInfo(date: String, routineInfo: TodayRoutine, modifier: 
         CategoryIconList(routineInfo.categoryIdList)
     }
 }
-
-
 
 
 //@Preview

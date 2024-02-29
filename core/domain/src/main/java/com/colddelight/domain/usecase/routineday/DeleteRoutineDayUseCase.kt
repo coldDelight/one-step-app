@@ -11,9 +11,9 @@ class DeleteRoutineDayUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(routineDayId: Int) {
         routineDayRepository.deleteRoutineDay(routineDayId)
-        val todayHistoryId = historyRepository.getHistoryForToday().firstOrNull()
-        if (todayHistoryId != null) {
-            historyRepository.deleteHistory(todayHistoryId)
+        val todayHistory = historyRepository.getHistoryForToday().firstOrNull()
+        if (todayHistory != null) {
+            historyRepository.deleteHistory(todayHistory)
         }
     }
 }

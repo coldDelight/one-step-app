@@ -16,7 +16,7 @@ sealed interface Exercise {
         override val category: ExerciseCategory,
         override val dayExerciseId: Int,
 
-    ) : Exercise
+        ) : Exercise
 
     data class Calisthenics(
         override val name: String,
@@ -28,6 +28,23 @@ sealed interface Exercise {
         override val dayExerciseId: Int
     ) : Exercise
 }
+
+data class HistoryExerciseUI(
+    val id:Int,
+    val historyId:Int,
+    val isDone: Boolean,
+    val exercise: Exercise
+)
+
+data class HistoryExercise(
+    val id:Int,
+    val historyId:Int,
+    val exerciseId: Int,
+    val dayExerciseId: Int,
+    val isDone: Boolean,
+    val kgList: List<Int>,
+    val repsList: List<Int>,
+)
 
 data class SetInfo(
     val kg: Int,

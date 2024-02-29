@@ -1,5 +1,6 @@
 package com.colddelight.data.repository
 
+import com.colddelight.database.model.HistoryEntity
 import com.colddelight.model.DayHistory
 import com.colddelight.model.Exercise
 import kotlinx.coroutines.flow.Flow

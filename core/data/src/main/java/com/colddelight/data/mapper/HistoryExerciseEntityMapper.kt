@@ -1,39 +1,16 @@
 package com.colddelight.data.mapper
 
-import com.colddelight.database.model.DayExerciseEntity
 import com.colddelight.database.model.ExerciseEntity
-import com.colddelight.model.DayExercise
-import com.colddelight.model.DayExerciseUI
+import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
+import com.colddelight.model.HistoryExerciseUI
 import com.colddelight.model.SetInfo
 
-object DayExerciseEntityMapper {
-
-    fun asEntity(domain: DayExercise): DayExerciseEntity {
-        return DayExerciseEntity(
-            routineDayId = domain.routineDayId,
-            exerciseId = domain.exerciseId,
-            kgList = domain.kgList,
-            repsList = domain.repsList,
-            id = domain.id,
-        )
-    }
-
-    fun asEntity(domain: List<DayExercise>): List<DayExerciseEntity> {
-        return domain.map { routineDay ->
-            routineDay.asEntity()
-        }
-    }
-
-
-
-
-    fun asDomain(entity: Map<DayExerciseEntity, ExerciseEntity>): List<DayExerciseUI> {
+object HistoryExerciseEntityMapper {
+    fun asDomain(entity: Map<HistoryExerciseEntity, ExerciseEntity>): List<HistoryExerciseUI> {
         return entity.map {
-            DayExerciseUI(
-                id = it.key.id,
-                routineDayId = it.key.routineDayId,
+            HistoryExerciseUI(
                 exercise = when (it.value.category) {
                     ExerciseCategory.CALISTHENICS ->
                         Exercise.Calisthenics(
@@ -48,13 +25,14 @@ object DayExerciseEntityMapper {
                                     it.key.repsList[index]
                                 )
                             },
-                            dayExerciseId = it.key.id
+                            dayExerciseId = it.value.id
 
                         )
 
                     else -> Exercise.Weight(
                         exerciseId = it.value.id,
                         name = it.value.name,
+
                         min = it.key.kgList.minOrNull() ?: 0,
                         max = it.key.kgList.maxOrNull() ?: 0,
                         category = it.value.category,
@@ -65,29 +43,19 @@ object DayExerciseEntityMapper {
                             )
                         },
                         dayExerciseId = it.key.id
-
                     )
                 },
-
+                isDone = it.key.isDone,
+                id = it.key.id,
+                //TODO 확인
+                historyId = -1
             )
         }
     }
 
 }
 
-fun List<DayExercise>.asEntity(): List<DayExerciseEntity> {
-    return DayExerciseEntityMapper.asEntity(this)
+
+fun Map<HistoryExerciseEntity, ExerciseEntity>.asDomain(): List<HistoryExerciseUI> {
+    return HistoryExerciseEntityMapper.asDomain(this)
 }
-
-fun DayExercise.asEntity(): DayExerciseEntity {
-    return DayExerciseEntityMapper.asEntity(this)
-}
-
-
-
-
-fun Map<DayExerciseEntity, ExerciseEntity>.asDomain(): List<DayExerciseUI> {
-    return DayExerciseEntityMapper.asDomain(this)
-}
-
-
