@@ -1,7 +1,7 @@
 package com.colddelight.exercise
 
-import com.colddelight.model.Exercise
-import com.colddelight.model.TodayRoutine
+import com.colddelight.model.HistoryExerciseUI
+import com.colddelight.model.Routine
 
 sealed interface ExerciseUiState {
     data object Loading : ExerciseUiState
@@ -9,9 +9,9 @@ sealed interface ExerciseUiState {
     data class Error(val msg: String) : ExerciseUiState
 
     data class Success(
-        val routineInfo: TodayRoutine,
+        val routineInfo: Routine,
         val curIndex: Int,
-        val exerciseList: List<Exercise>,
+        val exerciseList: List<HistoryExerciseUI>,
     ) : ExerciseUiState
 
 }

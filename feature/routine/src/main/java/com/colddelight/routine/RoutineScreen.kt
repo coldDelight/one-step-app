@@ -96,7 +96,8 @@ import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.model.DayExerciseWithExercise
+import com.colddelight.model.DayExercise
+import com.colddelight.model.DayExerciseUI
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.ExerciseInfo
@@ -159,7 +160,7 @@ private fun RoutineContentWithState(
     upsertRoutine: (Routine) -> Unit,
     upsertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
@@ -199,7 +200,7 @@ private fun RoutineContent(
     insertRoutine: (Routine) -> Unit,
     insertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteRoutineDay: (Int) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
@@ -263,7 +264,7 @@ private fun RoutineContent(
         item {
             ExerciseGridList(
                 routineDayList[currentDayOfWeek - 1],
-                routineDayList[currentDayOfWeek - 1].exerciseList,
+                routineDayList[currentDayOfWeek - 1].exerciseList.map { it.exercise },
                 exerciseList,
                 insertRoutineDay,
                 insertExercise,
@@ -344,7 +345,7 @@ fun ExerciseGridList(
     allExerciseList: List<ExerciseInfo>,
     upsertRoutineDay: (RoutineDay) -> Unit,
     insertExercise: (ExerciseInfo) -> Unit,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteExercise: (Int) -> Unit,
     deleteDayExercise: (Int) -> Unit,
     screenWidth: Int,
@@ -408,7 +409,7 @@ fun AddExerciseToRoutineDayBtn(
     exerciseList: List<ExerciseInfo>,
     insertExercise: (ExerciseInfo) -> Unit,
     upsertRoutineDay: (RoutineDay) -> Unit,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     deleteExercise: (Int) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -759,7 +760,7 @@ fun SimpleDialog(
 @Composable
 fun ExerciseItem(
     routineDay: RoutineDay,
-    insertDayExercise: (DayExerciseWithExercise) -> Unit,
+    insertDayExercise: (DayExercise) -> Unit,
     exercise: Exercise,
     deleteDayExercise: (Int) -> Unit,
 ) {
@@ -1225,7 +1226,7 @@ fun ExerciseCardView(
                     Modifier.heightIn(max = (routineDay.exerciseList.size * 30).dp)
                 ) {
                     items(routineDay.exerciseList) {
-                        ExerciseList(exercise = it)
+                        ExerciseList(exercise = it.exercise)
                     }
                 }
             } else {

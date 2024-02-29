@@ -6,3 +6,4 @@ data class ExerciseDay(
     val isRestDay: Boolean,
     val isExerciseDone: Boolean
 )
+

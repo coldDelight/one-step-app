@@ -5,5 +5,5 @@ data class RoutineDay (
     val routineId: Int,
     val dayOfWeek: Int,
     val categoryList: List<Int> = emptyList(),
-    val exerciseList: List<Exercise> = emptyList()
+    val exerciseList: List<DayExerciseUI> = emptyList()
 )

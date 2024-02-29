@@ -2,7 +2,8 @@ package com.colddelight.data.repository
 
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.model.HistoryExerciseEntity
-import com.colddelight.model.DayExerciseWithExercise
+import com.colddelight.model.HistoryExercise
+import com.colddelight.model.HistoryExerciseUI
 import javax.inject.Inject
 
 class HistoryExerciseRepositoryImpl @Inject constructor(
@@ -13,16 +14,20 @@ class HistoryExerciseRepositoryImpl @Inject constructor(
         historyExerciseDao.deleteHistoryExerciseById(historyExerciseId)
     }
 
+    override fun getHistoryExercise(historyId: Int) {
+        TODO("Not yet implemented")
+    }
+
     //TODO dayExercise타입 historyExercise로 변경하기
-    override suspend fun insertHistoryExercise(id:Int,todayHistoryId:Int,dayExercise: DayExerciseWithExercise) {
+    override suspend fun insertHistoryExercise(historyExercise: HistoryExercise) {
         val historyExerciseEntity = HistoryExerciseEntity(
-            id = id,
-            historyId = todayHistoryId,
-            exerciseId = dayExercise.exerciseId,
-            isDone = false,
-            kgList = dayExercise.kgList,
-            repsList = dayExercise.repsList,
-            dayExerciseId = id
+            id = historyExercise.id,
+            historyId = historyExercise.historyId,
+            exerciseId = historyExercise.exerciseId,
+            dayExerciseId = historyExercise.dayExerciseId,
+            isDone = historyExercise.isDone,
+            kgList = historyExercise.kgList,
+            repsList = historyExercise.repsList,
         )
         historyExerciseDao.insertHistoryExercise(historyExerciseEntity)
     }

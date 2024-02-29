@@ -1,17 +1,14 @@
 package com.colddelight.data.repository
 
+import com.colddelight.data.mapper.asDomain
 import com.colddelight.database.dao.DayExerciseDao
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.dao.RoutineDayDao
-import com.colddelight.database.model.ExerciseEntity
 import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
-import com.colddelight.datastore.datasource.UserPreferencesDataSource
-import com.colddelight.model.Exercise
-import com.colddelight.model.ExerciseCategory
+import com.colddelight.model.HistoryExerciseUI
 import com.colddelight.model.SetInfo
-import com.colddelight.model.TodayRoutine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -26,7 +23,6 @@ class ExerciseRepository2Impl @Inject constructor(
     private val historyExerciseDao: HistoryExerciseDao,
     private val routineDayDao: RoutineDayDao,
     private val dayExerciseDao: DayExerciseDao,
-    private val userDataSource: UserPreferencesDataSource
 ) : ExerciseRepository2 {
 
     private val todayHistoryId = historyDao.getHistoryForToday(LocalDate.now())
@@ -34,91 +30,11 @@ class ExerciseRepository2Impl @Inject constructor(
 
     private val dayOfWeek = LocalDate.now().dayOfWeek.value
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getTodayExerciseList(): Flow<List<Exercise>> {
+    override fun getTodayExerciseList(): Flow<List<HistoryExerciseUI>> {
         return todayHistoryId.flatMapLatest {
-            historyExerciseDao.getTodayHistoryExercises(it)
-                .map { historyExercises ->
-                    val exerciseList = mutableListOf<Exercise>()
-                    historyExercises.forEach { (dayExerciseEntity, exercise) ->
-                        val exerciseItem = when (exercise.category) {
-                            ExerciseCategory.CALISTHENICS ->
-                                transformCalisthenicsExercise(dayExerciseEntity, exercise)
-
-                            else -> transformWeightExercise(dayExerciseEntity, exercise)
-                        }
-                        exerciseList.add(exerciseItem)
-                    }
-                    exerciseList
-                }
+            historyExerciseDao.getTodayHistoryExercises(it).map { it.asDomain() }
         }
-
     }
-
-    private fun transformCalisthenicsExercise(
-        historyExerciseEntity: HistoryExerciseEntity,
-        exercise: ExerciseEntity
-    ): Exercise.Calisthenics {
-        return Exercise.Calisthenics(
-            exerciseId = historyExerciseEntity.id,
-            name = exercise.name,
-            reps = historyExerciseEntity.repsList.maxOrNull() ?: 0,
-            set = historyExerciseEntity.repsList.size,
-//            isDone = historyExerciseEntity.isDone,
-            category = ExerciseCategory.CALISTHENICS,
-            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
-                SetInfo(
-                    kg,
-                    historyExerciseEntity.repsList[index]
-                )
-            },
-            dayExerciseId = historyExerciseEntity.dayExerciseId
-        )
-
-    }
-
-    private fun transformWeightExercise(
-        historyExerciseEntity: HistoryExerciseEntity,
-        exercise: ExerciseEntity
-    ): Exercise.Weight {
-        return Exercise.Weight(
-            exerciseId = historyExerciseEntity.id,
-            name = exercise.name,
-            min = historyExerciseEntity.kgList.minOrNull() ?: 0,
-            max = historyExerciseEntity.kgList.maxOrNull() ?: 0,
-//            isDone = historyExerciseEntity.isDone,
-            category = exercise.category,
-            setInfoList = historyExerciseEntity.kgList.mapIndexed { index, kg ->
-                SetInfo(
-                    kg, historyExerciseEntity.repsList[index]
-                )
-            },
-            dayExerciseId = historyExerciseEntity.dayExerciseId
-
-        )
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getTodayRoutineInfo(): Flow<TodayRoutine> {
-        return userDataSource.currentRoutineId
-            .flatMapLatest { routineId ->
-                routineDayDao.getTodayRoutineInfo(routineId, dayOfWeek)
-                    .map { routineDayInfoMap ->
-                        val routine = routineDayInfoMap.keys.firstOrNull()
-                        val routineInfo = TodayRoutine(
-                            name = routine?.name ?: "",
-                            cnt = routine?.cnt ?: 0,
-                            categoryIdList = routineDayInfoMap[routine]?.split(",")
-                                ?.mapNotNull {
-                                    it.toIntOrNull()
-                                        ?.let { id -> ExerciseCategory.fromId(id) }
-                                } ?: listOf()
-                        )
-                        routineInfo
-                    }
-            }
-
-    }
-
     override suspend fun upDateKgList(historyExerciseId: Int, kgList: List<Int>) {
         historyExerciseDao.updateKgList(historyExerciseId, kgList)
     }
@@ -140,7 +56,7 @@ class ExerciseRepository2Impl @Inject constructor(
 
         when (id) {
             -1 -> {
-                val todayRoutine = routineDayDao.geTodayRoutineDay(dayOfWeek).firstOrNull()
+                val todayRoutine = routineDayDao.getTodayRoutineDay(dayOfWeek).firstOrNull()
                 if (todayRoutine != null) {
                     historyDao.insertHistory(
                         HistoryEntity(

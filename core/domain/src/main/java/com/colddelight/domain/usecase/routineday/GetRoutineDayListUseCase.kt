@@ -1,6 +1,5 @@
 package com.colddelight.domain.usecase.routineday
 
-import com.colddelight.data.mapper.asExercise
 import com.colddelight.data.repository.DayExerciseRepository
 import com.colddelight.data.repository.RoutineDayRepository
 import com.colddelight.model.RoutineDay
@@ -22,7 +21,7 @@ class GetRoutineDayListUseCase @Inject constructor(
 
             for (routineDay in routineDayList) {
                 val exerciseList =  dayExerciseWithExerciseList.filter { it.routineDayId==routineDay.id }
-                resultList.add(routineDay.copy(exerciseList = exerciseList.asExercise()))
+                resultList.add(routineDay.copy(exerciseList = exerciseList))
             }
 
             missingDays.forEach { missingDay ->

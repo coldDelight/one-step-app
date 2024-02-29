@@ -119,7 +119,7 @@ private fun ExerciseDetailContentWithState(
         is ExerciseUiState.Error -> Text(text = dataUiState.msg)
         is ExerciseUiState.Success -> ExerciseDetailContent(
             uiState,
-            dataUiState.exerciseList[dataUiState.curIndex],
+            dataUiState.exerciseList[dataUiState.curIndex].exercise,
             uiState.curSet,
             setAction,
             updateUiState,

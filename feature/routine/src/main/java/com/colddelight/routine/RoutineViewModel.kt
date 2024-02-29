@@ -12,7 +12,8 @@ import com.colddelight.domain.usecase.routine.UpsertRoutineUseCase
 import com.colddelight.domain.usecase.routineday.DeleteRoutineDayUseCase
 import com.colddelight.domain.usecase.routineday.GetRoutineDayListUseCase
 import com.colddelight.domain.usecase.routineday.UpsertRoutineDayUseCase
-import com.colddelight.model.DayExerciseWithExercise
+import com.colddelight.model.DayExercise
+import com.colddelight.model.DayExerciseUI
 import com.colddelight.model.ExerciseInfo
 import com.colddelight.model.Routine
 import com.colddelight.model.RoutineDay
@@ -85,7 +86,7 @@ class RoutineViewModel @Inject constructor(
             upsertExerciseUseCase(exerciseInfo)
         }
     }
-    fun insertDayExercise(dayExercise: DayExerciseWithExercise) {
+    fun insertDayExercise(dayExercise: DayExercise) {
         viewModelScope.launch {
             insertDayExerciseUseCase(dayExercise)
         }

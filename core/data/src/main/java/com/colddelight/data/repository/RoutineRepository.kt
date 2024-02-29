@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface RoutineRepository {
     fun getRoutine(): Flow<Routine>
+
+    fun getTodayRoutine(): Flow<Routine>
+
     suspend fun upsertRoutine(routine:Routine)
 
 }

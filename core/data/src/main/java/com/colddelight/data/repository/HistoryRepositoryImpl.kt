@@ -3,6 +3,7 @@ package com.colddelight.data.repository
 import com.colddelight.database.dao.HistoryDao
 import com.colddelight.database.dao.HistoryExerciseDao
 import com.colddelight.database.model.ExerciseEntity
+import com.colddelight.database.model.HistoryEntity
 import com.colddelight.database.model.HistoryExerciseEntity
 import com.colddelight.model.DayHistory
 import com.colddelight.model.Exercise
