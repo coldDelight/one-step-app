@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -45,6 +48,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -73,6 +77,7 @@ import com.colddelight.exercise.ExerciseViewModel
 import com.colddelight.model.Exercise
 import com.colddelight.model.ExerciseCategory
 import com.colddelight.model.SetInfo
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExerciseDetailScreen(
@@ -141,6 +146,9 @@ private fun ExerciseDetailContent(
 ) {
     val lazyColumnState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val itemSizePx = with(density) { 100.dp.toPx() }
 
     fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
         clickable(indication = null,
@@ -247,20 +255,20 @@ private fun ExerciseDetailContent(
                 )
             }
         }
-//        item {
-//            ClickableText(
-//                text = AnnotatedString("+ 세트 추가"),
-//                style = NotoTypography.headlineSmall.copy(color = DarkGray),
-//                onClick = {
-//                    setAction(SetAction.AddSet)
-//                    coroutineScope.launch {
-//                        lazyColumnState.animateScrollBy(
-//                            value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
-//                            animationSpec = tween(durationMillis = 2000)
-//                        )
-//                    }
-//                })
-//        }
+        item {
+            ClickableText(
+                text = AnnotatedString("+ 세트 추가"),
+                style = NotoTypography.headlineSmall.copy(color = DarkGray),
+                onClick = {
+                    setAction(SetAction.AddSet)
+                    coroutineScope.launch {
+                        lazyColumnState.animateScrollBy(
+                            value = itemSizePx * lazyColumnState.layoutInfo.totalItemsCount.toFloat(),
+                            animationSpec = tween(durationMillis = 2000)
+                        )
+                    }
+                })
+        }
 
     }
 }

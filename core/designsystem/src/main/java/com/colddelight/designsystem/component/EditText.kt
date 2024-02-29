@@ -1,5 +1,6 @@
 package com.colddelight.designsystem.component
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -65,7 +66,10 @@ fun EditText(
         onValueChange = {
             text = it
             if (it.length <= 3 && it.isNotBlank()) {
-                onChange(it.toInt())
+                try {
+                    onChange(it.toInt())
+                }catch (e:Exception){
+                }
             }
         },
         modifier = modifier.onFocusChanged { if (!it.hasFocus) text = data },
