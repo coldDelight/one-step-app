@@ -49,13 +49,17 @@ fun ExerciseDetailItem(
                     Alignment.CenterVertically
                 ) {
                     SmallSetButton(IconPack.Minus) {
-                        setAction(SetAction.UpdateKg(kg - 10, index))
+                        if (kg - 10 > 0) {
+                            setAction(SetAction.UpdateKg(kg - 10, index))
+                        }
                     }
                     EditTextKg(kg.toString(), focusManager) { newKg ->
                         setAction(SetAction.UpdateKg(newKg, index))
                     }
                     SmallSetButton(IconPack.Plus) {
-                        setAction(SetAction.UpdateKg(kg + 10, index))
+                        if (kg + 10 <= 999) {
+                            setAction(SetAction.UpdateKg(kg + 10, index))
+                        }
                     }
                 }
             }
@@ -65,7 +69,9 @@ fun ExerciseDetailItem(
                 Alignment.CenterVertically
             ) {
                 SmallSetButton(IconPack.Minus) {
-                    setAction(SetAction.UpdateReps(reps - 1, index))
+                    if (reps - 1 > 0) {
+                        setAction(SetAction.UpdateReps(reps - 1, index))
+                    }
                 }
                 EditText(
                     reps.toString(), focusManager, HortaTypography.bodyMedium, Modifier
@@ -77,7 +83,9 @@ fun ExerciseDetailItem(
                 }
 
                 SmallSetButton(IconPack.Plus) {
-                    setAction(SetAction.UpdateReps(reps + 1, index))
+                    if (reps + 1 <= 999) {
+                        setAction(SetAction.UpdateReps(reps + 1, index))
+                    }
                 }
             }
 

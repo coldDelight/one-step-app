@@ -512,11 +512,14 @@ private fun SingleSetButtons(
     {
         if (showSetButton) {
             BigSetButton(IconPack.Plus) {
-                if (isKg) {
-                    setAction(SetAction.UpdateKg(target + base, curIndex))
-                } else {
-                    setAction(SetAction.UpdateReps(target + base, curIndex))
+                if (target + base <= 999) {
+                    if (isKg) {
+                        setAction(SetAction.UpdateKg(target + base, curIndex))
+                    } else {
+                        setAction(SetAction.UpdateReps(target + base, curIndex))
+                    }
                 }
+
             }
         }
         Box(
@@ -547,11 +550,14 @@ private fun SingleSetButtons(
         }
         if (showSetButton) {
             BigSetButton(IconPack.Minus) {
-                if (isKg) {
-                    setAction(SetAction.UpdateKg(target - base, curIndex))
-                } else {
-                    setAction(SetAction.UpdateReps(target - base, curIndex))
+                if (target - base > 0) {
+                    if (isKg) {
+                        setAction(SetAction.UpdateKg(target - base, curIndex))
+                    } else {
+                        setAction(SetAction.UpdateReps(target - base, curIndex))
+                    }
                 }
+
             }
         }
     }
