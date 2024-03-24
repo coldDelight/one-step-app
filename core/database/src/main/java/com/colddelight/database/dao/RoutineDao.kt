@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RoutineDao {
 
-    @Query("SELECT * FROM routine")
-    fun getAllRoutine(): Flow<List<RoutineEntity>>
-
     @Query("SELECT * FROM routine WHERE id = :id")
     fun getRoutine(id: Int): Flow<RoutineEntity>
 

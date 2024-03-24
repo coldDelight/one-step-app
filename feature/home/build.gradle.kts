@@ -11,8 +11,4 @@ android {
 
 dependencies {
     implementation(project(":feature:exercise"))
-//    implementation(project(":core:network"))
-
-//    implementation(libs.supabase.compose.auth)
-//    implementation(libs.supabase.compose.auth.ui)
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.widget.EditText
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -55,13 +54,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.designsystem.component.BigSetButton
-import com.colddelight.designsystem.component.DoneExerciseDetailItem
+import com.colddelight.designsystem.component.ui.CategoryIconList
+import com.colddelight.designsystem.component.ui.DoneExerciseDetailItem
 import com.colddelight.designsystem.component.EditText
-import com.colddelight.designsystem.component.ExerciseDetailItem
-import com.colddelight.designsystem.component.ExerciseProgress
+import com.colddelight.designsystem.component.ui.ExerciseDetailItem
+import com.colddelight.designsystem.component.ui.ExerciseProgress
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.SetAction
-import com.colddelight.designsystem.component.TitleText
+import com.colddelight.designsystem.component.ui.SetAction
+import com.colddelight.designsystem.component.ui.TitleText
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Minus
 import com.colddelight.designsystem.icons.iconpack.Plus
@@ -71,7 +71,6 @@ import com.colddelight.designsystem.theme.Main
 import com.colddelight.designsystem.theme.NotoTypography
 import com.colddelight.designsystem.theme.Red
 import com.colddelight.designsystem.theme.TextGray
-import com.colddelight.exercise.CategoryIconList
 import com.colddelight.exercise.ExerciseDetailUiState
 import com.colddelight.exercise.ExerciseUiState
 import com.colddelight.exercise.ExerciseViewModel
@@ -146,12 +145,10 @@ private fun ExerciseDetailContent(
     onDoneButtonClick: () -> Unit,
 ) {
     val lazyColumnState = rememberLazyListState()
+    val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val itemSizePx = with(density) { 100.dp.toPx() }
-    val coroutineScope = rememberCoroutineScope()
-
-
-    val focusManager = LocalFocusManager.current
 
     fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
         clickable(indication = null,
@@ -178,9 +175,12 @@ private fun ExerciseDetailContent(
             TitleText(text = "Set", modifier = Modifier.padding(top = 8.dp))
         }
         item {
+            val curCnt =
+                if (curSet + 1 >= exercise.setInfoList.size) exercise.setInfoList.size else curSet + 1
+
             Row(Modifier.padding(bottom = 8.dp)) {
                 Text(
-                    text = "${curSet + 1}",
+                    text = curCnt.toString(),
                     style = NotoTypography.bodyMedium,
                     color = Main,
                 )
@@ -438,10 +438,6 @@ private fun ExerciseInfo(exercise: Exercise, modifier: Modifier) {
     }
 }
 
-
-//@Preview(name = "SMALL", device = Devices.PIXEL)
-////@Preview(name = "BIG", device = Devices.PIXEL_4_XL)
-////@Preview(name = "FOLDABLE", device = Devices.FOLDABLE)
 @Preview
 @Composable
 fun SetPreview() {
@@ -516,11 +512,14 @@ private fun SingleSetButtons(
     {
         if (showSetButton) {
             BigSetButton(IconPack.Plus) {
-                if (isKg) {
-                    setAction(SetAction.UpdateKg(target + base, curIndex))
-                } else {
-                    setAction(SetAction.UpdateReps(target + base, curIndex))
+                if (target + base <= 999) {
+                    if (isKg) {
+                        setAction(SetAction.UpdateKg(target + base, curIndex))
+                    } else {
+                        setAction(SetAction.UpdateReps(target + base, curIndex))
+                    }
                 }
+
             }
         }
         Box(
@@ -551,11 +550,14 @@ private fun SingleSetButtons(
         }
         if (showSetButton) {
             BigSetButton(IconPack.Minus) {
-                if (isKg) {
-                    setAction(SetAction.UpdateKg(target - base, curIndex))
-                } else {
-                    setAction(SetAction.UpdateReps(target - base, curIndex))
+                if (target - base > 0) {
+                    if (isKg) {
+                        setAction(SetAction.UpdateKg(target - base, curIndex))
+                    } else {
+                        setAction(SetAction.UpdateReps(target - base, curIndex))
+                    }
                 }
+
             }
         }
     }

@@ -13,17 +13,14 @@ interface RoutineRepository {
 
     fun getRoutineWeekInfo(): Flow<List<RoutineDayInfo>>
 
-    //fun getDayExercise(routineDayList: List<Int>) : Flow<List<RoutineDayInfo>>
-
     suspend fun insertRoutine(routine:Routine)
 
     suspend fun insertRoutineDay(routineDay: RoutineDayInfo)
 
     suspend fun insertExercise(exercise: ExerciseInfo)
 
-    suspend fun insertDayExercise(exercise: DayExercise)
+    suspend fun insertDayExercise(dayExercise: DayExercise)
 
-    suspend fun addRoutine(): List<ExerciseEntity>
 
     suspend fun deleteRoutineDay(routineDayId: Int)
 

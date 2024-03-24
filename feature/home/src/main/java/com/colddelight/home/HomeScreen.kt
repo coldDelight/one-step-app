@@ -3,7 +3,6 @@ package com.colddelight.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -39,9 +34,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.colddelight.data.util.getDayOfWeekEn
 import com.colddelight.data.util.getTodayDate
 import com.colddelight.designsystem.component.CategoryChip
-import com.colddelight.designsystem.component.DateWithCnt
+import com.colddelight.designsystem.component.ui.DateWithCnt
 import com.colddelight.designsystem.component.MainButton
-import com.colddelight.designsystem.component.TitleText
+import com.colddelight.designsystem.component.ui.TitleText
 import com.colddelight.designsystem.icons.IconPack
 import com.colddelight.designsystem.icons.iconpack.Day
 import com.colddelight.designsystem.theme.BackGray
@@ -108,7 +103,6 @@ private fun HomeContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-//        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
             TitleText(text = "Week", modifier = Modifier.padding(top = 8.dp))
@@ -228,17 +222,6 @@ fun HomeButton(state: HomeState, onStartButtonClick: () -> Unit) {
                         )
                     }
                 }
-//                Row(modifier = Modifier.fillMaxWidth()) {
-//                    state.categoryList.forEach {
-//                        CategoryChip(
-//                            isCanDelete = false,
-//                            label = ExerciseCategory.toName(it.id),
-//                            categoryId = it.id,
-//                            size = 16,
-//                            onDeleteClicked = { }
-//                        )
-//                    }
-//                }
             }
         }
     }
@@ -262,7 +245,7 @@ fun ToExerciseButton(onClick: () -> Unit, modifier: Modifier) {
 
 @Preview(name = "SMALL", device = Devices.PIXEL)
 @Composable
-fun homePreview() {
+fun HomePreview() {
     HomeContent(
         11,
 //        HomeState.Resting(),

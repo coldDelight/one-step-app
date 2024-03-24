@@ -1,32 +1,36 @@
 package com.colddelight.onestep
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.colddelight.data.util.LoginHelper
-import com.colddelight.data.util.NetworkMonitor
 import com.colddelight.designsystem.theme.OneStepTheme
 import com.colddelight.onestep.ui.StepApp
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var networkMonitor: NetworkMonitor
 
-    @Inject
-    lateinit var loginHelper: LoginHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             OneStepTheme {
-                StepApp(networkMonitor = networkMonitor, loginHelper = loginHelper)
+                StepApp(
+                    context = this,
+                    onAppLogoClick = { onAppLogoClick() })
             }
         }
+    }
+
+    fun onAppLogoClick(){
+        Log.e("TAG", "onAppLogoClick: h", )
+        startActivity(Intent(this, OssLicensesMenuActivity::class.java))
     }
 }
