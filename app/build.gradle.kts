@@ -46,10 +46,7 @@ dependencies {
     implementation(project(":feature:routine"))
     implementation(project(":feature:history"))
 
-    implementation(project(":core:ui"))
     implementation(project(":core:designsystem"))
-    implementation(project(":core:data"))
-    implementation(project(":core:model"))
 
 
 
